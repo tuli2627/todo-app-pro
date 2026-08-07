@@ -1,0 +1,355 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@500;600&family=Inter:wght@400;500;600&display=swap');
+
+.hs-header {
+  font-family: 'Inter', sans-serif;
+  background: #FFFFFF;
+  border-bottom: 1px solid #E4E1D6;
+  position: relative;
+  z-index: 100;
+}
+
+.hs-header__main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 28px;
+  max-width: 1400px;
+  margin: 0 auto;
+  gap: 24px;
+}
+
+/* ---- Logo strip ---- */
+.hs-header__logos {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.hs-header__logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hs-header__logo-badge {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+  border: 1px solid #E4E1D6;
+}
+
+.hs-header__logo-text {
+  font-size: 11.5px;
+  line-height: 1.25;
+  color: #3D4A42;
+  max-width: 90px;
+  font-weight: 800;
+}
+
+.hs-header__logo-divider {
+  width: 1px;
+  height: 32px;
+  background: #E4E1D6;
+}
+
+/* ---- Nav (right side) ---- */
+.hs-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.hs-header__link {
+  position: relative;
+  padding: 9px 14px;
+  font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1F2E26;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: color 0.15s ease, background-color 0.15s ease;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hs-header__link:hover {
+  color: #145C3E;
+  background: #EAF3E4;
+}
+
+.hs-header__link svg {
+  position: absolute;
+  bottom: 3px;
+  left: 14px;
+  width: calc(100% - 28px);
+  height: 6px;
+  overflow: visible;
+}
+
+.hs-header__link path {
+  stroke: #6FA83E;
+  stroke-width: 1.6;
+  fill: none;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  transition: stroke-dashoffset 0.35s ease;
+}
+
+.hs-header__link:hover path {
+  stroke-dashoffset: 0;
+}
+
+.hs-header__link-caret {
+  font-size: 10px;
+  margin-top: 1px;
+}
+
+/* ---- Action buttons ---- */
+.hs-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 8px;
+}
+
+.hs-header__btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+  font-size: 14.5px;
+  font-weight: 500;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.hs-header__btn:hover {
+  filter: brightness(0.94);
+}
+
+.hs-header__btn:active {
+  transform: scale(0.97);
+}
+
+.hs-header__btn--login {
+  background: #1E7A4C;
+  color: #FFFFFF;
+}
+
+.hs-header__btn-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* ---- Growth line at the very bottom ---- */
+.hs-header__growthline {
+  display: block;
+  width: 100%;
+  height: 3px;
+}
+
+.hs-header__growthline path {
+  stroke: #C9A227;
+  stroke-width: 1.4;
+  fill: none;
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 1400;
+  animation: hs-draw 2s ease-out forwards;
+}
+
+.hs-header__logo-img {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+}
+
+@keyframes hs-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hs-header__growthline path { animation: none; stroke-dashoffset: 0; }
+  .hs-header__link path { transition: none; }
+}
+
+/* ---- Mobile ---- */
+@media (max-width: 1100px) {
+  .hs-header__logo-text { display: none; }
+}
+
+@media (max-width: 900px) {
+  .hs-header__nav { display: none; }
+  .hs-header__main { padding: 10px 20px; }
+}
+
+/* ---- Google Translator Fixes & Wrapper ---- */
+.hidden-google-translator, 
+.skiptranslate iframe, 
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+body {
+  top: 0px !important; 
+}
+
+.translator-wrapper {
+  position: relative;
+  display: inline-flex; /* Inline-flex ensure karega ki button horizontally align rahe */
+  align-items: center;
+}
+
+/* ---- Blue Translation Button ---- */
+.btn-blue {
+  background-color: #2563eb; 
+  color: #ffffff;
+  font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+  font-size: 14.5px;
+  font-weight: 500;
+  padding: 9px 16px;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-blue:hover {
+  background-color: #1d4ed8; 
+  transform: translateY(-2px); 
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.btn-blue:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* ---- Custom Dropdown Design ---- */
+/* YAHAN CLASS NAME FIX KIYA HAI: custom-dropdown-menu ki jagah custom-lang-dropdown kar diya */
+.custom-lang-dropdown {
+  position: absolute;
+  top: calc(100% + 8px); /* Button ke thoda sa niche */
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  width: 220px; 
+  overflow: hidden;
+}
+
+/* Ek row mein ek language laane ke liye list design */
+.lang-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 350px; 
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column; 
+}
+
+/* Custom Scrollbar */
+.lang-list::-webkit-scrollbar {
+  width: 6px;
+}
+.lang-list::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
+}
+
+/* List Items (Languages) */
+.lang-list li {
+  padding: 12px 16px;
+  font-family: 'Noto Sans Devanagari', 'Inter', sans-serif;
+  font-size: 14px;
+  color: #334155;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.2s, color 0.2s;
+  text-align: left;
+}
+
+.lang-list li:last-child {
+  border-bottom: none;
+}
+
+/* Hover Effect */
+.lang-list li:hover {
+  background-color: #f8fafc;
+  color: #2563eb;
+  font-weight: 500;
+}
+.hs-header__link,
+.hs-header__link span,
+.hs-header__link font {
+    font-size: 20px !important;
+    font-weight: 500 !important;
+    line-height: 1.2 !important;
+    font-family: inherit !important;
+}
+
+.hs-header__btn,
+.hs-header__btn span,
+.hs-header__btn font {
+    font-size: 16px !important;
+    font-family: inherit !important;
+}
+/* ===== Pages Dropdown ===== */
+
+.hs-header__dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.hs-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 240px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.hs-dropdown-menu a {
+  display: block;
+  padding: 12px 18px;
+  text-decoration: none;
+  color: #333;
+  font-size: 15px;
+  transition: background 0.3s;
+}
+
+.hs-dropdown-menu a:hover {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.hs-header__dropdown:hover .hs-dropdown-menu {
+  display: block;
+}

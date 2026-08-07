@@ -1,0 +1,169 @@
+/* ==============================
+   HARIT SANKALP LOGIN STYLES
+================================ */
+
+.login-page {
+    width: 100%;
+    min-height: 92vh; /* Matches the hero height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 7%;
+    background: linear-gradient(135deg, #f4fbf5, #eef8f1, #ffffff);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Decorative Blurred Background Circles */
+.login-page::before {
+    content: "";
+    position: absolute;
+    width: 650px;
+    height: 650px;
+    background: #6fa83e18;
+    border-radius: 50%;
+    top: -250px;
+    left: -250px;
+    filter: blur(30px);
+}
+
+.login-page::after {
+    content: "";
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: #0e473612;
+    border-radius: 50%;
+    bottom: -180px;
+    right: -180px;
+    filter: blur(20px);
+}
+
+/* Floating Leaves */
+.floating-leaves {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.leaf {
+    position: absolute;
+    font-size: 34px;
+    opacity: .30;
+    animation: leafFloat linear infinite;
+}
+
+.leaf:nth-child(1) { left: 5%; bottom: -80px; animation-duration: 14s; }
+.leaf:nth-child(2) { left: 28%; bottom: -60px; animation-duration: 18s; animation-delay: 4s; }
+.leaf:nth-child(3) { left: 70%; bottom: -90px; animation-duration: 16s; animation-delay: 2s; }
+.leaf:nth-child(4) { left: 90%; bottom: -100px; animation-duration: 20s; animation-delay: 6s; }
+
+@keyframes leafFloat {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    20% { opacity: .4; }
+    50% { transform: translateY(-45vh) rotate(180deg) translateX(-30px); }
+    100% { transform: translateY(-100vh) rotate(360deg) translateX(40px); opacity: 0; }
+}
+
+/* ==============================
+   GLASS CARD (Form Container)
+================================ */
+.login-card {
+    position: relative;
+    z-index: 2; /* Keeps the card above the floating leaves */
+    width: 100%;
+    max-width: 450px;
+    background: rgba(255, 255, 255, .78);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, .5);
+    border-radius: 28px;
+    padding: 50px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.08);
+    animation: fadeUp .8s ease;
+}
+
+@keyframes fadeUp {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Typography & Inputs */
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header h2 {
+    font-size: 34px;
+    color: #0e4736; /* Matching Primary Dark Green */
+    font-weight: 800;
+    margin-bottom: 5px;
+}
+
+.login-header p {
+    color: #555;
+    font-size: 16px;
+}
+
+.input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.input-icon {
+    position: absolute;
+    left: 15px;
+    color: #666;
+    font-size: 18px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 15px 45px;
+    border: 1px solid #d1d5db;
+    border-radius: 50px; /* Matching rounded buttons */
+    background: white;
+    font-size: 16px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-group input:focus {
+    border-color: #6fa83e; /* Matching Secondary Green */
+    box-shadow: 0 0 8px rgba(111, 168, 62, 0.2);
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    background: #0e4736;
+    color: #fff;
+    border: none;
+    padding: 16px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    transition: 0.4s;
+    margin-top: 10px;
+}
+
+.submit-btn:hover {
+    background: #6fa83e;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(14, 71, 54, 0.2);
+}

@@ -1,0 +1,329 @@
+.dashboard{
+    width:100%;
+    min-height:100vh;
+    background:linear-gradient(135deg,#f4fbf5,#eef8f1,#ffffff);
+    overflow:hidden;
+    position:relative;
+    padding:60px 0;
+}
+
+.dashboard::before{
+    content:"";
+    position:absolute;
+    width:650px;
+    height:650px;
+    background:#6fa83e18;
+    border-radius:50%;
+    top:-250px;
+    left:-250px;
+    filter:blur(30px);
+}
+
+.dashboard::after{
+    content:"";
+    position:absolute;
+    width:500px;
+    height:500px;
+    background:#0e473612;
+    border-radius:50%;
+    bottom:-180px;
+    right:-180px;
+    filter:blur(20px);
+}
+.carousel-section{
+    height:450px;
+    background:#d9d9d9;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.carousel-placeholder{
+    width:90%;
+    height:380px;
+    border:2px dashed #666;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:28px;
+    color:#555;
+    background:white;
+}
+
+.map-section,
+.stats-section,
+.nursery-section,
+.chart-section{
+    width:90%;
+    margin:40px auto;
+    background:rgba(255,255,255,.78);
+    backdrop-filter:blur(18px);
+    border:1px solid rgba(255,255,255,.45);
+    border-radius:28px;
+    padding:35px;
+    box-shadow:0 20px 60px rgba(0,0,0,.08);
+    position:relative;
+    z-index:2;
+}
+
+.map-section h2,
+.stats-section h2,
+.nursery-section h2,
+.chart-section h2{
+    color:#2e7d32;
+}
+.dashboard-middle{
+    width:90%;
+    margin:40px auto;
+    display:flex;
+    gap:30px;
+}
+
+.india-map{
+    flex:1;
+    height:450px;
+    border:2px dashed #bdbdbd;
+    background:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.dashboard-pyramid{
+    flex:1;
+    height:450px;
+    background:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.dashboard-pyramid svg{
+    width:90%;
+    height:90%;
+}
+/* ================= Statistics Cards ================= */
+
+.stats-section{
+    width:90%;
+    margin:40px auto;
+}
+
+.stats-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+}
+
+.dashboard-card{
+    border-radius:6px;
+    overflow:hidden;
+    color:#fff;
+    box-shadow:0 2px 6px rgba(0,0,0,.15);
+}
+
+.card-body{
+    padding:20px;
+    min-height:120px;
+}
+
+.card-title{
+    font-size:16px;
+    font-weight:400;
+    line-height:1.4;
+    margin-bottom:15px;
+}
+
+.card-value{
+    font-size:32px;
+    font-weight:500;
+    margin:0;
+}
+
+.card-footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 20px;
+    color:#fff;
+    text-decoration:none;
+    background:rgba(0,0,0,.15);
+    transition:.3s;
+}
+
+.card-footer:hover{
+    background:rgba(0,0,0,.25);
+    color:#fff;
+}
+
+/* Card Colors */
+
+.card-gray{
+    background:#6c7882;
+}
+
+.card-green{
+    background:#1c8d52;
+}
+
+.card-pink{
+    background:#ec4c8b;
+}
+
+.card-blue{
+    background:#4baeed;
+}
+
+.card-teal{
+    background:#3bb2b4;
+}
+
+.card-red{
+    background:#d63343;
+}
+
+.card-lightgreen{
+    background:#6cbf74;
+}
+
+.card-orange{
+    background:#f18723;
+}
+
+/* Responsive */
+
+@media(max-width:1200px){
+    .stats-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:768px){
+    .stats-grid{
+        grid-template-columns:1fr;
+    }
+}
+/* Charts */
+
+.chart-section{
+    width:90%;
+    margin:40px auto;
+}
+
+.charts-row{
+    display:flex;
+    gap:20px;
+    justify-content:space-between;
+    align-items:stretch;
+    flex-wrap:nowrap;
+}
+
+.chart-card{
+    flex:1;
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    height:380px;
+}
+
+.chart-card canvas{
+    width:100% !important;
+    height:100% !important;
+}
+
+@media (max-width:992px){
+    .charts-row{
+        flex-direction:column;
+    }
+}
+/* ================= Nursery Filter Buttons ================= */
+
+.nursery-section{
+    width:90%;
+    margin:40px auto 20px;
+    background:transparent;
+    border:none;
+    min-height:auto;
+}
+
+.chart-filters{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:18px;
+    flex-wrap:nowrap;
+    margin:0 auto;
+}
+
+.filter-btn{
+    width:120px;
+    height:48px;
+    background:#fff;
+    border:2px solid #183d67;
+    border-radius:10px;
+    color:#000;
+    font-size:20px;
+    font-weight:500;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.filter-btn:hover{
+    background:#183d67;
+    color:#fff;
+}
+
+.filter-btn-green{
+    border-color:#2d918c;
+    color:#2d918c;
+}
+
+.filter-btn-green:hover{
+    background:#2d918c;
+    color:#fff;
+}
+
+.filter-btn-red{
+    border-color:#d94132;
+    color:#d94132;
+}
+
+.filter-btn-red:hover{
+    background:#d94132;
+    color:#fff;
+}
+
+/* ================= Dashboard Section Title ================= */
+
+.section-title{
+    text-align:center;
+    margin-bottom:50px;
+}
+
+.section-title span{
+    display:inline-block;
+    padding:8px 20px;
+    background:#EAF7EC;
+    color:#0E4736;
+    border-radius:30px;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:1px;
+    margin-bottom:18px;
+}
+
+.section-title h2{
+    font-size:42px;
+    color:#123F2E;
+    margin-bottom:18px;
+    font-weight:700;
+}
+
+.section-title p{
+    max-width:750px;
+    margin:auto;
+    color:#666;
+    font-size:18px;
+    line-height:30px;
+}
