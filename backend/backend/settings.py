@@ -41,13 +41,11 @@ INSTALLED_APPS = [
     # Local — Using explicit nested module routing paths to protect app registry
     'common',
     'todos',
-    'auth.apps.AuthConfig'  # Updated to point explicitly to your local apps metadata class
+    'auth.apps.AuthConfig'  # App ka naam 'auth' hai
 ]
 
 # ---------------------------------------------------------------------------
 # Middleware
-# corsheaders.middleware.CorsMiddleware must sit as high as possible,
-# definitely before CommonMiddleware. Custom middleware is in common/middleware.py
 # ---------------------------------------------------------------------------
 
 MIDDLEWARE = [
@@ -69,7 +67,9 @@ AUTHENTICATION_BACKENDS = [
     'auth.backends.CampaNationalAuthBackend',  # Ab sirf National DB/API check karega
     'django.contrib.auth.backends.ModelBackend', # Default Django admin/superusers ke liye
 ]
-AUTH_USER_MODEL = 'backend_auth.CampaNationalUser'  # Ab poora system National User par chalega  # Links perfectly to overridden app label
+
+# 👇 YAHAN THEEK KIYA GAYA HAI (backend_auth ki jagah sirf auth aayega) 👇
+AUTH_USER_MODEL = 'backend_auth.CampaNationalUser'
 ROOT_URLCONF = 'backend.urls'
 
 TEMPLATES = [
@@ -97,11 +97,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'mssql',
-        'NAME': 'dbSANKALP',  # Jo database abhi restore kiya hai
-        'HOST': 'localhost',                 
+        'NAME': 'dbOSTPM',  # Jo database abhi restore kiya hai
+        'HOST': 'localhost',                
         'PORT': '',
         'OPTIONS': {
-            'driver': 'ODBC Driver 13 for SQL Server', # Agar error aaye toh '13' ya '18' try karna
+            'driver': 'ODBC Driver 17 for SQL Server', # Agar error aaye toh '13' ya '18' try karna
             'extra_params': 'Trusted_Connection=yes;TrustServerCertificate=yes;',
         },
     }
@@ -179,6 +179,10 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
 }
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'login_id',
+    'USER_ID_CLAIM': 'user_id',
+}
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -216,7 +220,11 @@ LOGGING = {
         },
     },
 }
-# settings.py
+
+# ---------------------------------------------------------------------------
+# Google reCAPTCHA
+# ---------------------------------------------------------------------------
 
 # Google reCAPTCHA v2 Secret Key
 RECAPTCHA_SECRET_KEY = '6LfCIHUtAAAAANqXloxdFytoKShd0M0OFr_YEXaO'
+CORS_ALLOW_ALL_ORIGINS = True

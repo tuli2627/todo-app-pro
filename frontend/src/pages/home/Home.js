@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import "./Home.css";
 
@@ -17,9 +18,9 @@ import why_7 from "../../assets/images/why_7.png";
 import why_8 from "../../assets/images/why_8.png";
 import why_9 from "../../assets/images/why_9.png";
 import { TbBinaryTree2 } from "react-icons/tb";
-import { PiQrCodeDuotone } from "react-icons/pi";
+
 import { TbMapSearch } from "react-icons/tb";
-import { LuGitBranchPlus } from "react-icons/lu";
+
 import { PiMapPinAreaDuotone } from "react-icons/pi";
 import { TbHash } from "react-icons/tb";
 
@@ -151,14 +152,14 @@ function Home() {
             </span>
 
             <h1>
-              Harit
+              हरित -
               <span> SANKALP</span>
             </h1>
 
             <h2>
-              System for Afforestation,
+              (System for Afforestation,
               Nursery Knowledge &
-              Linkage Platform
+              Linkage Platform)
             </h2>
 
             <p>
@@ -266,7 +267,7 @@ function Home() {
 
         <div className="section-title">
 
-          <span>WHY HARIT SANKALP</span>
+          <span>WHY हरित-SANKALP</span>
 
           <h2>
             Building India's Green Future Through

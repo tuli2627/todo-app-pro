@@ -1,0 +1,240 @@
+/* ====================================
+   1. PAGE BACKGROUND & CONTAINER
+==================================== */
+.adv-booking-container {
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f4fbf5, #eef8f1, #ffffff);
+  position: relative;
+  overflow: hidden;
+  padding: 40px 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Blurred Green Circle - Top Left */
+.adv-booking-container::before {
+  content: "";
+  position: absolute;
+  width: 650px;
+  height: 650px;
+  background: #6fa83e18;
+  border-radius: 50%;
+  top: -250px;
+  left: -250px;
+  filter: blur(30px);
+  z-index: 0;
+}
+
+/* Blurred Green Circle - Bottom Right */
+.adv-booking-container::after {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: #0e473612;
+  border-radius: 50%;
+  bottom: -180px;
+  right: -180px;
+  filter: blur(20px);
+  z-index: 0;
+}
+
+/* Limit form width to 1000px and center it */
+.adv-booking-container form, 
+.adv-booking-title {
+  max-width: 1000px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2; /* Keeps form above the blurred circles */
+}
+
+.adv-booking-title {
+  text-align: center;
+  color: #3b8e43; /* Forest Green */
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 40px;
+}
+
+/* ====================================
+   2. FORM SECTIONS & GRID (The missing structure)
+==================================== */
+
+/* Card Section Container */
+.adv-form-section {
+  border: 1px solid #d3d3d3;
+  border-radius: 12px;
+  padding: 40px 30px 25px 30px;
+  margin-bottom: 35px;
+  position: relative;
+  background-color: #ffffff; /* Gives the form a solid white background over the gradient */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+/* Overlapping Pill Badge */
+.adv-section-badge {
+  position: absolute;
+  top: -15px; /* Pulls it up outside the border */
+  left: 30px;
+  background-color: #438f4a;
+  color: #ffffff;
+  padding: 6px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* 2-Column Grid Layout */
+.adv-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px 50px;
+}
+
+/* Individual Form Fields */
+.adv-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.adv-form-group label {
+  color: #0066cc; /* Blue label text */
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.adv-form-group select,
+.adv-form-group input {
+  padding: 10px;
+  border: 1px solid #c2c2c2;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.adv-form-group select:focus,
+.adv-form-group input:focus {
+  border-color: #438f4a;
+}
+
+/* ====================================
+   3. UPLOAD AREA & BUTTON
+==================================== */
+.adv-upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 20px;
+  padding-left: 10px;
+}
+
+.adv-image-icon {
+  margin-bottom: 10px;
+}
+
+.adv-file-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-left: 60px; 
+}
+
+.adv-file-input-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.adv-required-star {
+  color: red;
+}
+
+.adv-warning-text p {
+  color: red;
+  font-size: 14px;
+  margin: 4px 0;
+}
+
+.adv-submit-wrapper.align-right {
+  display: flex;
+  justify-content: flex-end; 
+  margin-top: 20px;
+}
+
+.adv-book-btn {
+  background-color: #1a73e8; 
+  color: white;
+  border: 1px solid #1557b0;
+  padding: 8px 40px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+.adv-book-btn:hover {
+  background-color: #1557b0;
+}
+
+/* ====================================
+   4. FLOATING LEAVES ANIMATION
+==================================== */
+.floating-leaves {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.leaf {
+    position: absolute;
+    font-size: 34px;
+    opacity: .30;
+    animation: leafFloat linear infinite;
+}
+
+.leaf:nth-child(1) { left: 5%; bottom: -80px; animation-duration: 14s; }
+.leaf:nth-child(2) { left: 28%; bottom: -60px; animation-duration: 18s; animation-delay: 4s; }
+.leaf:nth-child(3) { left: 70%; bottom: -90px; animation-duration: 16s; animation-delay: 2s; }
+.leaf:nth-child(4) { left: 90%; bottom: -100px; animation-duration: 20s; animation-delay: 6s; }
+
+@keyframes leafFloat {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    20% { opacity: .4; }
+    50% { transform: translateY(-45vh) rotate(180deg) translateX(-30px); }
+    100% { transform: translateY(-100vh) rotate(360deg) translateX(40px); opacity: 0; }
+}
+/* ====================================
+   FLOATING LEAVES ANIMATION
+==================================== */
+.floating-leaves {
+    position: absolute;
+    inset: 0;
+    pointer-events: none; /* This ensures you can still click the form through the leaves */
+    overflow: hidden;
+    z-index: 1; /* Puts leaves behind the form */
+}
+
+.leaf {
+    position: absolute;
+    font-size: 34px;
+    opacity: .30;
+    animation: leafFloat linear infinite;
+}
+
+/* Positioning and timing for each leaf */
+.leaf:nth-child(1) { left: 5%; bottom: -80px; animation-duration: 14s; }
+.leaf:nth-child(2) { left: 28%; bottom: -60px; animation-duration: 18s; animation-delay: 4s; }
+.leaf:nth-child(3) { left: 70%; bottom: -90px; animation-duration: 16s; animation-delay: 2s; }
+.leaf:nth-child(4) { left: 90%; bottom: -100px; animation-duration: 20s; animation-delay: 6s; }
+
+/* The upward floating animation */
+@keyframes leafFloat {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    20% { opacity: .4; }
+    50% { transform: translateY(-45vh) rotate(180deg) translateX(-30px); }
+    100% { transform: translateY(-100vh) rotate(360deg) translateX(40px); opacity: 0; }
+}

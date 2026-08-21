@@ -1,0 +1,165 @@
+/* ====================================
+   1. PAGE BACKGROUND & CONTAINER
+==================================== */
+.faqs-container {
+  width: 100%;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f4fbf5, #eef8f1, #ffffff);
+  position: relative;
+  overflow: hidden;
+  padding: 40px 20px;
+  font-family: Arial, sans-serif;
+}
+
+.faqs-container::before {
+  content: "";
+  position: absolute;
+  width: 650px;
+  height: 650px;
+  background: #6fa83e18;
+  border-radius: 50%;
+  top: -250px;
+  left: -250px;
+  filter: blur(30px);
+  z-index: 0;
+}
+
+.faqs-container::after {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: #0e473612;
+  border-radius: 50%;
+  bottom: -180px;
+  right: -180px;
+  filter: blur(20px);
+  z-index: 0;
+}
+
+/* ====================================
+   2. FAQ SPECIFIC CONTENT
+==================================== */
+.faqs-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2; /* Keeps content above the blurred background */
+}
+
+/* Teal Home Button */
+.faqs-home-btn {
+  background-color: #4db6ac; /* Matches the teal in screenshot */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 15px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  margin-bottom: 20px;
+  transition: background-color 0.3s;
+}
+
+.faqs-home-btn:hover {
+  background-color: #26a69a;
+  color: white;
+}
+
+/* Titles */
+.faqs-title {
+  font-size: 32px;
+  color: #4a4a4a;
+  margin-bottom: 10px;
+  font-weight: normal;
+}
+
+.faqs-subtitle {
+  font-size: 22px;
+  color: #555555;
+  margin-bottom: 30px;
+  font-weight: normal;
+}
+
+/* Accordion Container */
+.faqs-accordion {
+  background-color: #d7e4fa; /* Light blue background */
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Accordion Items */
+.faq-item {
+  border-bottom: 1px solid #c2d3ef; /* Slightly darker line separator */
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+}
+
+.faq-question {
+  padding: 20px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  color: #003380; /* Dark blue text */
+  font-size: 15px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.faq-question:hover {
+  background-color: #cbdcf4;
+}
+
+.faq-icon {
+  display: flex;
+  align-items: center;
+  transition: transform 0.3s ease;
+  color: #003380;
+}
+
+.faq-icon.open {
+  transform: rotate(180deg);
+}
+
+.faq-answer {
+  padding: 0 25px 20px 25px;
+  color: #444;
+  font-size: 14px;
+  line-height: 1.6;
+  background-color: #d7e4fa;
+}
+
+/* ====================================
+   3. FLOATING LEAVES ANIMATION
+==================================== */
+.floating-leaves {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.leaf {
+    position: absolute;
+    font-size: 34px;
+    opacity: .30;
+    animation: leafFloat linear infinite;
+}
+
+.leaf:nth-child(1) { left: 5%; bottom: -80px; animation-duration: 14s; }
+.leaf:nth-child(2) { left: 28%; bottom: -60px; animation-duration: 18s; animation-delay: 4s; }
+.leaf:nth-child(3) { left: 70%; bottom: -90px; animation-duration: 16s; animation-delay: 2s; }
+.leaf:nth-child(4) { left: 90%; bottom: -100px; animation-duration: 20s; animation-delay: 6s; }
+
+@keyframes leafFloat {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    20% { opacity: .4; }
+    50% { transform: translateY(-45vh) rotate(180deg) translateX(-30px); }
+    100% { transform: translateY(-100vh) rotate(360deg) translateX(40px); opacity: 0; }
+}

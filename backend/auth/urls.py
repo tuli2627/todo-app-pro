@@ -20,12 +20,13 @@ router = DefaultRouter()
 # router.register(r'users', UserViewSet)
 
 urlpatterns = [
-    # 2. Custom login endpoint (Handles both DFO & National users + CAPTCHA)
-    path('api/login/', CustomLoginView.as_view(), name='custom_login'),
+    # 2. Custom login endpoint 
+    # (Sirf 'login/' aayega kyunki 'api/auth/' main project ki urls.py handle kar rahi hai)
+    path('login/', CustomLoginView.as_view(), name='custom_login'),
     
-    # 3. JWT Token Refresh Endpoint (Bahut zaroori hai frontend ke liye)
-    # Jab 'access' token expire ho jaye, toh frontend 'refresh' token is URL par bhej kar naya token le sakta hai
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # 3. JWT Token Refresh Endpoint
+    # (Sirf 'token/refresh/' aayega)
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
-
+    
 urlpatterns += router.urls
