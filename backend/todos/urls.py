@@ -36,11 +36,43 @@
 
 # # 3. Add the router urls at the very end
 # urlpatterns += router.urls
+# from django.urls import path
+# from rest_framework.routers import DefaultRouter
+
+# # Import all views from your todos app
+# from .views import TodoViewSet, state_wise_nursery_count, MapDataView, submit_advance_booking, get_states, get_districts, get_circles, get_divisions
+
+# router = DefaultRouter()
+# router.register(r'todos', TodoViewSet)
+
+# urlpatterns = [
+#     path('nursery-state-count/', state_wise_nursery_count, name='nursery_state_count'),
+#     path('map-data/', MapDataView.as_view(), name='map_data'), 
+    
+#     # NEW ADVANCE BOOKING ROUTES
+#     path('advance-booking/', submit_advance_booking, name='submit_advance_booking'),
+#     path('states/', get_states, name='get_states'),
+#     path('districts/', get_districts, name='get_districts'),
+#     path('circles/', get_circles, name='get_circles'),
+#     path('divisions/', get_divisions, name='get_divisions'),
+# ]
+
+# urlpatterns += router.urls
 from django.urls import path
 from rest_framework.routers import DefaultRouter
 
-# Import all views from your todos app
-from .views import TodoViewSet, state_wise_nursery_count, MapDataView, submit_advance_booking, get_states, get_districts, get_circles, get_divisions
+# Added get_state_nursery_details to the views import
+from .views import (
+    TodoViewSet, 
+    state_wise_nursery_count, 
+    MapDataView, 
+    submit_advance_booking, 
+    get_states, 
+    get_districts, 
+    get_circles, 
+    get_divisions,
+    get_state_nursery_details  # <-- ADDED THIS
+)
 
 router = DefaultRouter()
 router.register(r'todos', TodoViewSet)
@@ -49,7 +81,10 @@ urlpatterns = [
     path('nursery-state-count/', state_wise_nursery_count, name='nursery_state_count'),
     path('map-data/', MapDataView.as_view(), name='map_data'), 
     
-    # NEW ADVANCE BOOKING ROUTES
+    # NEW ROUTE FOR STATE MAP DETAILS
+    path('nurseries/state-details/', get_state_nursery_details, name='get_state_nursery_details'), # <-- ADDED THIS
+    
+    # ADVANCE BOOKING ROUTES
     path('advance-booking/', submit_advance_booking, name='submit_advance_booking'),
     path('states/', get_states, name='get_states'),
     path('districts/', get_districts, name='get_districts'),

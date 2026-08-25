@@ -124,7 +124,7 @@ from rest_framework.views import APIView  # <-- Moved to the top
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from django.db.models import Count, F
+from django.db.models import Count, F, Q
 
 # --- NEW IMPORTS ADDED FOR ADVANCE BOOKING ---
 import base64
@@ -136,7 +136,7 @@ from django.utils import timezone
 
 # Apne models aur serializers import karo (Added T030AdvanceBooking and M001State)
 from .models import Todo, T007Nursery, T030AdvanceBooking, M001State, M002District, M002Circle, M003Division
-from .serializers import TodoSerializer, M001StateSerializer, M002DistrictSerializer, M002CircleSerializer, M003DivisionSerializer
+from .serializers import TodoSerializer, M001StateSerializer, M002DistrictSerializer, M002CircleSerializer, M003DivisionSerializer, NurseryDetailSerializer
 
 # 1. Tumhara purana TodoViewSet (Jo delete ho gaya tha)
 class TodoViewSet(viewsets.ModelViewSet):
@@ -163,32 +163,31 @@ def state_wise_nursery_count(request):
         return Response({"error": str(e)}, status=500)
 
 
-# 3. Tumhara Map Data View
 class MapDataView(APIView):
-    def get(self, request):
-        # 1. Hardcoded data (Use this right now to test if the map works)
-        # Later, you can replace this with a Database query like: 
-        # data = Nursery.objects.values('state_code').annotate(nurseries_count=Count('id'))
-        
-        data = [
-            {"state_code": "IN-AN", "nurseries_count": 13},
-            {"state_code": "IN-AR", "nurseries_count": 3},
-            {"state_code": "IN-GJ", "nurseries_count": 299},
-            {"state_code": "IN-HP", "nurseries_count": 27},
-            {"state_code": "IN-JK", "nurseries_count": 49},
-            {"state_code": "IN-KA", "nurseries_count": 206},
-            {"state_code": "IN-MP", "nurseries_count": 40},
-            {"state_code": "IN-MN", "nurseries_count": 50},
-            {"state_code": "IN-MZ", "nurseries_count": 46},
-            {"state_code": "IN-PB", "nurseries_count": 33},
-            {"state_code": "IN-RJ", "nurseries_count": 6},
-            {"state_code": "IN-SK", "nurseries_count": 7},
-            {"state_code": "IN-TG", "nurseries_count": 77},
-            {"state_code": "IN-TR", "nurseries_count": 8},
-            {"state_code": "IN-WB", "nurseries_count": 3},
-        ]
-        return Response(data)
+    permission_classes = [AllowAny]
 
+    def get(self, request):
+        try:
+            states = M001State.objects.annotate(
+                active_nurseries_count=Count('t007nursery', filter=Q(t007nursery__nursery_active='1'))
+            )
+
+            data = []
+            for state in states:
+                code = state.state_code.strip() if state.state_code else ""
+                if code and not code.startswith("IN-"):
+                    code = f"IN-{code}"
+
+                data.append({
+                    "state_code": code,
+                    "state_id": state.state_id,
+                    "state_name": state.state_name,
+                    "nurseries_count": state.active_nurseries_count
+                })
+
+            return Response(data)
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
 # =========================================================
 # 4. Advance Booking API View
 # =========================================================
@@ -298,3 +297,101 @@ def get_divisions(request):
         return Response(serializer.data)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+# =========================================================
+# State Nursery Modal Details Endpoint
+# =========================================================
+# @api_view(['GET'])
+# @permission_classes([AllowAny])
+# def get_state_nursery_details(request):
+#     """
+#     Returns nursery list for the requested state_code (e.g., /api/nurseries/state-details/?stateCode=IN-GJ)
+#     """
+#     raw_code = request.GET.get('stateCode', '').strip()
+
+#     if not raw_code:
+#         return Response({'stateName': '', 'total': 0, 'nurseries': []})
+
+#     # Clean 'IN-' prefix (e.g., 'IN-KA' -> 'KA')
+#     clean_code = raw_code.replace("IN-", "").strip()
+
+#     # Search flexibly across state_code, clean code, or state_name
+#     state = M001State.objects.filter(
+#         Q(state_code__iexact=raw_code) |
+#         Q(state_code__iexact=clean_code) |
+#         Q(state_name__iexact=clean_code)
+#     ).first()
+
+#     # Fallback search if state ID was passed numerically
+#     if not state and clean_code.isdigit():
+#         state = M001State.objects.filter(state_id=int(clean_code)).first()
+
+#     if not state:
+#         return Response({'stateName': raw_code, 'total': 0, 'nurseries': []})
+
+#     # Fetch active nurseries linked to the found state
+#     nurseries = T007Nursery.objects.filter(
+#         nursery_state=state,
+#         nursery_active='1'
+#     )
+
+#     serializer = NurseryDetailSerializer(nurseries, many=True)
+
+#     return Response({
+#         'stateName': state.state_name,
+#         'total': nurseries.count(),
+#         'nurseries': serializer.data
+#     })
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_state_nursery_details(request):
+    raw_code = request.GET.get('stateCode', '').strip()
+
+    if not raw_code:
+        return Response({'stateName': '', 'total': 0, 'nurseries': []})
+
+    clean_code = raw_code.replace("IN-", "").strip()
+
+    # 1. Get exact State_ID from M001_State table
+    state = M001State.objects.filter(
+        Q(state_code__iexact=raw_code) |
+        Q(state_code__iexact=clean_code) |
+        Q(state_name__iexact=clean_code) |
+        Q(state_name__icontains=clean_code)
+    ).first()
+
+    # Fallback search if numeric ID is passed directly
+    if not state and clean_code.isdigit():
+        state = M001State.objects.filter(state_id=int(clean_code)).first()
+
+    if not state:
+        return Response({'stateName': raw_code, 'total': 0, 'nurseries': []})
+
+    # 2. Query dbo.T007_Nursery directly using state.state_id (State_ID)
+    nurseries = T007Nursery.objects.filter(
+        nursery_state_id=state.state_id,
+        nursery_active__in=['Y', '1']
+    )
+
+    serializer = NurseryDetailSerializer(nurseries, many=True)
+    print(f"Found {nurseries.count()} nurseries for state: {state.state_name} (ID: {state.state_id})")
+    print(f"Serialized data: {serializer.data[:5]}")  # Print first 5 nurseries for debugging
+    print(f"{nurseries}")
+    return Response({
+        'stateId': state.state_id,
+        'stateName': state.state_name,
+        'total': nurseries.count(),
+        'nurseries': serializer.data
+    })
+    # Filter active nurseries if active column exists
+    if hasattr(T007Nursery, 'nursery_active'):
+        nurseries = nurseries.filter(
+            Q(nursery_active='Y') | Q(nursery_active='1')
+        )
+
+    serializer = NurseryDetailSerializer(nurseries, many=True)
+
+    return Response({
+        'stateName': state.state_name,
+        'total': nurseries.count(),
+        'nurseries': serializer.data
+    })

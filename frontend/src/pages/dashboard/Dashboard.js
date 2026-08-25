@@ -2,17 +2,69 @@ import DashboardCharts from "../../components/Map/DashboardCharts";
 import IndiaMap from "../../components/Map/IndiaMap";
 import { Link } from "react-router-dom";
 import "./Dashboard.css";
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+
+import Banner_1 from "../../assets/images/Banner_1.jpg";
+import Banner_2 from "../../assets/images/Banner_2.jpg";
+import Banner_3 from "../../assets/images/Banner_3.jpg";
+import Banner_4 from "../../assets/images/Banner_4.jpeg";
+import Banner_5 from "../../assets/images/Banner_5.jpg";
+import Banner_6 from "../../assets/images/Banner_6.jpeg";
+// Helper function to split images into groups of 6
+const chunkArray = (arr, size) => {
+  const chunks = [];
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size));
+  }
+  return chunks;
+};
+
+
+  // ... rest of your code
 function Dashboard() {
+ const carouselImages = [
+  { id: 1, src: Banner_1, alt: "Harit Sankalp Banner 1" },
+  { id: 2, src: Banner_2, alt: "Harit Sankalp Banner 2" },
+  { id: 3, src: Banner_3, alt: "Harit Sankalp Banner 3" },
+   { id: 4, src: Banner_4, alt: "Harit Sankalp Banner 4" },
+    { id: 5, src: Banner_5, alt: "Harit Sankalp Banner 5" },
+     { id: 6, src: Banner_6, alt: "Harit Sankalp Banner 6" }
+];
+const imageGroups = chunkArray(carouselImages, 6);
  return (
   <div className="dashboard">
 
     {/* Carousel Section */}
     <section className="carousel-section">
-      <div className="carousel-placeholder">
-        Carousel Image Here
-      </div>
-    </section>
+  <Swiper
+    modules={[Navigation, Pagination, Autoplay]}
+    slidesPerView={3}
+    slidesPerGroup={3}
+    spaceBetween={20}
+    navigation
+    pagination={{ clickable: true }}
+    autoplay={{ delay: 4000, disableOnInteraction: false }}
+    loop={true}
+    breakpoints={{
+      320: { slidesPerView: 1, slidesPerGroup: 1, spaceBetween: 10 },
+      768: { slidesPerView: 2, slidesPerGroup: 2, spaceBetween: 15 },
+      1024: { slidesPerView: 3, slidesPerGroup: 3, spaceBetween: 20 },
+    }}
+  >
+    {carouselImages.map((image) => (
+      <SwiperSlide key={image.id}>
+        <div className="single-card">
+          <img src={image.src} alt={image.alt} />
+        </div>
+      </SwiperSlide>
+    ))}
+  </Swiper>
+</section>
 
     {/* India Map Section */}
     <div className="dashboard-middle">
@@ -252,8 +304,6 @@ function Dashboard() {
     <button className="filter-btn">State</button>
 
     <button className="filter-btn">District</button>
-
-    <button className="filter-btn">Division</button>
 
     <button className="filter-btn">Species</button>
 

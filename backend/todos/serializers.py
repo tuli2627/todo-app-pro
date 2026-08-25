@@ -16,7 +16,7 @@
 #     email = serializers.EmailField()
 #     password = serializers.CharField(write_only=True)
 from rest_framework import serializers
-from .models import Todo, T030AdvanceBooking, M001State, M002District, M002Circle, M003Division
+from .models import Todo, T030AdvanceBooking, M001State, M002District, M002Circle, M003Division, T007Nursery
 class TodoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Todo
@@ -55,8 +55,23 @@ class M002DistrictSerializer(serializers.ModelSerializer):
 class M002CircleSerializer(serializers.ModelSerializer):
     class Meta:
         model = M002Circle
-        fields = ['circle_id', 'circle_name', 'circle_state_id']
+        fields = ['circle_id', 'circle_name', 'circle_state_id'] 
 class M003DivisionSerializer(serializers.ModelSerializer):
     class Meta:
         model = M003Division
         fields = ['division_id', 'division_name', 'division_circle_id']
+# --- ADDED FOR MAP NURSERY DETAILS ---
+class NurseryDetailSerializer(serializers.ModelSerializer):
+    print("Initializing NurseryDetailSerializer")  # Debugging line
+    print(f"Model fields: {[field.name for field in T007Nursery._meta.get_fields()]}")  # Debugging line
+    id = serializers.IntegerField(source='nursery_id', read_only=True)
+    name = serializers.CharField(source='nursery_name', default='')
+    address = serializers.CharField(source='nursery_address', default='')
+    location = serializers.CharField(source='nursery_location', default='')
+    phone = serializers.CharField(source='nursery_contact_person_phone', default='')
+    contact_person = serializers.CharField(source='nursery_contact_person_name', default='')
+    photoUrl = serializers.CharField(source='Nursery_PHOTO', default='')
+
+    class Meta:
+        model = T007Nursery
+        fields = ['id', 'name', 'address', 'location', 'phone', 'contact_person', 'photoUrl']
