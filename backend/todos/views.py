@@ -341,48 +341,102 @@ def get_divisions(request):
 #         'total': nurseries.count(),
 #         'nurseries': serializer.data
 #     })
+# @api_view(['GET'])
+# @permission_classes([AllowAny])
+# def get_state_nursery_details(request):
+#     raw_code = request.GET.get('stateCode', '').strip()
+
+#     if not raw_code:
+#         return Response({'stateName': '', 'total': 0, 'nurseries': []})
+
+#     clean_code = raw_code.replace("IN-", "").strip()
+
+#     # 1. Get exact State_ID from M001_State table
+#     state = M001State.objects.filter(
+#         Q(state_code__iexact=raw_code) |
+#         Q(state_code__iexact=clean_code) |
+#         Q(state_name__iexact=clean_code) |
+#         Q(state_name__icontains=clean_code)
+#     ).first()
+
+#     # Fallback search if numeric ID is passed directly
+#     if not state and clean_code.isdigit():
+#         state = M001State.objects.filter(state_id=int(clean_code)).first()
+
+#     if not state:
+#         return Response({'stateName': raw_code, 'total': 0, 'nurseries': []})
+
+#     # 2. Query dbo.T007_Nursery directly using state.state_id (State_ID)
+#     nurseries = T007Nursery.objects.filter(
+#         nursery_state_id=state.state_id,
+#         nursery_active__in=['Y', '1']
+#     )
+
+#     serializer = NurseryDetailSerializer(nurseries, many=True)
+#     print(f"Found {nurseries.count()} nurseries for state: {state.state_name} (ID: {state.state_id})")
+#     print(f"Serialized data: {serializer.data[:5]}")  # Print first 5 nurseries for debugging
+#     print(f"{nurseries}")
+#     return Response({
+#         'stateId': state.state_id,
+#         'stateName': state.state_name,
+#         'total': nurseries.count(),
+#         'nurseries': serializer.data
+#     })
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_state_nursery_details(request):
-    raw_code = request.GET.get('stateCode', '').strip()
+    # Extract all possible query parameters passed from frontend/React
+    state_id_param = request.GET.get('state_id', '').strip()
+    state_name_param = request.GET.get('state_name', '').strip()
+    state_code_param = request.GET.get('stateCode', '').strip() or request.GET.get('code', '').strip()
 
-    if not raw_code:
-        return Response({'stateName': '', 'total': 0, 'nurseries': []})
+    state = None
 
-    clean_code = raw_code.replace("IN-", "").strip()
+    # 1. Lookup by numeric state_id if available
+    if state_id_param and state_id_param.isdigit():
+        state = M001State.objects.filter(state_id=int(state_id_param)).first()
 
-    # 1. Get exact State_ID from M001_State table
-    state = M001State.objects.filter(
-        Q(state_code__iexact=raw_code) |
-        Q(state_code__iexact=clean_code) |
-        Q(state_name__iexact=clean_code) |
-        Q(state_name__icontains=clean_code)
-    ).first()
+    # 2. Fallback: Lookup by state_name
+    if not state and state_name_param:
+        state = M001State.objects.filter(
+            Q(state_name__iexact=state_name_param) | 
+            Q(state_name__icontains=state_name_param)
+        ).first()
 
-    # Fallback search if numeric ID is passed directly
-    if not state and clean_code.isdigit():
-        state = M001State.objects.filter(state_id=int(clean_code)).first()
+    # 3. Fallback: Lookup by state_code / raw code
+    if not state and state_code_param:
+        clean_code = state_code_param.replace("IN-", "").strip()
+        state = M001State.objects.filter(
+            Q(state_code__iexact=state_code_param) |
+            Q(state_code__iexact=clean_code) |
+            Q(state_name__iexact=clean_code) |
+            Q(state_name__icontains=clean_code)
+        ).first()
 
+        # Check if the code passed was numeric
+        if not state and clean_code.isdigit():
+            state = M001State.objects.filter(state_id=int(clean_code)).first()
+
+    # If no state record found, return zero results gracefully
     if not state:
-        return Response({'stateName': raw_code, 'total': 0, 'nurseries': []})
+        fallback_name = state_name_param or state_code_param or "Unknown State"
+        return Response({'stateId': None, 'stateName': fallback_name, 'total': 0, 'nurseries': []})
 
-    # 2. Query dbo.T007_Nursery directly using state.state_id (State_ID)
+    # Query T007Nursery using the resolved state's ID
     nurseries = T007Nursery.objects.filter(
         nursery_state_id=state.state_id,
         nursery_active__in=['Y', '1']
     )
 
     serializer = NurseryDetailSerializer(nurseries, many=True)
-    print(f"Found {nurseries.count()} nurseries for state: {state.state_name} (ID: {state.state_id})")
-    print(f"Serialized data: {serializer.data[:5]}")  # Print first 5 nurseries for debugging
-    print(f"{nurseries}")
+
     return Response({
         'stateId': state.state_id,
         'stateName': state.state_name,
         'total': nurseries.count(),
         'nurseries': serializer.data
     })
-    # Filter active nurseries if active column exists
+    
     if hasattr(T007Nursery, 'nursery_active'):
         nurseries = nurseries.filter(
             Q(nursery_active='Y') | Q(nursery_active='1')
