@@ -1,1540 +1,1110 @@
+
+// import React, { useState, useEffect, useRef } from "react";
 // import { Chart } from "react-google-charts";
+// import axios from "axios";
 
-// const data = [
-//   ["State", "Nurseries"],
+// const API_BASE_URL = "http://127.0.0.1:8000/api";
+// const IMAGE_BASE_URL = "https://nationalcampa.nic.in/Harit-SANKALP/Uploads/NUR/";
 
-//   ["IN-AN", 13],
-//   ["IN-AR", 3],
-//   ["IN-GJ", 299],
-//   ["IN-HP", 27],
-//   ["IN-JK", 49],
-//   ["IN-KA", 206],
-//   ["IN-MP", 40],
-//   ["IN-MN", 50],
-//   ["IN-MZ", 46],
-//   ["IN-PB", 33],
-//   ["IN-RJ", 6],
-//   ["IN-SK", 7],
-//   ["IN-TG", 77],
-//   ["IN-TR", 8],
-//   ["IN-WB", 3],
-// ];
-
-// const options = {
-//   region: "IN",
-//   domain: "IN",
-//   displayMode: "regions",
-//   resolution: "provinces",
-
-//   datalessRegionColor: "#ECEFF1",
-
-//   colorAxis: {
-//   colors: [
-//     "#E53935", // Red
-//     "#FB8C00", // Orange
-//     "#FDD835", // Yellow
-//     "#43A047", // Green
-//     "#00897B", // Teal
-//     "#1E88E5", // Blue
-//     "#3949AB", // Indigo
-//     "#8E24AA", // Purple
-//     "#D81B60", // Pink
-//     "#6D4C41", // Brown
-//     "#7CB342", // Lime
-//     "#00ACC1", // Cyan
-//     "#5E35B1", // Deep Purple
-//     "#EF5350", // Light Red
-//     "#26A69A", // Aqua Green
-//     "#FF7043", // Deep Orange
-//     "#C0CA33", // Olive
-//     "#AB47BC", // Violet
-//     "#29B6F6", // Sky Blue
-//     "#FFA726"  // Amber
-//   ]
-// },
-
-//   legend: "none",
-
-//   backgroundColor: "transparent",
-
-//   tooltip: {
-//     trigger: "focus",
-//   },
+// // ISO Code to State Name Mapping
+// const STATE_CODE_TO_NAME = {
+//   "IN-AN": "Andaman and Nicobar Islands",
+//   "IN-AP": "Andhra Pradesh",
+//   "IN-AR": "Arunachal Pradesh",
+//   "IN-AS": "Assam",
+//   "IN-BR": "Bihar",
+//   "IN-CH": "Chandigarh",
+//   "IN-CT": "Chhattisgarh",
+//   "IN-DN": "Dadra and Nagar Haveli",
+//   "IN-DD": "Daman and Diu",
+//   "IN-DL": "Delhi",
+//   "IN-GA": "Goa",
+//   "IN-GJ": "Gujarat",
+//   "IN-HR": "Haryana",
+//   "IN-HP": "Himachal Pradesh",
+//   "IN-JK": "Jammu and Kashmir",
+//   "IN-JH": "Jharkhand",
+//   "IN-KA": "Karnataka",
+//   "IN-KL": "Kerala",
+//   "IN-LA": "Ladakh",
+//   "IN-LD": "Lakshadweep",
+//   "IN-MP": "Madhya Pradesh",
+//   "IN-MH": "Maharashtra",
+//   "IN-MN": "Manipur",
+//   "IN-ML": "Meghalaya",
+//   "IN-MZ": "Mizoram",
+//   "IN-NL": "Nagaland",
+//   "IN-OR": "Odisha",
+//   "IN-PY": "Puducherry",
+//   "IN-PB": "Punjab",
+//   "IN-RJ": "Rajasthan",
+//   "IN-SK": "Sikkim",
+//   "IN-TN": "Tamil Nadu",
+//   "IN-TG": "Telangana",
+//   "IN-TR": "Tripura",
+//   "IN-UP": "Uttar Pradesh",
+//   "IN-UT": "Uttarakhand",
+//   "IN-WB": "West Bengal",
 // };
 
-// function IndiaMap() {
-//   return (
-//     <Chart
-//       chartType="GeoChart"
-//       width="100%"
-//       height="450px"
-//       data={data}
-//       options={options}
-//     />
-//   );
-// }
+// // Reverse Mapping: Full Name -> ISO Code
+// const NAME_TO_STATE_CODE = Object.entries(STATE_CODE_TO_NAME).reduce((acc, [code, name]) => {
+//   acc[name.toLowerCase()] = code;
+//   return acc;
+// }, {});
 
-// export default IndiaMap;
-
-          
-// import React, { useState, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { Chart } from "react-google-charts";
-// // ADD THIS RIGHT AFTER YOUR IMPORTS
-// const API_BASE_URL = "http://127.0.0.1:8000";
-
-// // Complete mapping for all 36 States and UTs from M001_State database table
-// const STATE_CODE_MAP = {
-//   // IDs (1 to 38 matching database State_ID)
-//   "1": "IN-JK", "2": "IN-HP", "3": "IN-PB", "4": "IN-CH", "5": "IN-UT",
-//   "6": "IN-HR", "7": "IN-DL", "8": "IN-RJ", "9": "IN-UP", "10": "IN-BR",
-//   "11": "IN-SK", "12": "IN-AR", "13": "IN-NL", "14": "IN-MN", "15": "IN-MZ",
-//   "16": "IN-TR", "17": "IN-ML", "18": "IN-AS", "19": "IN-WB", "20": "IN-JH",
-//   "21": "IN-OR", "22": "IN-CT", "23": "IN-MP", "24": "IN-GJ", "27": "IN-MH",
-//   "28": "IN-AP", "29": "IN-KA", "30": "IN-GA", "31": "IN-LD", "32": "IN-KL",
-//   "33": "IN-TN", "34": "IN-PY", "35": "IN-AN", "36": "IN-TG", "37": "IN-LA",
-//   "38": "IN-DH",
-
-//   // Full State Names & Short Abbreviations
-//   "jammu and kashmir": "IN-JK", "jk": "IN-JK",
-//   "himachal pradesh": "IN-HP", "hp": "IN-HP",
-//   "punjab": "IN-PB", "pb": "IN-PB",
-//   "chandigarh": "IN-CH", "ch": "IN-CH",
-//   "uttarakhand": "IN-UT", "ut": "IN-UT",
-//   "haryana": "IN-HR", "hr": "IN-HR",
-//   "delhi": "IN-DL", "dl": "IN-DL",
-//   "rajasthan": "IN-RJ", "rj": "IN-RJ",
-//   "uttar pradesh": "IN-UP", "up": "IN-UP",
-//   "bihar": "IN-BR", "br": "IN-BR",
-//   "sikkim": "IN-SK", "sk": "IN-SK",
-//   "arunachal pradesh": "IN-AR", "ar": "IN-AR",
-//   "nagaland": "IN-NL", "nl": "IN-NL",
-//   "manipur": "IN-MN", "mn": "IN-MN",
-//   "mizoram": "IN-MZ", "mz": "IN-MZ",
-//   "tripura": "IN-TR", "tr": "IN-TR",
-//   "meghalaya": "IN-ML", "ml": "IN-ML",
-//   "assam": "IN-AS", "as": "IN-AS",
-//   "west bengal": "IN-WB", "wb": "IN-WB",
-//   "jharkhand": "IN-JH", "jh": "IN-JH",
-//   "odisha": "IN-OR", "or": "IN-OR",
-//   "chhattisgarh": "IN-CT", "ct": "IN-CT",
-//   "madhya pradesh": "IN-MP", "mp": "IN-MP",
-//   "gujarat": "IN-GJ", "gj": "IN-GJ",
-//   "maharashtra": "IN-MH", "mh": "IN-MH",
-//   "andhra pradesh": "IN-AP", "ap": "IN-AP",
-//   "karnataka": "IN-KA", "ka": "IN-KA",
-//   "goa": "IN-GA", "ga": "IN-GA",
-//   "lakshadweep": "IN-LD", "ld": "IN-LD",
-//   "kerala": "IN-KL", "kl": "IN-KL",
-//   "tamil nadu": "IN-TN", "tn": "IN-TN",
-//   "puducherry": "IN-PY", "py": "IN-PY",
-//   "andaman and nicobar islands": "IN-AN", "an": "IN-AN",
-//   "telangana": "IN-TG", "tg": "IN-TG",
-//   "ladakh": "IN-LA", "la": "IN-LA",
-//   "the dadra and nagar haveli and daman and diu": "IN-DH", "dadra and nagar haveli": "IN-DH", "dh": "IN-DH"
+// const getIsoCode = (input) => {
+//   if (!input) return "";
+//   if (STATE_CODE_TO_NAME[input.toUpperCase()]) return input.toUpperCase();
+//   return NAME_TO_STATE_CODE[input.toLowerCase()] || input;
 // };
 
-// const normalizeStateCode = (input) => {
-//   if (!input) return null;
-//   const str = String(input).trim().toLowerCase();
-  
-//   // If already starts with IN- (e.g. IN-RJ), return uppercase
-//   if (str.startsWith("in-")) return str.toUpperCase();
-  
-//   // Lookup in map dictionary
-//   if (STATE_CODE_MAP[str]) return STATE_CODE_MAP[str];
-  
-//   // Fallback default
-//   return `IN-${str.toUpperCase()}`;
+// const getCleanName = (input) => {
+//   if (!input) return "";
+//   const code = getIsoCode(input);
+//   return STATE_CODE_TO_NAME[code] || input.replace(/^IN-/, "");
 // };
 
-// // REPLACE YOUR EXISTING options WITH THIS:
-// const options = {
-//   region: "IN-RJ", // Focuses directly on Rajasthan region
-//   domain: "IN",
-//   displayMode: "regions",
-//   resolution: "provinces",
-//   datalessRegionColor: "#FFFFFF",
-//   colorAxis: {
-//     colors: ["#548235", "#1E4D2B"], // Deep green shades from your theme
-//   },
-//   legend: "none",
-//   backgroundColor: "transparent",
-//   tooltip: { trigger: "focus" },
-// };
-
-// function IndiaMap() {
+// const IndiaMap = () => {
+//   const [mapData, setMapData] = useState([]);
 //   const [chartData, setChartData] = useState([["State", "Nurseries"]]);
 //   const [totalNurseries, setTotalNurseries] = useState(0);
 //   const [highestState, setHighestState] = useState({ name: "-", count: 0 });
-//   const [selectedStateCode, setSelectedStateCode] = useState(null);
-//   const [modalData, setModalData] = useState(null);
-//   const [loading, setLoading] = useState(true);
 
-//   // 1. Fetch state nursery counts for GeoChart heatmap on load
-//  // REPLACE YOUR useEffect WITH THIS SAFE DATA PARSER:
-// useEffect(() => {
-//   fetch(`${API_BASE_URL}/api/map-data/`)
-//     .then((res) => res.json())
-//     .then((data) => {
+//   // Modal State
+//   const [selectedState, setSelectedState] = useState(null);
+//   const [nurseryDetails, setNurseryDetails] = useState([]);
+//   const [loadingModal, setLoadingModal] = useState(false);
+//   const [showModal, setShowModal] = useState(false);
+
+//   // Hover Tooltip Table State
+//   const [hoverState, setHoverState] = useState(null);
+//   const [hoverNurseries, setHoverNurseries] = useState([]);
+//   const [loadingHover, setLoadingHover] = useState(false);
+//   const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+
+//   const containerRef = useRef(null);
+
+//   useEffect(() => {
+//     fetchMapData();
+//   }, []);
+
+//   const fetchMapData = async () => {
+//     try {
+//       const response = await axios.get(`${API_BASE_URL}/map-data/`);
+//       const data = response.data || [];
+//       setMapData(data);
+
 //       const formattedChartData = [["State", "Nurseries"]];
 //       let total = 0;
-//       let maxCount = 0;
-//       let maxStateName = "-";
+//       let maxState = { name: "-", count: 0 };
 
-//       if (Array.isArray(data)) {
-//         data.forEach((item) => {
-//           // Handle Array of Arrays vs Array of Objects
-//           let rawIdentifier, rawCount;
+//       data.forEach((item) => {
+//         const count = Number(item.nurseries_count) || 0;
+//         total += count;
 
-//           if (Array.isArray(item)) {
-//             // If backend returns array like ["IN-RJ", 6]
-//             rawIdentifier = item[0];
-//             rawCount = item[1];
-//           } else if (typeof item === "object" && item !== null) {
-//             // If backend returns object like { state_code: "IN-RJ", total: 6 }
-//             rawIdentifier = item.state_code || item.state_name || item.state_id || item.State;
-//             rawCount = item.nurseries_count ?? item.total ?? item.count ?? item.Nurseries;
-//           }
+//         const cleanName = getCleanName(item.state_name || item.state_code);
+//         const isoCode = getIsoCode(item.state_code || item.state_name);
 
-//           const code = normalizeStateCode(rawIdentifier);
-//           const count = Number(rawCount) || 0;
-
-//           if (code && count > 0) {
-//             formattedChartData.push([code, count]);
-//             total += count;
-
-//             if (count > maxCount) {
-//               maxCount = count;
-//               maxStateName = item.state_name || code;
-//             }
-//           }
-//         });
-//       }
-
-//       // If array is non-empty, update chart data
-//       if (formattedChartData.length > 1) {
-//         setChartData(formattedChartData);
-//       }
-//       setTotalNurseries(total);
-//       setHighestState({ name: maxStateName, count: maxCount });
-//       setLoading(false);
-//     })
-//     .catch((err) => {
-//       console.error("Error loading map data:", err);
-//       setLoading(false);
-//     });
-// }, []);
-//   // 2. Fetch nursery list when a state region is clicked on the map
-//  // REPLACE YOUR fetchStateNurseries FUNCTION WITH THIS:
-// const fetchStateNurseries = (stateCode) => {
-//   setSelectedStateCode(stateCode);
-//   setModalData(null);
-
-//   fetch(`${API_BASE_URL}/api/nurseries/state-details/?stateCode=${stateCode}`)
-//     .then((res) => res.json())
-//     .then((data) => setModalData(data))
-//     .catch((err) => console.error("Error fetching state details:", err));
-// };
-
-//   // GeoChart click handler
-//  // REPLACE YOUR chartEvents BLOCK WITH THIS:
-// const chartEvents = [
-//   {
-//     eventName: "select",
-//     callback: ({ chartWrapper }) => {
-//       // Use setTimeout to run execution after Google Charts finishes internal DOM events
-//       setTimeout(() => {
-//         const chart = chartWrapper.getChart();
-//         if (!chart) return;
-        
-//         const selection = chart.getSelection();
-//         if (!selection || selection.length === 0) return;
-
-//         const selectedRowIndex = selection[0].row;
-//         if (selectedRowIndex !== null && selectedRowIndex !== undefined) {
-//           const selectedRow = chartData[selectedRowIndex + 1];
-//           if (selectedRow) {
-//             const stateCode = selectedRow[0];
-//             fetchStateNurseries(stateCode);
-//           }
-//         }
-//       }, 0);
-//     },
-//   },
-// ];
-
-//   return (
-//     <div className="map-card-container">
-//       {/* Header Banner */}
-//       <div className="map-card-header">
-//         <span className="map-header-icon">🌱</span>
-//         <span className="map-header-title">
-//           Total number of Registered Nurseries (State-wise)
-//         </span>
-//       </div>
-
-//       {/* GeoChart Map */}
-//       <div className="map-chart-body">
-//         {loading ? (
-//           <p style={{ textAlign: "center", padding: "20px" }}>Loading Map Data...</p>
-//         ) : (
-//           <Chart
-//   chartType="GeoChart"
-//   width="100%"
-//   height="360px"
-//   data={chartData}
-//   options={options}
-//   chartEvents={chartEvents}
-//   version="current"
-// />
-//         )}
-//       </div>
-
-//       {/* Footer Bar */}
-//       <div className="map-card-footer">
-//         <div className="footer-item">
-//           Total Nurseries: <strong>{totalNurseries}</strong>
-//         </div>
-//         <div className="footer-item density-bar-container">
-//           <span>Density:</span>
-//           <div className="gradient-density-bar"></div>
-//         </div>
-//         <div className="footer-item">
-//           Highest: <strong>{highestState.name} ({highestState.count})</strong>
-//         </div>
-//       </div>
-
-//       {/* State Nurseries Detail Modal */}
-//       {selectedStateCode && (
-//         <div style={modalOverlayStyle}>
-//           <div style={modalCardStyle}>
-//             <button
-//               style={closeBtnStyle}
-//               onClick={() => {
-//                 setSelectedStateCode(null);
-//                 setModalData(null);
-//               }}
-//             >
-//               ×
-//             </button>
-
-//             {!modalData ? (
-//               <p>Loading details for {selectedStateCode}...</p>
-//             ) : (
-//               <div>
-//                 <h2>{modalData.stateName || selectedStateCode} Nurseries</h2>
-//                 <p>Total Registered: <strong>{modalData.total}</strong></p>
-
-//                 <div style={nurseryGridStyle}>
-//                   {modalData.nurseries && modalData.nurseries.length > 0 ? (
-//                     modalData.nurseries.map((item) => (
-//                       <div key={item.id} style={nurseryCardStyle}>
-//                         {item.photoUrl && (
-//                           <img
-//                             src={item.photoUrl}
-//                             alt={item.name}
-//                             style={{
-//                               width: "100%",
-//                               height: "120px",
-//                               objectFit: "cover",
-//                               borderRadius: "4px",
-//                             }}
-//                           />
-//                         )}
-//                         <h4 style={{ margin: "8px 0 4px" }}>{item.name}</h4>
-//                         {item.address && (
-//                           <p style={{ fontSize: "12px", margin: "2px 0" }}>
-//                             📍 {item.address}
-//                           </p>
-//                         )}
-//                         {item.phone && (
-//                           <p style={{ fontSize: "12px", color: "#555" }}>
-//                             📞 {item.phone}
-//                           </p>
-//                         )}
-//                       </div>
-//                     ))
-//                   ) : (
-//                     <p>No active nurseries found for this state.</p>
-//                   )}
-//                 </div>
-//               </div>
-//             )}
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-// // Inline Styles for Modal
-// const modalOverlayStyle = {
-//   position: "fixed",
-//   top: 0,
-//   left: 0,
-//   right: 0,
-//   bottom: 0,
-//   backgroundColor: "rgba(0,0,0,0.5)",
-//   display: "flex",
-//   justifyContent: "center",
-//   alignItems: "center",
-//   zIndex: 1000,
-// };
-
-// const modalCardStyle = {
-//   backgroundColor: "#fff",
-//   padding: "20px",
-//   borderRadius: "8px",
-//   maxWidth: "650px",
-//   width: "90%",
-//   maxHeight: "80vh",
-//   overflowY: "auto",
-//   position: "relative",
-// };
-
-// const closeBtnStyle = {
-//   position: "absolute",
-//   top: "10px",
-//   right: "15px",
-//   fontSize: "24px",
-//   background: "none",
-//   border: "none",
-//   cursor: "pointer",
-// };
-
-// const nurseryGridStyle = {
-//   display: "grid",
-//   gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-//   gap: "12px",
-//   marginTop: "15px",
-// };
-
-// const nurseryCardStyle = {
-//   border: "1px solid #ddd",
-//   borderRadius: "6px",
-//   padding: "10px",
-//   backgroundColor: "#f9f9f9",
-// };
-
-// export default IndiaMap;
-// import React, { useState, useEffect } from "react";
-// import { Chart } from "react-google-charts";
-
-// const API_BASE_URL = "http://127.0.0.1:8000";
-
-// // Comprehensive Mapping for All States and UTs to ISO Codes (IN-XX)
-// const STATE_CODE_MAP = {
-//   "1": "IN-JK", "2": "IN-HP", "3": "IN-PB", "4": "IN-CH", "5": "IN-UT",
-//   "6": "IN-HR", "7": "IN-DL", "8": "IN-RJ", "9": "IN-UP", "10": "IN-BR",
-//   "11": "IN-SK", "12": "IN-AR", "13": "IN-NL", "14": "IN-MN", "15": "IN-MZ",
-//   "16": "IN-TR", "17": "IN-ML", "18": "IN-AS", "19": "IN-WB", "20": "IN-JH",
-//   "21": "IN-OR", "22": "IN-CT", "23": "IN-MP", "24": "IN-GJ", "27": "IN-MH",
-//   "28": "IN-AP", "29": "IN-KA", "30": "IN-GA", "31": "IN-LD", "32": "IN-KL",
-//   "33": "IN-TN", "34": "IN-PY", "35": "IN-AN", "36": "IN-TG", "37": "IN-LA",
-//   "38": "IN-DH",
-
-//   "jammu and kashmir": "IN-JK", "jk": "IN-JK",
-//   "himachal pradesh": "IN-HP", "hp": "IN-HP",
-//   "punjab": "IN-PB", "pb": "IN-PB",
-//   "chandigarh": "IN-CH", "ch": "IN-CH",
-//   "uttarakhand": "IN-UT", "ut": "IN-UT",
-//   "haryana": "IN-HR", "hr": "IN-HR",
-//   "delhi": "IN-DL", "dl": "IN-DL",
-//   "rajasthan": "IN-RJ", "rj": "IN-RJ",
-//   "uttar pradesh": "IN-UP", "up": "IN-UP",
-//   "bihar": "IN-BR", "br": "IN-BR",
-//   "sikkim": "IN-SK", "sk": "IN-SK",
-//   "arunachal pradesh": "IN-AR", "ar": "IN-AR",
-//   "nagaland": "IN-NL", "nl": "IN-NL",
-//   "manipur": "IN-MN", "mn": "IN-MN",
-//   "mizoram": "IN-MZ", "mz": "IN-MZ",
-//   "tripura": "IN-TR", "tr": "IN-TR",
-//   "meghalaya": "IN-ML", "ml": "IN-ML",
-//   "assam": "IN-AS", "as": "IN-AS",
-//   "west bengal": "IN-WB", "wb": "IN-WB",
-//   "jharkhand": "IN-JH", "jh": "IN-JH",
-//   "odisha": "IN-OR", "or": "IN-OR",
-//   "chhattisgarh": "IN-CT", "ct": "IN-CT",
-//   "madhya pradesh": "IN-MP", "mp": "IN-MP",
-//   "gujarat": "IN-GJ", "gj": "IN-GJ",
-//   "maharashtra": "IN-MH", "mh": "IN-MH",
-//   "andhra pradesh": "IN-AP", "ap": "IN-AP",
-//   "karnataka": "IN-KA", "ka": "IN-KA",
-//   "goa": "IN-GA", "ga": "IN-GA",
-//   "lakshadweep": "IN-LD", "ld": "IN-LD",
-//   "kerala": "IN-KL", "kl": "IN-KL",
-//   "tamil nadu": "IN-TN", "tn": "IN-TN",
-//   "puducherry": "IN-PY", "py": "IN-PY",
-//   "andaman and nicobar islands": "IN-AN", "an": "IN-AN",
-//   "telangana": "IN-TG", "tg": "IN-TG",
-//   "ladakh": "IN-LA", "la": "IN-LA",
-//   "dadra and nagar haveli and daman and diu": "IN-DH", "dh": "IN-DH"
-// };
-
-// const normalizeStateCode = (input) => {
-//   if (!input) return null;
-//   const str = String(input).trim().toLowerCase();
-//   if (str.startsWith("in-")) return str.toUpperCase();
-//   if (STATE_CODE_MAP[str]) return STATE_CODE_MAP[str];
-//   return `IN-${str.toUpperCase()}`;
-// };
-
-// const options = {
-//   region: "IN",
-//   domain: "IN",
-//   displayMode: "regions",
-//   resolution: "provinces",
-//   datalessRegionColor: "#F4F6F0",
-//   colorAxis: {
-//     colors: ["#C8E6C9", "#2E7D32", "#1E4D2B"], // Gradient density colors
-//   },
-//   legend: "none",
-//   backgroundColor: "transparent",
-//   tooltip: { trigger: "focus" },
-// };
-
-// function IndiaMap() {
-//   const [chartData, setChartData] = useState([["State", "Nurseries"]]);
-//   const [totalNurseries, setTotalNurseries] = useState(0);
-//   const [highestState, setHighestState] = useState({ name: "-", count: 0 });
-//   const [selectedStateCode, setSelectedStateCode] = useState(null);
-//   const [modalData, setModalData] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [showAll, setShowAll] = useState(false);
-
-//   // 1. Dynamic API Fetching & Dynamic Aggregation
-//   useEffect(() => {
-//     fetch(`${API_BASE_URL}/api/map-data/`)
-//       .then((res) => res.json())
-//       .then((data) => {
-//         const formattedChartData = [["State", "Nurseries"]];
-//         let total = 0;
-//         let maxCount = 0;
-//         let maxStateName = "-";
-
-//         if (Array.isArray(data)) {
-//           data.forEach((item) => {
-//             let rawIdentifier, rawCount, displayName;
-
-//             if (Array.isArray(item)) {
-//               rawIdentifier = item[0];
-//               rawCount = item[1];
-//               displayName = item[0];
-//             } else if (typeof item === "object" && item !== null) {
-//               rawIdentifier = item.state_code || item.state_name || item.state_id || item.State;
-//               rawCount = item.nurseries_count ?? item.total ?? item.count ?? item.Nurseries;
-//               displayName = item.state_name || item.state_code || rawIdentifier;
-//             }
-
-//             const code = normalizeStateCode(rawIdentifier);
-//             const count = Number(rawCount) || 0;
-
-//             if (code && count > 0) {
-//               formattedChartData.push([code, count]);
-//               total += count;
-
-//               if (count > maxCount) {
-//                 maxCount = count;
-//                 maxStateName = displayName;
-//               }
-//             }
-//           });
+//         if (count > maxState.count) {
+//           maxState = { name: cleanName, count: count };
 //         }
 
-//         if (formattedChartData.length > 1) {
-//           setChartData(formattedChartData);
+//         if (isoCode) {
+//           // Google GeoChart REQUIRES valid ISO codes (e.g. "IN-WB") to prevent library scripts from breaking
+//           formattedChartData.push([isoCode, count]);
 //         }
-
-//         setTotalNurseries(total);
-//         setHighestState({ name: maxStateName, count: maxCount });
-//         setLoading(false);
-//       })
-//       .catch((err) => {
-//         console.error("Error fetching map data:", err);
-//         setLoading(false);
 //       });
-//   }, []);
 
-//   // 2. Fetch nurseries when clicked using exact stateCode
-//   const fetchStateNurseries = (stateCode) => {
-//     setSelectedStateCode(stateCode);
-//     setModalData(null);
-//     setShowAll(false);
-
-//     const cleanCode = stateCode.replace("IN-", "");
-//     fetch(`${API_BASE_URL}/api/nurseries/state-details/?stateCode=${stateCode}&code=${cleanCode}`)
-//       .then((res) => res.json())
-//       .then((data) => setModalData(data))
-//       .catch((err) => console.error("Error fetching state details:", err));
+//       setChartData(formattedChartData);
+//       setTotalNurseries(total);
+//       setHighestState(maxState);
+//     } catch (error) {
+//       console.error("Error fetching map data:", error);
+//     }
 //   };
 
-//   // 3. Fixes wrong state details click bug by fetching from Chart DataTable
+//   const handleMouseMove = (e) => {
+//     if (containerRef.current) {
+//       const rect = containerRef.current.getBoundingClientRect();
+//       setTooltipPos({
+//         x: e.clientX - rect.left + 15,
+//         y: e.clientY - rect.top + 15,
+//       });
+//     }
+//   };
+
+//   const fetchStateDetailsForHover = async (stateRecord) => {
+//     setLoadingHover(true);
+//     try {
+//       const cleanName = getCleanName(stateRecord.state_name || stateRecord.state_code);
+//       const response = await axios.get(
+//         `${API_BASE_URL}/nurseries/state-details/`,
+//         {
+//           params: {
+//             state_id: stateRecord.state_id,
+//             stateCode: stateRecord.state_code,
+//             state_name: cleanName,
+//           },
+//         }
+//       );
+
+//       if (response?.data?.nurseries) {
+//         setHoverNurseries(response.data.nurseries);
+//       } else {
+//         setHoverNurseries([]);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching hover nursery details:", error);
+//       setHoverNurseries([]);
+//     } finally {
+//       setLoadingHover(false);
+//     }
+//   };
+
 //   const chartEvents = [
 //     {
 //       eventName: "select",
 //       callback: ({ chartWrapper }) => {
-//         const chart = chartWrapper.getChart();
-//         if (!chart) return;
+//         try {
+//           if (!chartWrapper) return;
+//           const chart = chartWrapper.getChart();
+//           if (!chart) return;
+//           const selection = chart.getSelection();
 
-//         const selection = chart.getSelection();
-//         if (!selection || selection.length === 0) return;
+//           if (selection && selection.length > 0) {
+//             const selectedItem = selection[0];
+//             const dataRow = selectedItem.row;
 
-//         const selectedRowIndex = selection[0].row;
-//         if (selectedRowIndex !== null && selectedRowIndex !== undefined) {
-//           const dataTable = chartWrapper.getDataTable();
-//           // Extract exact ISO Code directly from the DataTable row clicked
-//           const clickedStateCode = dataTable.getValue(selectedRowIndex, 0);
-//           if (clickedStateCode) {
-//             fetchStateNurseries(clickedStateCode);
+//             if (dataRow !== null && dataRow !== undefined && mapData[dataRow]) {
+//               const stateRecord = mapData[dataRow];
+//               const cleanName = getCleanName(stateRecord.state_name || stateRecord.state_code);
+//               handleStateClick(
+//                 stateRecord.state_code,
+//                 cleanName,
+//                 stateRecord.state_id
+//               );
+//             }
 //           }
+//         } catch (err) {
+//           // Prevent standard script error crash
 //         }
+//       },
+//     },
+//     {
+//       eventName: "onregionover",
+//       callback: ({ region }) => {
+//         try {
+//           if (!region || !mapData.length) return;
+
+//           const cleanRegionName = getCleanName(region);
+//           const isoRegion = getIsoCode(region);
+
+//           const stateRecord = mapData.find((item) => {
+//             const itemIso = getIsoCode(item.state_code || item.state_name);
+//             return itemIso === isoRegion || getCleanName(item.state_name) === cleanRegionName;
+//           });
+
+//           setHoverState(cleanRegionName); // Displays clean state name in tooltip
+
+//           if (stateRecord) {
+//             fetchStateDetailsForHover(stateRecord);
+//           } else {
+//             setHoverNurseries([]);
+//           }
+//         } catch (err) {
+//           // Safe catch block
+//         }
+//       },
+//     },
+//     {
+//       eventName: "onregionout",
+//       callback: () => {
+//         setHoverState(null);
+//         setHoverNurseries([]);
 //       },
 //     },
 //   ];
 
+//   const handleStateClick = async (stateCode, stateName, stateId) => {
+//     const cleanName = getCleanName(stateName || stateCode);
+//     setSelectedState(cleanName);
+//     setLoadingModal(true);
+//     setShowModal(true);
+
+//     try {
+//       const response = await axios.get(
+//         `${API_BASE_URL}/nurseries/state-details/`,
+//         {
+//           params: {
+//             state_id: stateId,
+//             stateCode: stateCode,
+//             state_name: cleanName,
+//           },
+//         }
+//       );
+
+//       if (response?.data?.nurseries) {
+//         setNurseryDetails(response.data.nurseries);
+//       } else {
+//         setNurseryDetails([]);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching state nursery details:", error);
+//       setNurseryDetails([]);
+//     } finally {
+//       setLoadingModal(false);
+//     }
+//   };
+
+//   const closeModal = () => {
+//     setShowModal(false);
+//     setSelectedState(null);
+//     setNurseryDetails([]);
+//   };
+
+//   const chartOptions = {
+//     region: "IN",
+//     domain: "IN",
+//     displayMode: "regions",
+//     resolution: "provinces",
+//     colorAxis: {
+//       minValue: 0,
+//       maxValue: Math.max(highestState.count, 10),
+//       colors: ["#EBF5ED", "#A3D9B1", "#2E7D32", "#1B5E20"],
+//     },
+//     backgroundColor: "transparent",
+//     datalessRegionColor: "transparent",
+//     defaultColor: "#EBF5ED",
+//     keepAspectRatio: true,
+//     tooltip: { trigger: "none" }, // Disable Google's internal native tooltip box
+//   };
+
 //   return (
-//     <div className="map-card-container">
-//       {/* Header Banner */}
-//       <div className="map-card-header">
-//         <span className="map-header-icon">🌱</span>
-//         <span className="map-header-title">
+//     <div
+//       ref={containerRef}
+//       onMouseMove={handleMouseMove}
+//       style={{
+//         maxWidth: "700px",
+//         margin: "0 auto",
+//         padding: "10px",
+//         fontFamily: "Arial, sans-serif",
+//         position: "relative",
+//       }}
+//     >
+//       <div
+//         style={{
+//           display: "flex",
+//           alignItems: "center",
+//           gap: "8px",
+//           marginBottom: "10px",
+//         }}
+//       >
+//         <span style={{ fontSize: "16px" }}>🌱</span>
+//         <h3 style={{ margin: 0, fontSize: "15px", color: "#333333", fontWeight: "600" }}>
 //           Total number of Registered Nurseries (State-wise)
-//         </span>
+//         </h3>
 //       </div>
 
-//       {/* GeoChart Map */}
-//       <div className="map-chart-body">
-//         {loading ? (
-//           <p style={{ textAlign: "center", padding: "20px" }}>Loading Map Data...</p>
-//         ) : (
+//       <div style={{ width: "100%", height: "360px", position: "relative" }}>
+//         {chartData.length > 1 ? (
 //           <Chart
 //             chartType="GeoChart"
 //             width="100%"
-//             height="360px"
+//             height="100%"
 //             data={chartData}
-//             options={options}
+//             options={chartOptions}
 //             chartEvents={chartEvents}
-//             version="current"
 //           />
+//         ) : (
+//           <div
+//             style={{
+//               display: "flex",
+//               justifyContent: "center",
+//               alignItems: "center",
+//               height: "100%",
+//               color: "#888",
+//               fontSize: "13px",
+//             }}
+//           >
+//             Loading map data...
+//           </div>
 //         )}
-//       </div>
 
-//       {/* Footer Bar Automatically Calculated */}
-//       <div className="map-card-footer">
-//         <div className="footer-item">
-//           Total Nurseries: <strong>{totalNurseries}</strong>
-//         </div>
-//         <div className="footer-item density-bar-container">
-//           <span>Density:</span>
-//           <div className="gradient-density-bar"></div>
-//         </div>
-//         <div className="footer-item">
-//           Highest: <strong>{highestState.name} ({highestState.count})</strong>
-//         </div>
-//       </div>
-
-//       {/* State Details Modal */}
-//       {selectedStateCode && (
-//         <div style={modalOverlayStyle}>
-//           <div style={modalCardStyle}>
-//             <button
-//               style={closeBtnStyle}
-//               onClick={() => {
-//                 setSelectedStateCode(null);
-//                 setModalData(null);
-//                 setShowAll(false);
+//         {/* Hover Floating Card Table */}
+//         {hoverState && (
+//           <div
+//             style={{
+//               position: "absolute",
+//               top: `${tooltipPos.y}px`,
+//               left: `${tooltipPos.x}px`,
+//               backgroundColor: "#ffffff",
+//               border: "1px solid #ddd",
+//               borderRadius: "8px",
+//               padding: "12px",
+//               boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+//               pointerEvents: "none",
+//               zIndex: 999,
+//               width: "480px",
+//               maxHeight: "300px",
+//               overflowY: "auto",
+//             }}
+//           >
+//             <h4
+//               style={{
+//                 margin: "0 0 8px 0",
+//                 color: "#2e7d32",
+//                 fontSize: "14px",
+//                 borderBottom: "2px solid #2e7d32",
+//                 paddingBottom: "4px",
 //               }}
 //             >
-//               ×
-//             </button>
+//               Nurseries in {hoverState} ({hoverNurseries.length})
+//             </h4>
 
-//             {!modalData ? (
-//               <p style={{ textAlign: "center", padding: "20px" }}>
-//                 Loading details for {selectedStateCode}...
+//             {loadingHover ? (
+//               <p style={{ margin: 0, fontSize: "12px", color: "#666" }}>
+//                 Loading nursery details...
+//               </p>
+//             ) : hoverNurseries.length === 0 ? (
+//               <p style={{ margin: 0, fontSize: "12px", color: "#888" }}>
+//                 No active nurseries registered.
 //               </p>
 //             ) : (
-//               <div>
-//                 <h2 style={{ color: "#1E4D2B", margin: "0 0 8px 0" }}>
-//                   🌱 {modalData.stateName || selectedStateCode} Nurseries
-//                 </h2>
-//                 <p style={{ margin: "0 0 16px 0", color: "#555" }}>
-//                   Total Registered: <strong>{modalData.total || (modalData.nurseries ? modalData.nurseries.length : 0)}</strong>
-//                 </p>
+//               <table
+//                 style={{
+//                   width: "100%",
+//                   borderCollapse: "collapse",
+//                   fontSize: "11px",
+//                 }}
+//               >
+//                 <thead>
+//                   <tr style={{ backgroundColor: "#2e7d32", color: "#fff" }}>
+//                     <th style={{ padding: "6px", textAlign: "left" }}>Photo</th>
+//                     <th style={{ padding: "6px", textAlign: "left" }}>Nursery Name</th>
+//                     <th style={{ padding: "6px", textAlign: "left" }}>Address</th>
+//                     <th style={{ padding: "6px", textAlign: "left" }}>Contact</th>
+//                     <th style={{ padding: "6px", textAlign: "left" }}>Phone</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody>
+//                   {hoverNurseries.map((nursery, idx) => {
+//                     const rawPhoto =
+//                       nursery.photo_url ||
+//                       nursery.photoUrl ||
+//                       nursery.Nursery_PHOTO ||
+//                       nursery.photo;
 
-//                 {modalData.nurseries && modalData.nurseries.length > 0 ? (
-//                   <>
-//                     <div style={{ overflowX: "auto" }}>
-//                       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
-//                         <thead>
-//                           <tr style={{ backgroundColor: "#1E4D2B", color: "#ffffff", textAlign: "left" }}>
-//                             <th style={{ padding: "10px", fontSize: "13px" }}>#</th>
-//                             <th style={{ padding: "10px", fontSize: "13px" }}>Nursery Name</th>
-//                             <th style={{ padding: "10px", fontSize: "13px" }}>Location</th>
-//                             <th style={{ padding: "10px", fontSize: "13px" }}>Phone</th>
-//                           </tr>
-//                         </thead>
-//                         <tbody>
-//                           {(showAll ? modalData.nurseries : modalData.nurseries.slice(0, 3)).map((item, index) => (
-//                             <tr key={item.id || index} style={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#F9FBE7" }}>
-//                               <td style={{ padding: "10px", fontSize: "13px", borderBottom: "1px solid #E2F0D9" }}>{index + 1}</td>
-//                               <td style={{ padding: "10px", fontSize: "13px", borderBottom: "1px solid #E2F0D9", fontWeight: "bold", color: "#2E7D32" }}>
-//                                 {item.name || item.nursery_name}
-//                               </td>
-//                               <td style={{ padding: "10px", fontSize: "13px", borderBottom: "1px solid #E2F0D9" }}>
-//                                 📍 {item.address || item.location || "N/A"}
-//                               </td>
-//                               <td style={{ padding: "10px", fontSize: "13px", borderBottom: "1px solid #E2F0D9" }}>
-//                                 📞 {item.phone || item.mobile || "N/A"}
-//                               </td>
-//                             </tr>
-//                           ))}
-//                         </tbody>
-//                       </table>
-//                     </div>
+//                     const filename = rawPhoto ? rawPhoto.split("/").pop() : null;
+//                     const fullPhotoUrl = filename ? `${IMAGE_BASE_URL}${filename}` : null;
 
-//                     {modalData.nurseries.length > 3 && (
-//                       <div style={{ textAlign: "center", marginTop: "16px" }}>
-//                         <button
-//                           onClick={() => setShowAll(!showAll)}
-//                           style={{
-//                             backgroundColor: "#548235",
-//                             color: "#ffffff",
-//                             border: "none",
-//                             padding: "8px 20px",
-//                             borderRadius: "20px",
-//                             cursor: "pointer",
-//                             fontWeight: "bold",
-//                             fontSize: "13px"
-//                           }}
-//                         >
-//                           {showAll ? "View Less ▲" : `View More (${modalData.nurseries.length - 3} More) ▼`}
-//                         </button>
-//                       </div>
-//                     )}
-//                   </>
-//                 ) : (
-//                   <p style={{ textAlign: "center", color: "#888", padding: "20px" }}>No active nurseries found for this state.</p>
-//                 )}
-//               </div>
+//                     return (
+//                       <tr
+//                         key={nursery.id || idx}
+//                         style={{
+//                           borderBottom: "1px solid #eee",
+//                           backgroundColor: idx % 2 === 0 ? "#fff" : "#fafafa",
+//                         }}
+//                       >
+//                         <td style={{ padding: "4px", width: "45px" }}>
+//                           {fullPhotoUrl ? (
+//                             <img
+//                               src={fullPhotoUrl}
+//                               alt="Nursery"
+//                               style={{
+//                                 width: "35px",
+//                                 height: "35px",
+//                                 objectFit: "cover",
+//                                 borderRadius: "4px",
+//                               }}
+//                               onError={(e) => {
+//                                 e.currentTarget.style.display = "none";
+//                               }}
+//                             />
+//                           ) : (
+//                             <span style={{ fontSize: "9px", color: "#999" }}>N/A</span>
+//                           )}
+//                         </td>
+//                         <td style={{ padding: "4px", fontWeight: "bold" }}>
+//                           {nursery.name || "N/A"}
+//                         </td>
+//                         <td style={{ padding: "4px" }}>
+//                           {nursery.address || nursery.location || "N/A"}
+//                         </td>
+//                         <td style={{ padding: "4px" }}>
+//                           {nursery.contact_person || "N/A"}
+//                         </td>
+//                         <td style={{ padding: "4px" }}>
+//                           {nursery.phone || "N/A"}
+//                         </td>
+//                       </tr>
+//                     );
+//                   })}
+//                 </tbody>
+//               </table>
 //             )}
 //           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-// // Inline Styles for Modal
-// const modalOverlayStyle = {
-//   position: "fixed",
-//   top: 0,
-//   left: 0,
-//   right: 0,
-//   bottom: 0,
-//   backgroundColor: "rgba(0,0,0,0.5)",
-//   display: "flex",
-//   justifyContent: "center",
-//   alignItems: "center",
-//   zIndex: 1000,
-// };
-
-// const modalCardStyle = {
-//   backgroundColor: "#fff",
-//   padding: "20px",
-//   borderRadius: "8px",
-//   maxWidth: "650px",
-//   width: "90%",
-//   maxHeight: "80vh",
-//   overflowY: "auto",
-//   position: "relative",
-// };
-
-// const closeBtnStyle = {
-//   position: "absolute",
-//   top: "10px",
-//   right: "15px",
-//   fontSize: "24px",
-//   background: "none",
-//   border: "none",
-//   cursor: "pointer",
-// };
-
-// export default IndiaMap;
-// import React, { useState, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { Chart } from "react-google-charts";
-
-// const API_BASE_URL = "http://127.0.0.1:8000";
-
-// // Complete mapping for all 36 States and UTs from M001_State database table
-// const STATE_CODE_MAP = {
-//   "1": "IN-JK", "2": "IN-HP", "3": "IN-PB", "4": "IN-CH", "5": "IN-UT",
-//   "6": "IN-HR", "7": "IN-DL", "8": "IN-RJ", "9": "IN-UP", "10": "IN-BR",
-//   "11": "IN-SK", "12": "IN-AR", "13": "IN-NL", "14": "IN-MN", "15": "IN-MZ",
-//   "16": "IN-TR", "17": "IN-ML", "18": "IN-AS", "19": "IN-WB", "20": "IN-JH",
-//   "21": "IN-OR", "22": "IN-CT", "23": "IN-MP", "24": "IN-GJ", "27": "IN-MH",
-//   "28": "IN-AP", "29": "IN-KA", "30": "IN-GA", "31": "IN-LD", "32": "IN-KL",
-//   "33": "IN-TN", "34": "IN-PY", "35": "IN-AN", "36": "IN-TG", "37": "IN-LA",
-//   "38": "IN-DH",
-
-//   "jammu and kashmir": "IN-JK", "jk": "IN-JK",
-//   "himachal pradesh": "IN-HP", "hp": "IN-HP",
-//   "punjab": "IN-PB", "pb": "IN-PB",
-//   "chandigarh": "IN-CH", "ch": "IN-CH",
-//   "uttarakhand": "IN-UT", "ut": "IN-UT",
-//   "haryana": "IN-HR", "hr": "IN-HR",
-//   "delhi": "IN-DL", "dl": "IN-DL",
-//   "rajasthan": "IN-RJ", "rj": "IN-RJ",
-//   "uttar pradesh": "IN-UP", "up": "IN-UP",
-//   "bihar": "IN-BR", "br": "IN-BR",
-//   "sikkim": "IN-SK", "sk": "IN-SK",
-//   "arunachal pradesh": "IN-AR", "ar": "IN-AR",
-//   "nagaland": "IN-NL", "nl": "IN-NL",
-//   "manipur": "IN-MN", "mn": "IN-MN",
-//   "mizoram": "IN-MZ", "mz": "IN-MZ",
-//   "tripura": "IN-TR", "tr": "IN-TR",
-//   "meghalaya": "IN-ML", "ml": "IN-ML",
-//   "assam": "IN-AS", "as": "IN-AS",
-//   "west bengal": "IN-WB", "wb": "IN-WB",
-//   "jharkhand": "IN-JH", "jh": "IN-JH",
-//   "odisha": "IN-OR", "or": "IN-OR",
-//   "chhattisgarh": "IN-CT", "ct": "IN-CT",
-//   "madhya pradesh": "IN-MP", "mp": "IN-MP",
-//   "gujarat": "IN-GJ", "gj": "IN-GJ",
-//   "maharashtra": "IN-MH", "mh": "IN-MH",
-//   "andhra pradesh": "IN-AP", "ap": "IN-AP",
-//   "karnataka": "IN-KA", "ka": "IN-KA",
-//   "goa": "IN-GA", "ga": "IN-GA",
-//   "lakshadweep": "IN-LD", "ld": "IN-LD",
-//   "kerala": "IN-KL", "kl": "IN-KL",
-//   "tamil nadu": "IN-TN", "tn": "IN-TN",
-//   "puducherry": "IN-PY", "py": "IN-PY",
-//   "andaman and nicobar islands": "IN-AN", "an": "IN-AN",
-//   "telangana": "IN-TG", "tg": "IN-TG",
-//   "ladakh": "IN-LA", "la": "IN-LA",
-//   "the dadra and nagar haveli and daman and diu": "IN-DH", "dadra and nagar haveli": "IN-DH", "dh": "IN-DH"
-// };
-
-// const STATE_NAMES = {
-//   "IN-KA": "Karnataka",
-//   "IN-RJ": "Rajasthan",
-//   "IN-JK": "Jammu and Kashmir",
-//   "IN-MH": "Maharashtra",
-//   "IN-TN": "Tamil Nadu",
-//   "IN-DL": "Delhi",
-//   "IN-UP": "Uttar Pradesh"
-// };
-
-// const normalizeStateCode = (input) => {
-//   if (!input) return null;
-//   const str = String(input).trim().toLowerCase();
-//   if (str.startsWith("in-")) return str.toUpperCase();
-//   if (STATE_CODE_MAP[str]) return STATE_CODE_MAP[str];
-//   return `IN-${str.toUpperCase()}`;
-// };
-
-// const options = {
-//   region: "IN",
-//   domain: "IN",
-//   displayMode: "regions",
-//   resolution: "provinces",
-//   datalessRegionColor: "#FFFFFF",
-//   colorAxis: {
-//     colors: ["#E2F0D9", "#1E4D2B"],
-//   },
-//   legend: "none",
-//   backgroundColor: "transparent",
-//   tooltip: { trigger: "focus" },
-// };
-
-// function IndiaMap() {
-//   const [chartData, setChartData] = useState([["State", "Nurseries"]]);
-//   const [totalNurseries, setTotalNurseries] = useState(0);
-//   const [highestState, setHighestState] = useState({ name: "-", count: 0 });
-//   const [selectedStateCode, setSelectedStateCode] = useState(null);
-//   const [modalData, setModalData] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [showAll, setShowAll] = useState(false);
-
-//   useEffect(() => {
-//     fetch(`${API_BASE_URL}/api/map-data/`)
-//       .then((res) => res.json())
-//       .then((data) => {
-//         let rjCount = 0;
-//         let kaCount = 0;
-
-//         if (Array.isArray(data)) {
-//           data.forEach((item) => {
-//             const rawIdentifier = item.state_code || item.state_name || item.state_id || item.State;
-//             const code = normalizeStateCode(rawIdentifier);
-//             const count = Number(item.nurseries_count ?? item.total ?? item.count ?? item.Nurseries) || 0;
-            
-//             if (code === "IN-RJ") rjCount = count;
-//             if (code === "IN-KA") kaCount = count;
-//           });
-//         }
-
-//         if (rjCount === 0) rjCount = 6;
-//         if (kaCount === 0) kaCount = 5;
-
-//         // Give non-zero heat value so Google Maps registers click events accurately across all states
-//         const formattedChartData = [
-//           ["State", "Nurseries"],
-//           ["IN-JK", 0.01], ["IN-HP", 0.01], ["IN-PB", 0.01], ["IN-CH", 0.01], ["IN-UT", 0.01],
-//           ["IN-HR", 0.01], ["IN-DL", 0.01], ["IN-RJ", rjCount], ["IN-UP", 0.01], ["IN-BR", 0.01],
-//           ["IN-SK", 0.01], ["IN-AR", 0.01], ["IN-NL", 0.01], ["IN-MN", 0.01], ["IN-MZ", 0.01],
-//           ["IN-TR", 0.01], ["IN-ML", 0.01], ["IN-AS", 0.01], ["IN-WB", 0.01], ["IN-JH", 0.01],
-//           ["IN-OR", 0.01], ["IN-CT", 0.01], ["IN-MP", 0.01], ["IN-GJ", 0.01], ["IN-MH", 0.01],
-//           ["IN-AP", 0.01], ["IN-KA", kaCount], ["IN-GA", 0.01], ["IN-LD", 0.01], ["IN-KL", 0.01],
-//           ["IN-TN", 0.01], ["IN-PY", 0.01], ["IN-AN", 0.01], ["IN-TG", 0.01], ["IN-LA", 0.01], ["IN-DH", 0.01]
-//         ];
-
-//         setChartData(formattedChartData);
-//         setTotalNurseries(rjCount + kaCount);
-//         setHighestState({ name: "Rajasthan", count: rjCount });
-//         setLoading(false);
-//       })
-//       .catch((err) => {
-//         console.error("Error loading map data:", err);
-//         setLoading(false);
-//       });
-//   }, []);
-
-//   const fetchStateNurseries = (stateCode) => {
-//     setSelectedStateCode(stateCode);
-//     setModalData(null);
-//     setShowAll(false);
-
-//     const cleanCode = stateCode.replace("IN-", "");
-//     const stateIdMap = { "IN-KA": 29, "IN-RJ": 8 };
-//     const stateId = stateIdMap[stateCode] || "";
-
-//     fetch(`${API_BASE_URL}/api/nurseries/state-details/?stateCode=${stateCode}&code=${cleanCode}&state_id=${stateId}`)
-//       .then((res) => res.json())
-//       .then((data) => setModalData(data))
-//       .catch((err) => console.error("Error fetching state details:", err));
-//   };
-
-//   // Click handler that extracts exact ISO State Code from Chart DataTable directly
-//   const chartEvents = [
-//     {
-//       eventName: "select",
-//       callback: ({ chartWrapper }) => {
-//         const chart = chartWrapper.getChart();
-//         if (!chart) return;
-        
-//         const selection = chart.getSelection();
-//         if (!selection || selection.length === 0) return;
-
-//         const selectedRowIndex = selection[0].row;
-//         if (selectedRowIndex !== null && selectedRowIndex !== undefined) {
-//           // Extract exact value directly from active data table object
-//           const dataTable = chartWrapper.getDataTable();
-//           const stateCode = dataTable.getValue(selectedRowIndex, 0);
-//           if (stateCode) {
-//             fetchStateNurseries(stateCode);
-//           }
-//         }
-//       },
-//     },
-//   ];
-
-//   return (
-//     <div className="map-card-container">
-//       {/* Header Banner */}
-//       <div className="map-card-header">
-//         <span className="map-header-icon">🌱</span>
-//         <span className="map-header-title">
-//           Total number of Registered Nurseries (State-wise)
-//         </span>
-//       </div>
-
-//       {/* GeoChart Map */}
-//       <div className="map-chart-body">
-//         {loading ? (
-//           <p style={{ textAlign: "center", padding: "20px" }}>Loading Map Data...</p>
-//         ) : (
-//           <Chart
-//             chartType="GeoChart"
-//             width="100%"
-//             height="360px"
-//             data={chartData}
-//             options={options}
-//             chartEvents={chartEvents}
-//             version="current"
-//           />
 //         )}
 //       </div>
 
-//       {/* Footer Bar */}
-//       <div className="map-card-footer">
-//         <div className="footer-item">
+//       <div
+//         style={{
+//           marginTop: "10px",
+//           display: "flex",
+//           justifyContent: "space-between",
+//           alignItems: "center",
+//           fontSize: "13px",
+//           color: "#444444",
+//         }}
+//       >
+//         <div>
 //           Total Nurseries: <strong>{totalNurseries}</strong>
 //         </div>
-//         <div className="footer-item density-bar-container">
+
+//         <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
 //           <span>Density:</span>
-//           <div className="gradient-density-bar"></div>
+//           <div
+//             style={{
+//               width: "90px",
+//               height: "6px",
+//               borderRadius: "3px",
+//               background: "linear-gradient(90deg, #EBF5ED 0%, #1B5E20 100%)",
+//             }}
+//           />
 //         </div>
-//         <div className="footer-item">
-//           Highest: <strong>{highestState.name} ({highestState.count})</strong>
+
+//         <div>
+//           Highest:{" "}
+//           <strong>
+//             {highestState.name} ({highestState.count})
+//           </strong>
 //         </div>
 //       </div>
 
-//       {/* State Details Modal */}
-//       {selectedStateCode && (
-//         <div style={modalOverlayStyle}>
-//           <div style={modalCardStyle}>
-//             <button
-//               style={closeBtnStyle}
-//               onClick={() => {
-//                 setSelectedStateCode(null);
-//                 setModalData(null);
-//                 setShowAll(false);
+//       {/* Modal */}
+//       {showModal && (
+//         <div
+//           style={{
+//             position: "fixed",
+//             top: 0,
+//             left: 0,
+//             width: "100vw",
+//             height: "100vh",
+//             backgroundColor: "rgba(0,0,0,0.4)",
+//             display: "flex",
+//             justifyContent: "center",
+//             alignItems: "center",
+//             zIndex: 1000,
+//           }}
+//         >
+//           <div
+//             style={{
+//               backgroundColor: "#fff",
+//               width: "85%",
+//               maxWidth: "900px",
+//               maxHeight: "85vh",
+//               borderRadius: "10px",
+//               padding: "20px",
+//               overflowY: "auto",
+//               boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+//               position: "relative",
+//             }}
+//           >
+//             <div
+//               style={{
+//                 display: "flex",
+//                 justifyContent: "space-between",
+//                 alignItems: "center",
+//                 borderBottom: "2px solid #2e7d32",
+//                 paddingBottom: "10px",
+//                 marginBottom: "16px",
 //               }}
 //             >
-//               ×
-//             </button>
+//               <h3
+//                 style={{
+//                   margin: 0,
+//                   color: "#2e7d32",
+//                   fontSize: "18px",
+//                   fontWeight: "bold",
+//                 }}
+//               >
+//                 Nurseries in {selectedState} ({nurseryDetails.length})
+//               </h3>
+//               <button
+//                 onClick={closeModal}
+//                 style={{
+//                   background: "none",
+//                   border: "none",
+//                   fontSize: "22px",
+//                   fontWeight: "bold",
+//                   cursor: "pointer",
+//                   color: "#666",
+//                 }}
+//               >
+//                 &times;
+//               </button>
+//             </div>
 
-//             {!modalData ? (
-//               <p style={{ textAlign: "center", padding: "20px" }}>Loading details for {STATE_NAMES[selectedStateCode] || selectedStateCode}...</p>
+//             {loadingModal ? (
+//               <p style={{ textAlign: "center", padding: "30px", color: "#666" }}>
+//                 Loading nursery details...
+//               </p>
+//             ) : nurseryDetails.length === 0 ? (
+//               <p style={{ textAlign: "center", padding: "30px", color: "#888" }}>
+//                 No active nurseries found for {selectedState}.
+//               </p>
 //             ) : (
-//               <div>
-//                 <h2 style={{ color: "#1E4D2B", margin: "0 0 8px 0" }}>
-//                   🌱 {modalData.stateName || STATE_NAMES[selectedStateCode] || selectedStateCode} Nurseries
-//                 </h2>
-//                 <p style={{ margin: "0 0 16px 0", color: "#555" }}>
-//                   Total Registered: <strong>{modalData.total || (modalData.nurseries ? modalData.nurseries.length : 0)}</strong>
-//                 </p>
+//               <table
+//                 style={{
+//                   width: "100%",
+//                   borderCollapse: "collapse",
+//                   fontSize: "13px",
+//                 }}
+//               >
+//                 <thead>
+//                   <tr style={{ backgroundColor: "#2e7d32", color: "#fff" }}>
+//                     <th style={{ padding: "10px", textAlign: "left" }}>Photo</th>
+//                     <th style={{ padding: "10px", textAlign: "left" }}>Nursery Name</th>
+//                     <th style={{ padding: "10px", textAlign: "left" }}>Address</th>
+//                     <th style={{ padding: "10px", textAlign: "left" }}>Contact Person</th>
+//                     <th style={{ padding: "10px", textAlign: "left" }}>Phone</th>
+//                   </tr>
+//                 </thead>
+//                 <tbody>
+//                   {nurseryDetails.map((nursery, index) => {
+//                     const rawPhoto =
+//                       nursery.photo_url ||
+//                       nursery.photoUrl ||
+//                       nursery.Nursery_PHOTO ||
+//                       nursery.photo;
 
-//                 {modalData.nurseries && modalData.nurseries.length > 0 ? (
-//                   <>
-//                     <div style={{ overflowX: "auto" }}>
-//                       <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
-//                         <thead>
-//                           <tr style={{ backgroundColor: "#1E4D2B", color: "#ffffff", textAlign: "left" }}>
-//                             <th style={{ padding: "10px", fontSize: "13px" }}>#</th>
-//                             <th style={{ padding: "10px", fontSize: "13px" }}>Nursery Name</th>
-//                             <th style={{ padding: "10px", fontSize: "13px" }}>Location</th>
-//                             <th style={{ padding: "10px", fontSize: "13px" }}>Phone</th>
-//                           </tr>
-//                         </thead>
-//                         <tbody>
-//                           {(showAll ? modalData.nurseries : modalData.nurseries.slice(0, 3)).map((item, index) => (
-//                             <tr key={item.id || index} style={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#F9FBE7" }}>
-//                               <td style={{ padding: "10px", fontSize: "13px", borderBottom: "1px solid #E2F0D9" }}>{index + 1}</td>
-//                               <td style={{ padding: "10px", fontSize: "13px", borderBottom: "1px solid #E2F0D9", fontWeight: "bold", color: "#2E7D32" }}>
-//                                 {item.name || item.nursery_name}
-//                               </td>
-//                               <td style={{ padding: "10px", fontSize: "13px", borderBottom: "1px solid #E2F0D9" }}>
-//                                 📍 {item.address || item.location || "N/A"}
-//                               </td>
-//                               <td style={{ padding: "10px", fontSize: "13px", borderBottom: "1px solid #E2F0D9" }}>
-//                                 📞 {item.phone || item.mobile || "N/A"}
-//                               </td>
-//                             </tr>
-//                           ))}
-//                         </tbody>
-//                       </table>
-//                     </div>
+//                     const filename = rawPhoto ? rawPhoto.split("/").pop() : null;
+//                     const fullPhotoUrl = filename ? `${IMAGE_BASE_URL}${filename}` : null;
 
-//                     {modalData.nurseries.length > 3 && (
-//                       <div style={{ textAlign: "center", marginTop: "16px" }}>
-//                         <button
-//                           onClick={() => setShowAll(!showAll)}
-//                           style={{
-//                             backgroundColor: "#548235",
-//                             color: "#ffffff",
-//                             border: "none",
-//                             padding: "8px 20px",
-//                             borderRadius: "20px",
-//                             cursor: "pointer",
-//                             fontWeight: "bold",
-//                             fontSize: "13px"
-//                           }}
-//                         >
-//                           {showAll ? "View Less ▲" : `View More (${modalData.nurseries.length - 3} More) ▼`}
-//                         </button>
-//                       </div>
-//                     )}
-//                   </>
-//                 ) : (
-//                   <p style={{ textAlign: "center", color: "#888", padding: "20px" }}>No active nurseries found for this state.</p>
-//                 )}
-//               </div>
+//                     return (
+//                       <tr
+//                         key={nursery.id || index}
+//                         style={{
+//                           borderBottom: "1px solid #e0e0e0",
+//                           backgroundColor: index % 2 === 0 ? "#fff" : "#fafafa",
+//                         }}
+//                       >
+//                         <td style={{ padding: "10px", verticalAlign: "middle", width: "70px" }}>
+//                           {fullPhotoUrl ? (
+//                             <img
+//                               src={fullPhotoUrl}
+//                               alt={nursery.name || "Nursery"}
+//                               style={{
+//                                 width: "50px",
+//                                 height: "50px",
+//                                 objectFit: "cover",
+//                                 borderRadius: "6px",
+//                                 border: "1px solid #ddd",
+//                                 display: "block",
+//                               }}
+//                               onError={(e) => {
+//                                 e.currentTarget.style.display = "none";
+//                               }}
+//                             />
+//                           ) : (
+//                             <span style={{ fontSize: "11px", color: "#888", fontStyle: "italic" }}>
+//                               Coming Soon
+//                             </span>
+//                           )}
+//                         </td>
+//                         <td style={{ padding: "10px", fontWeight: "bold", color: "#222" }}>
+//                           {nursery.name || "N/A"}
+//                         </td>
+//                         <td style={{ padding: "10px", color: "#444" }}>
+//                           {nursery.address || nursery.location || "N/A"}
+//                         </td>
+//                         <td style={{ padding: "10px", color: "#444" }}>
+//                           {nursery.contact_person || "N/A"}
+//                         </td>
+//                         <td style={{ padding: "10px", color: "#444" }}>
+//                           {nursery.phone || "N/A"}
+//                         </td>
+//                       </tr>
+//                     );
+//                   })}
+//                 </tbody>
+//               </table>
 //             )}
 //           </div>
 //         </div>
 //       )}
 //     </div>
 //   );
-// }
-
-// // Inline Styles for Modal
-// const modalOverlayStyle = {
-//   position: "fixed",
-//   top: 0,
-//   left: 0,
-//   right: 0,
-//   bottom: 0,
-//   backgroundColor: "rgba(0,0,0,0.5)",
-//   display: "flex",
-//   justifyContent: "center",
-//   alignItems: "center",
-//   zIndex: 1000,
-// };
-
-// const modalCardStyle = {
-//   backgroundColor: "#fff",
-//   padding: "20px",
-//   borderRadius: "8px",
-//   maxWidth: "650px",
-//   width: "90%",
-//   maxHeight: "80vh",
-//   overflowY: "auto",
-//   position: "relative",
-// };
-
-// const closeBtnStyle = {
-//   position: "absolute",
-//   top: "10px",
-//   right: "15px",
-//   fontSize: "24px",
-//   background: "none",
-//   border: "none",
-//   cursor: "pointer",
 // };
 
 // export default IndiaMap;
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Chart } from "react-google-charts";
+import axios from "axios";
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = "http://127.0.0.1:8000/api";
+const IMAGE_BASE_URL = "https://nationalcampa.nic.in/Harit-SANKALP/Uploads/NUR/";
 
-const STATE_CODE_MAP = {
-  "1": "IN-JK", "2": "IN-HP", "3": "IN-PB", "4": "IN-CH", "5": "IN-UT",
-  "6": "IN-HR", "7": "IN-DL", "8": "IN-RJ", "9": "IN-UP", "10": "IN-BR",
-  "11": "IN-SK", "12": "IN-AR", "13": "IN-NL", "14": "IN-MN", "15": "IN-MZ",
-  "16": "IN-TR", "17": "IN-ML", "18": "IN-AS", "19": "IN-WB", "20": "IN-JH",
-  "21": "IN-OR", "22": "IN-CT", "23": "IN-MP", "24": "IN-GJ", "27": "IN-MH",
-  "28": "IN-AP", "29": "IN-KA", "30": "IN-GA", "31": "IN-LD", "32": "IN-KL",
-  "33": "IN-TN", "34": "IN-PY", "35": "IN-AN", "36": "IN-TG", "37": "IN-LA",
-  "38": "IN-DH",
-
-  "jammu and kashmir": "IN-JK", "jk": "IN-JK",
-  "himachal pradesh": "IN-HP", "hp": "IN-HP",
-  "punjab": "IN-PB", "pb": "IN-PB",
-  "chandigarh": "IN-CH", "ch": "IN-CH",
-  "uttarakhand": "IN-UT", "ut": "IN-UT",
-  "haryana": "IN-HR", "hr": "IN-HR",
-  "delhi": "IN-DL", "dl": "IN-DL",
-  "rajasthan": "IN-RJ", "rj": "IN-RJ",
-  "uttar pradesh": "IN-UP", "up": "IN-UP",
-  "bihar": "IN-BR", "br": "IN-BR",
-  "sikkim": "IN-SK", "sk": "IN-SK",
-  "arunachal pradesh": "IN-AR", "ar": "IN-AR",
-  "nagaland": "IN-NL", "nl": "IN-NL",
-  "manipur": "IN-MN", "mn": "IN-MN",
-  "mizoram": "IN-MZ", "mz": "IN-MZ",
-  "tripura": "IN-TR", "tr": "IN-TR",
-  "meghalaya": "IN-ML", "ml": "IN-ML",
-  "assam": "IN-AS", "as": "IN-AS",
-  "west bengal": "IN-WB", "wb": "IN-WB",
-  "jharkhand": "IN-JH", "jh": "IN-JH",
-  "odisha": "IN-OR", "or": "IN-OR",
-  "chhattisgarh": "IN-CT", "ct": "IN-CT",
-  "madhya pradesh": "IN-MP", "mp": "IN-MP",
-  "gujarat": "IN-GJ", "gj": "IN-GJ",
-  "maharashtra": "IN-MH", "mh": "IN-MH",
-  "andhra pradesh": "IN-AP", "ap": "IN-AP",
-  "karnataka": "IN-KA", "ka": "IN-KA",
-  "goa": "IN-GA", "ga": "IN-GA",
-  "lakshadweep": "IN-LD", "ld": "IN-LD",
-  "kerala": "IN-KL", "kl": "IN-KL",
-  "tamil nadu": "IN-TN", "tn": "IN-TN",
-  "puducherry": "IN-PY", "py": "IN-PY",
-  "andaman and nicobar islands": "IN-AN", "an": "IN-AN",
-  "telangana": "IN-TG", "tg": "IN-TG",
-  "ladakh": "IN-LA", "la": "IN-LA",
-  "the dadra and nagar haveli and daman and diu": "IN-DH", "dadra and nagar haveli": "IN-DH", "dh": "IN-DH"
-};
-
-const STATE_NAMES = {
-  "IN-KA": "Karnataka",
-  "IN-RJ": "Rajasthan",
-  "IN-JK": "Jammu and Kashmir",
-  "IN-HP": "Himachal Pradesh",
-  "IN-PB": "Punjab",
-  "IN-MH": "Maharashtra",
-  "IN-TN": "Tamil Nadu",
-  "IN-DL": "Delhi",
-  "IN-UP": "Uttar Pradesh",
-  "IN-MP": "Madhya Pradesh",
-  "IN-GJ": "Gujarat",
-  "IN-WB": "West Bengal",
-  "IN-KL": "Kerala",
+// ISO Code to State Name Mapping
+const STATE_CODE_TO_NAME = {
+  "IN-AN": "Andaman and Nicobar Islands",
   "IN-AP": "Andhra Pradesh",
-  "IN-TG": "Telangana"
+  "IN-AR": "Arunachal Pradesh",
+  "IN-AS": "Assam",
+  "IN-BR": "Bihar",
+  "IN-CH": "Chandigarh",
+  "IN-CT": "Chhattisgarh",
+  "IN-DN": "Dadra and Nagar Haveli",
+  "IN-DD": "Daman and Diu",
+  "IN-DL": "Delhi",
+  "IN-GA": "Goa",
+  "IN-GJ": "Gujarat",
+  "IN-HR": "Haryana",
+  "IN-HP": "Himachal Pradesh",
+  "IN-JK": "Jammu and Kashmir",
+  "IN-JH": "Jharkhand",
+  "IN-KA": "Karnataka",
+  "IN-KL": "Kerala",
+  "IN-LA": "Ladakh",
+  "IN-LD": "Lakshadweep",
+  "IN-MP": "Madhya Pradesh",
+  "IN-MH": "Maharashtra",
+  "IN-MN": "Manipur",
+  "IN-ML": "Meghalaya",
+  "IN-MZ": "Mizoram",
+  "IN-NL": "Nagaland",
+  "IN-OR": "Odisha",
+  "IN-PY": "Puducherry",
+  "IN-PB": "Punjab",
+  "IN-RJ": "Rajasthan",
+  "IN-SK": "Sikkim",
+  "IN-TN": "Tamil Nadu",
+  "IN-TG": "Telangana",
+  "IN-TR": "Tripura",
+  "IN-UP": "Uttar Pradesh",
+  "IN-UT": "Uttarakhand",
+  "IN-WB": "West Bengal",
 };
 
-// Database ID mapping explicitly defined for state detail queries
-const STATE_ID_MAP = {
-  "IN-JK": 1, "IN-HP": 2, "IN-PB": 3, "IN-CH": 4, "IN-UT": 5, "IN-HR": 6,
-  "IN-DL": 7, "IN-RJ": 8, "IN-UP": 9, "IN-BR": 10, "IN-SK": 11, "IN-AR": 12,
-  "IN-NL": 13, "IN-MN": 14, "IN-MZ": 15, "IN-TR": 16, "IN-ML": 17, "IN-AS": 18,
-  "IN-WB": 19, "IN-JH": 20, "IN-OR": 21, "IN-CT": 22, "IN-MP": 23, "IN-GJ": 24,
-  "IN-MH": 27, "IN-AP": 28, "IN-KA": 29, "IN-GA": 30, "IN-LD": 31, "IN-KL": 32,
-  "IN-TN": 33, "IN-PY": 34, "IN-AN": 35, "IN-TG": 36, "IN-LA": 37, "IN-DH": 38
+// Reverse Mapping: Full Name -> ISO Code
+const NAME_TO_STATE_CODE = Object.entries(STATE_CODE_TO_NAME).reduce((acc, [code, name]) => {
+  acc[name.toLowerCase()] = code;
+  return acc;
+}, {});
+
+const getIsoCode = (input) => {
+  if (!input) return "";
+  if (STATE_CODE_TO_NAME[input.toUpperCase()]) return input.toUpperCase();
+  return NAME_TO_STATE_CODE[input.toLowerCase()] || input;
 };
 
-const normalizeStateCode = (input) => {
-  if (!input) return null;
-  const str = String(input).trim().toLowerCase();
-  if (str.startsWith("in-")) return str.toUpperCase();
-  if (STATE_CODE_MAP[str]) return STATE_CODE_MAP[str];
-  return `IN-${str.toUpperCase()}`;
+const getCleanName = (input) => {
+  if (!input) return "";
+  const code = getIsoCode(input);
+  return STATE_CODE_TO_NAME[code] || input.replace(/^IN-/, "");
 };
 
-const options = {
-  region: "IN",
-  domain: "IN",
-  displayMode: "regions",
-  resolution: "provinces",
-  datalessRegionColor: "#FFFFFF",
-  colorAxis: {
-    colors: ["#E2F0D9", "#2E7D32", "#1E4D2B"],
-  },
-  legend: "none",
-  backgroundColor: "transparent",
-  tooltip: { trigger: "focus" },
-};
-
-function IndiaMap() {
+const IndiaMap = () => {
+  const [mapData, setMapData] = useState([]);
   const [chartData, setChartData] = useState([["State", "Nurseries"]]);
   const [totalNurseries, setTotalNurseries] = useState(0);
   const [highestState, setHighestState] = useState({ name: "-", count: 0 });
-  const [selectedStateCode, setSelectedStateCode] = useState(null);
-  const [modalData, setModalData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [showAll, setShowAll] = useState(false);
+
+  // Modal State
+  const [selectedState, setSelectedState] = useState(null);
+  const [nurseryDetails, setNurseryDetails] = useState([]);
+  const [loadingModal, setLoadingModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  // Hover Tooltip Table State
+  const [hoverState, setHoverState] = useState(null);
+  const [hoverNurseries, setHoverNurseries] = useState([]);
+  const [loadingHover, setLoadingHover] = useState(false);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+
+  const containerRef = useRef(null);
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/map-data/`)
-      .then((res) => res.json())
-      .then((data) => {
-        const stateCounts = {};
+    fetchMapData();
+  }, []);
 
-        if (Array.isArray(data)) {
-          data.forEach((item) => {
-            const rawIdentifier = item.state_code || item.state_name || item.state_id || item.State;
-            const code = normalizeStateCode(rawIdentifier);
-            const count = Number(item.nurseries_count ?? item.total ?? item.count ?? item.Nurseries) || 0;
-            if (code) {
-              stateCounts[code] = (stateCounts[code] || 0) + count;
-            }
-          });
+  const fetchMapData = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/map-data/`);
+      const data = response.data || [];
+      setMapData(data);
+
+      const formattedChartData = [["State", "Nurseries"]];
+      let total = 0;
+      let maxState = { name: "-", count: 0 };
+
+      data.forEach((item) => {
+        const count = Number(item.nurseries_count) || 0;
+        total += count;
+
+        const cleanName = getCleanName(item.state_name || item.state_code);
+        const isoCode = getIsoCode(item.state_code || item.state_name);
+
+        if (count > maxState.count) {
+          maxState = { name: cleanName, count: count };
         }
 
-        // Updated Karnataka count (210) and fallback
-        if (!stateCounts["IN-KA"]) stateCounts["IN-KA"] = 210;
-        if (!stateCounts["IN-RJ"]) stateCounts["IN-RJ"] = 6;
-
-        const allStates = Object.keys(STATE_ID_MAP);
-        let grandTotal = 0;
-        let maxCount = 0;
-        let maxState = "-";
-
-        const formattedChartData = [["State", "Nurseries"]];
-
-        allStates.forEach((code) => {
-          const count = stateCounts[code] || 0;
-          const chartVal = count > 0 ? count : 0.01;
-          formattedChartData.push([code, chartVal]);
-
-          if (count > 0) {
-            grandTotal += count;
-            if (count > maxCount) {
-              maxCount = count;
-              maxState = STATE_NAMES[code] || code.replace("IN-", "");
-            }
-          }
-        });
-
-        setChartData(formattedChartData);
-        setTotalNurseries(grandTotal);
-        setHighestState({ name: maxState, count: maxCount });
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error("Error loading map data:", err);
-        setLoading(false);
+        if (isoCode) {
+          formattedChartData.push([isoCode, count]);
+        }
       });
-  }, []);
-//   useEffect(() => {
-//   setLoading(true);
 
-//   fetch(`${API_BASE_URL}/api/map-data/`)
-//     .then((res) => res.json())
-//     .then((data) => {
-//       const stateCounts = {};
-//       let calculatedTotal = 0;
-//       let maxCount = 0;
-//       let maxStateName = "-";
+      setChartData(formattedChartData);
+      setTotalNurseries(total);
+      setHighestState(maxState);
+    } catch (error) {
+      console.error("Error fetching map data:", error);
+    }
+  };
 
-//       // 1. Process all active state counts directly from backend API response
-//       if (Array.isArray(data)) {
-//         data.forEach((item) => {
-//           const rawIdentifier = item.state_code || item.state_name || item.state_id;
-//           const code = normalizeStateCode(rawIdentifier);
-//           const count = Number(item.nurseries_count ?? item.total ?? item.count) || 0;
+  const handleMouseMove = (e) => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setTooltipPos({
+        x: e.clientX - rect.left + 15,
+        y: e.clientY - rect.top + 15,
+      });
+    }
+  };
 
-//           if (code) {
-//             stateCounts[code] = (stateCounts[code] || 0) + count;
-//           }
-//         });
-//       }
+  const fetchStateDetailsForHover = async (stateRecord) => {
+    setLoadingHover(true);
+    try {
+      const cleanName = getCleanName(stateRecord.state_name || stateRecord.state_code);
+      const response = await axios.get(`${API_BASE_URL}/nurseries/state-details/`, {
+        params: {
+          state_id: stateRecord.state_id,
+          stateCode: stateRecord.state_code,
+          state_name: cleanName,
+        },
+      });
 
-//       // 2. Prepare Google GeoChart data and dynamically calculate Total & Highest
-//       const formattedChartData = [["State", "Nurseries"]];
-//       const allStates = Object.keys(STATE_ID_MAP);
-
-//       allStates.forEach((code) => {
-//         const count = stateCounts[code] || 0;
-
-//         // Render 0.01 value on map to keep regions hoverable/clickable even if count is 0
-//         formattedChartData.push([code, count > 0 ? count : 0.01]);
-
-//         if (count > 0) {
-//           // Accumulate total count across all states returned by API
-//           calculatedTotal += count;
-
-//           // Track state with the maximum nursery count
-//           if (count > maxCount) {
-//             maxCount = count;
-//             maxStateName = STATE_NAMES[code] || code.replace("IN-", "");
-//           }
-//         }
-//       });
-
-//       // 3. Update React state with exact dynamic calculations
-//       setChartData(formattedChartData);
-//       setTotalNurseries(calculatedTotal);
-//       setHighestState({
-//         name: maxCount > 0 ? maxStateName : "-",
-//         count: maxCount,
-//       });
-//       setLoading(false);
-//     })
-//     .catch((err) => {
-//       console.error("Error fetching map data:", err);
-//       setLoading(false);
-//     });
-// }, []);
-
-  const fetchStateNurseries = (stateCode) => {
-    setSelectedStateCode(stateCode);
-    setModalData(null);
-    setShowAll(false);
-
-    const cleanCode = stateCode.replace("IN-", "");
-    const stateId = STATE_ID_MAP[stateCode] || "";
-    const stateName = STATE_NAMES[stateCode] || cleanCode;
-
-    // Send explicit state_id (29 for KA) and full state_name so backend matches correctly
-    fetch(`${API_BASE_URL}/api/nurseries/state-details/?state_id=${stateId}&state_name=${encodeURIComponent(stateName)}&stateCode=${stateCode}&code=${cleanCode}`)
-      .then((res) => res.json())
-      .then((data) => setModalData(data))
-      .catch((err) => console.error("Error fetching state details:", err));
+      if (response?.data?.nurseries) {
+        setHoverNurseries(response.data.nurseries);
+      } else {
+        setHoverNurseries([]);
+      }
+    } catch (error) {
+      console.error("Error fetching hover nursery details:", error);
+      setHoverNurseries([]);
+    } finally {
+      setLoadingHover(false);
+    }
   };
 
   const chartEvents = [
     {
       eventName: "select",
       callback: ({ chartWrapper }) => {
-        const chart = chartWrapper.getChart();
-        if (!chart) return;
+        try {
+          if (!chartWrapper) return;
+          const chart = chartWrapper.getChart();
+          if (!chart) return;
+          const selection = chart.getSelection();
 
-        const selection = chart.getSelection();
-        if (!selection || selection.length === 0) return;
+          if (selection && selection.length > 0) {
+            const selectedItem = selection[0];
+            const dataRow = selectedItem.row;
 
-        const selectedRowIndex = selection[0].row;
-        if (selectedRowIndex !== null && selectedRowIndex !== undefined) {
-          const dataTable = chartWrapper.getDataTable();
-          const stateCode = dataTable.getValue(selectedRowIndex, 0);
-          if (stateCode) {
-            fetchStateNurseries(stateCode);
+            if (dataRow !== null && dataRow !== undefined && mapData[dataRow]) {
+              const stateRecord = mapData[dataRow];
+              const cleanName = getCleanName(stateRecord.state_name || stateRecord.state_code);
+              handleStateClick(stateRecord.state_code, cleanName, stateRecord.state_id);
+            }
           }
+        } catch (err) {
+          // Prevent standard script error crash
         }
+      },
+    },
+    {
+      eventName: "onregionover",
+      callback: ({ region }) => {
+        try {
+          if (!region || !mapData.length) return;
+
+          const cleanRegionName = getCleanName(region);
+          const isoRegion = getIsoCode(region);
+
+          const stateRecord = mapData.find((item) => {
+            const itemIso = getIsoCode(item.state_code || item.state_name);
+            return itemIso === isoRegion || getCleanName(item.state_name) === cleanRegionName;
+          });
+
+          setHoverState(cleanRegionName);
+
+          if (stateRecord) {
+            fetchStateDetailsForHover(stateRecord);
+          } else {
+            setHoverNurseries([]);
+          }
+        } catch (err) {
+          // Safe catch block
+        }
+      },
+    },
+    {
+      eventName: "onregionout",
+      callback: () => {
+        setHoverState(null);
+        setHoverNurseries([]);
       },
     },
   ];
 
+  const handleStateClick = async (stateCode, stateName, stateId) => {
+    const cleanName = getCleanName(stateName || stateCode);
+    setSelectedState(cleanName);
+    setLoadingModal(true);
+    setShowModal(true);
+
+    try {
+      const response = await axios.get(`${API_BASE_URL}/nurseries/state-details/`, {
+        params: {
+          state_id: stateId,
+          stateCode: stateCode,
+          state_name: cleanName,
+        },
+      });
+
+      if (response?.data?.nurseries) {
+        setNurseryDetails(response.data.nurseries);
+      } else {
+        setNurseryDetails([]);
+      }
+    } catch (error) {
+      console.error("Error fetching state nursery details:", error);
+      setNurseryDetails([]);
+    } finally {
+      setLoadingModal(false);
+    }
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedState(null);
+    setNurseryDetails([]);
+  };
+
+  const chartOptions = {
+    region: "IN",
+    domain: "IN",
+    displayMode: "regions",
+    resolution: "provinces",
+    colorAxis: {
+      minValue: 0,
+      maxValue: Math.max(highestState.count, 10),
+      colors: ["#EBF5ED", "#A3D9B1", "#2E7D32", "#1B5E20"],
+    },
+    backgroundColor: "transparent",
+    datalessRegionColor: "transparent",
+    defaultColor: "#EBF5ED",
+    keepAspectRatio: true,
+    tooltip: { trigger: "none" },
+  };
+
   return (
-    <div className="map-card-container">
-      {/* Header Banner */}
-      <div className="map-card-header">
-        <span className="map-header-icon">🌱</span>
-        <span className="map-header-title">
+    <div
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      style={{
+        maxWidth: "700px",
+        margin: "0 auto",
+        padding: "10px",
+        fontFamily: "Arial, sans-serif",
+        position: "relative",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+        <span style={{ fontSize: "16px" }}>🌱</span>
+        <h3 style={{ margin: 0, fontSize: "15px", color: "#333333", fontWeight: "600" }}>
           Total number of Registered Nurseries (State-wise)
-        </span>
+        </h3>
       </div>
 
-      {/* GeoChart Map */}
-      <div className="map-chart-body">
-        {loading ? (
-          <p style={{ textAlign: "center", padding: "20px" }}>Loading Map Data...</p>
-        ) : (
+      <div style={{ width: "100%", height: "360px", position: "relative" }}>
+        {chartData.length > 1 ? (
           <Chart
             chartType="GeoChart"
             width="100%"
-            height="360px"
+            height="100%"
             data={chartData}
-            options={options}
+            options={chartOptions}
             chartEvents={chartEvents}
-            version="current"
           />
+        ) : (
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", color: "#888", fontSize: "13px" }}>
+            Loading map data...
+          </div>
+        )}
+
+        {/* Hover Floating Card Table */}
+        {hoverState && (
+          <div
+            style={{
+              position: "absolute",
+              top: `${tooltipPos.y}px`,
+              left: `${tooltipPos.x}px`,
+              backgroundColor: "#ffffff",
+              border: "1px solid #ddd",
+              borderRadius: "8px",
+              padding: "12px",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.2)",
+              pointerEvents: "none",
+              zIndex: 999,
+              width: "480px",
+              maxHeight: "300px",
+              overflowY: "auto",
+            }}
+          >
+            <h4 style={{ margin: "0 0 8px 0", color: "#2e7d32", fontSize: "14px", borderBottom: "2px solid #2e7d32", paddingBottom: "4px" }}>
+              Nurseries in {hoverState} ({hoverNurseries.length})
+            </h4>
+
+            {loadingHover ? (
+              <p style={{ margin: 0, fontSize: "12px", color: "#666" }}>Loading nursery details...</p>
+            ) : hoverNurseries.length === 0 ? (
+              <p style={{ margin: 0, fontSize: "12px", color: "#888" }}>No active nurseries registered.</p>
+            ) : (
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
+                <thead>
+                  <tr style={{ backgroundColor: "#2e7d32", color: "#fff" }}>
+                    <th style={{ padding: "6px", textAlign: "left" }}>Photo</th>
+                    <th style={{ padding: "6px", textAlign: "left" }}>Nursery Name</th>
+                    <th style={{ padding: "6px", textAlign: "left" }}>Address</th>
+                    <th style={{ padding: "6px", textAlign: "left" }}>Contact</th>
+                    <th style={{ padding: "6px", textAlign: "left" }}>Phone</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {hoverNurseries.map((nursery, idx) => {
+                    const rawPhoto = nursery.photo_url || nursery.photoUrl || nursery.Nursery_PHOTO || nursery.photo;
+                    const filename = rawPhoto ? rawPhoto.split("/").pop() : null;
+                    const fullPhotoUrl = filename ? `${IMAGE_BASE_URL}${filename}` : null;
+
+                    return (
+                      <tr key={nursery.id || idx} style={{ borderBottom: "1px solid #eee", backgroundColor: idx % 2 === 0 ? "#fff" : "#fafafa" }}>
+                        <td style={{ padding: "4px", width: "70px", textAlign: "center" }}>
+                          {fullPhotoUrl ? (
+                            <img
+                              src={fullPhotoUrl}
+                              alt="Nursery"
+                              style={{ width: "35px", height: "35px", objectFit: "cover", borderRadius: "4px" }}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.style.display = "none";
+                                e.currentTarget.insertAdjacentHTML(
+                                  "afterend",
+                                  '<span style="font-size: 9px; color: #888; font-style: italic;">Coming Soon</span>'
+                                );
+                              }}
+                            />
+                          ) : (
+                            <span style={{ fontSize: "9px", color: "#888", fontStyle: "italic" }}>
+                              Coming Soon
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ padding: "4px", fontWeight: "bold" }}>{nursery.name || "N/A"}</td>
+                        <td style={{ padding: "4px" }}>{nursery.address || nursery.location || "N/A"}</td>
+                        <td style={{ padding: "4px" }}>{nursery.contact_person || "N/A"}</td>
+                        <td style={{ padding: "4px" }}>{nursery.phone || "N/A"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
         )}
       </div>
 
-      {/* Footer Bar */}
-      <div className="map-card-footer">
-        <div className="footer-item">
-          Total Nurseries: <strong>{totalNurseries}</strong>
-        </div>
-        <div className="footer-item density-bar-container">
+      <div style={{ marginTop: "10px", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "13px", color: "#444444" }}>
+        <div>Total Nurseries: <strong>{totalNurseries}</strong></div>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <span>Density:</span>
-          <div className="gradient-density-bar"></div>
+          <div style={{ width: "90px", height: "6px", borderRadius: "3px", background: "linear-gradient(90deg, #EBF5ED 0%, #1B5E20 100%)" }} />
         </div>
-        <div className="footer-item">
-          Highest: <strong>{highestState.name} ({highestState.count})</strong>
-        </div>
+        <div>Highest: <strong>{highestState.name} ({highestState.count})</strong></div>
       </div>
 
-      {/* State Details Modal */}
-      {selectedStateCode && (
-        <div style={modalOverlayStyle}>
-          <div style={modalCardStyle}>
-            <button
-              style={closeBtnStyle}
-              onClick={() => {
-                setSelectedStateCode(null);
-                setModalData(null);
-                setShowAll(false);
-              }}
-            >
-              ×
-            </button>
+      {/* Modal */}
+      {showModal && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.4)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
+          <div style={{ backgroundColor: "#fff", width: "85%", maxWidth: "900px", maxHeight: "85vh", borderRadius: "10px", padding: "20px", overflowY: "auto", boxShadow: "0 4px 20px rgba(0,0,0,0.2)", position: "relative" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "2px solid #2e7d32", paddingBottom: "10px", marginBottom: "16px" }}>
+              <h3 style={{ margin: 0, color: "#2e7d32", fontSize: "18px", fontWeight: "bold" }}>
+                Nurseries in {selectedState} ({nurseryDetails.length})
+              </h3>
+              <button onClick={closeModal} style={{ background: "none", border: "none", fontSize: "22px", fontWeight: "bold", cursor: "pointer", color: "#666" }}>
+                &times;
+              </button>
+            </div>
 
-            {!modalData ? (
-              <p style={{ textAlign: "center", padding: "20px" }}>
-                Loading details for {STATE_NAMES[selectedStateCode] || selectedStateCode}...
-              </p>
+            {loadingModal ? (
+              <p style={{ textAlign: "center", padding: "30px", color: "#666" }}>Loading nursery details...</p>
+            ) : nurseryDetails.length === 0 ? (
+              <p style={{ textAlign: "center", padding: "30px", color: "#888" }}>No active nurseries found for {selectedState}.</p>
             ) : (
-              <div>
-                <h2 style={{ color: "#1E4D2B", margin: "0 0 8px 0" }}>
-                  🌱 {modalData.stateName || STATE_NAMES[selectedStateCode] || selectedStateCode} Nurseries
-                </h2>
-                <p style={{ margin: "0 0 16px 0", color: "#555" }}>
-                  Total Registered: <strong>{modalData.total || (modalData.nurseries ? modalData.nurseries.length : 0)}</strong>
-                </p>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                <thead>
+                  <tr style={{ backgroundColor: "#2e7d32", color: "#fff" }}>
+                    <th style={{ padding: "10px", textAlign: "left" }}>Photo</th>
+                    <th style={{ padding: "10px", textAlign: "left" }}>Nursery Name</th>
+                    <th style={{ padding: "10px", textAlign: "left" }}>Address</th>
+                    <th style={{ padding: "10px", textAlign: "left" }}>Contact Person</th>
+                    <th style={{ padding: "10px", textAlign: "left" }}>Phone</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {nurseryDetails.map((nursery, index) => {
+                    const rawPhoto = nursery.photo_url || nursery.photoUrl || nursery.Nursery_PHOTO || nursery.photo;
+                    const filename = rawPhoto ? rawPhoto.split("/").pop() : null;
+                    const fullPhotoUrl = filename ? `${IMAGE_BASE_URL}${filename}` : null;
 
-                {modalData.nurseries && modalData.nurseries.length > 0 ? (
-                  <>
-                    <div style={{ overflowX: "auto" }}>
-                      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "10px" }}>
-                        <thead>
-                          <tr style={{ backgroundColor: "#1E4D2B", color: "#ffffff", textAlign: "left" }}>
-                            <th style={{ padding: "10px", fontSize: "13px" }}>#</th>
-                            <th style={{ padding: "10px", fontSize: "13px" }}>Nursery Name</th>
-                            <th style={{ padding: "10px", fontSize: "13px" }}>Location</th>
-                            <th style={{ padding: "10px", fontSize: "13px" }}>Phone</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {(showAll ? modalData.nurseries : modalData.nurseries.slice(0, 3)).map((item, index) => (
-                            <tr key={item.id || index} style={{ backgroundColor: index % 2 === 0 ? "#FFFFFF" : "#F9FBE7" }}>
-                              <td style={{ padding: "10px", fontSize: "13px", borderBottom: "1px solid #E2F0D9" }}>{index + 1}</td>
-                              <td style={{ padding: "10px", fontSize: "13px", borderBottom: "1px solid #E2F0D9", fontWeight: "bold", color: "#2E7D32" }}>
-                                {item.name || item.nursery_name}
-                              </td>
-                              <td style={{ padding: "10px", fontSize: "13px", borderBottom: "1px solid #E2F0D9" }}>
-                                📍 {item.address || item.location || "N/A"}
-                              </td>
-                              <td style={{ padding: "10px", fontSize: "13px", borderBottom: "1px solid #E2F0D9" }}>
-                                📞 {item.phone || item.mobile || "N/A"}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {modalData.nurseries.length > 3 && (
-                      <div style={{ textAlign: "center", marginTop: "16px" }}>
-                        <button
-                          onClick={() => setShowAll(!showAll)}
-                          style={{
-                            backgroundColor: "#548235",
-                            color: "#ffffff",
-                            border: "none",
-                            padding: "8px 20px",
-                            borderRadius: "20px",
-                            cursor: "pointer",
-                            fontWeight: "bold",
-                            fontSize: "13px"
-                          }}
-                        >
-                          {showAll ? "View Less ▲" : `View More (${modalData.nurseries.length - 3} More) ▼`}
-                        </button>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <p style={{ textAlign: "center", color: "#888", padding: "20px" }}>
-                    No active nurseries found for this state.
-                  </p>
-                )}
-              </div>
+                    return (
+                      <tr key={nursery.id || index} style={{ borderBottom: "1px solid #e0e0e0", backgroundColor: index % 2 === 0 ? "#fff" : "#fafafa" }}>
+                        <td style={{ padding: "10px", verticalAlign: "middle", width: "80px", textAlign: "center" }}>
+                          {fullPhotoUrl ? (
+                            <img
+                              src={fullPhotoUrl}
+                              alt={nursery.name || "Nursery"}
+                              style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "6px", border: "1px solid #ddd", display: "block" }}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.style.display = "none";
+                                e.currentTarget.insertAdjacentHTML(
+                                  "afterend",
+                                  '<span style="font-size: 11px; color: #888; font-style: italic;">Coming Soon</span>'
+                                );
+                              }}
+                            />
+                          ) : (
+                            <span style={{ fontSize: "11px", color: "#888", fontStyle: "italic" }}>
+                              Coming Soon
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ padding: "10px", fontWeight: "bold", color: "#222" }}>{nursery.name || "N/A"}</td>
+                        <td style={{ padding: "10px", color: "#444" }}>{nursery.address || nursery.location || "N/A"}</td>
+                        <td style={{ padding: "10px", color: "#444" }}>{nursery.contact_person || "N/A"}</td>
+                        <td style={{ padding: "10px", color: "#444" }}>{nursery.phone || "N/A"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             )}
           </div>
         </div>
       )}
     </div>
   );
-}
-
-const modalOverlayStyle = {
-  position: "fixed",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundColor: "rgba(0,0,0,0.5)",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  zIndex: 1000,
-};
-
-const modalCardStyle = {
-  backgroundColor: "#fff",
-  padding: "20px",
-  borderRadius: "8px",
-  maxWidth: "650px",
-  width: "90%",
-  maxHeight: "80vh",
-  overflowY: "auto",
-  position: "relative",
-};
-
-const closeBtnStyle = {
-  position: "absolute",
-  top: "10px",
-  right: "15px",
-  fontSize: "24px",
-  background: "none",
-  border: "none",
-  cursor: "pointer",
 };
 
 export default IndiaMap;
