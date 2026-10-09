@@ -83,6 +83,7 @@
 //           <svg viewBox="0 0 800 450" width="100%" height="100%">
 
 //             {/* Triangles */}
+
 //             <polygon points="400,30 200,230 600,230" fill="#90caf9" />
 //             <polygon points="200,230 10,420 400,420" fill="#a5d6a7" />
 //             <polygon points="200,230 600,230 400,420" fill="#f48fb1" />
@@ -873,10 +874,12 @@
 // }
 
 // export default Dashboard;
-import React, { useState } from "react";
+import React from "react";
+import { useTranslation } from "react-i18next";
 import DashboardCharts from "../../components/Map/DashboardCharts";
 import IndiaMap from "../../components/Map/IndiaMap";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { FiBarChart2, FiCalendar, FiHelpCircle, FiLogIn } from "react-icons/fi";
 import "./Dashboard.css";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
@@ -891,159 +894,72 @@ import Banner_3 from "../../assets/images/Banner_3.jpg";
 import Banner_4 from "../../assets/images/Banner_4.jpeg";
 import Banner_5 from "../../assets/images/Banner_5.jpg";
 import Banner_6 from "../../assets/images/Banner_6.jpeg";
+import QuickAccessTree from "../../assets/images/quick-access-tree.png";
 
 function Dashboard() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("dashboard");
-
+  const { t } = useTranslation();
   const carouselImages = [
-    { id: 1, src: Banner_1, alt: "Harit Sankalp Banner 1" },
-    { id: 2, src: Banner_2, alt: "Harit Sankalp Banner 2" },
-    { id: 3, src: Banner_3, alt: "Harit Sankalp Banner 3" },
-    { id: 4, src: Banner_4, alt: "Harit Sankalp Banner 4" },
-    { id: 5, src: Banner_5, alt: "Harit Sankalp Banner 5" },
-    { id: 6, src: Banner_6, alt: "Harit Sankalp Banner 6" },
-  ];
-
-  const sidebarMenuItems = [
-    {
-      id: "home",
-      label: "Home",
-      path: "/",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-          <polyline points="9 22 9 12 15 12 15 22" />
-        </svg>
-      ),
-    },
-    {
-      id: "states",
-      label: "Total number of States Onboarded",
-      path: "/states",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z" />
-          <circle cx="12" cy="10" r="3" />
-        </svg>
-      ),
-    },
-    {
-      id: "nurseries",
-      label: "Total number of Nurseries across the Nation",
-      path: "/nurseries",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 10a6 6 0 0 0-6-6H4v2a6 6 0 0 0 6 6h2z" />
-          <path d="M12 10a6 6 0 0 1 6-6h2v2a6 6 0 0 1-6 6h-2z" />
-          <path d="M12 10v12" />
-        </svg>
-      ),
-    },
-    {
-      id: "species",
-      label: "Total number Species available for distribution",
-      path: "/species",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.4 19 2c1 2 2 4.1 2 9 0 4.97-4.03 9-9 9z" />
-          <path d="M12 20v-8" />
-        </svg>
-      ),
-    },
-    {
-      id: "seedlings",
-      label: "Total seedlings available for distribution",
-      path: "/seedlings",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 10a6 6 0 0 0-6-6H4v2a6 6 0 0 0 6 6h2z" />
-          <path d="M12 14a6 6 0 0 1 6-6h2v2a6 6 0 0 1-6 6h-2z" />
-          <path d="M12 10v12" />
-        </svg>
-      ),
-    },
-    {
-      id: "cpt",
-      label: "Seed Production Area/ Candidate Plus Tree",
-      path: "/cpt",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 19V5" />
-          <path d="M5 12l7-7 7 7" />
-          <path d="M5 19l7-7 7 7" />
-        </svg>
-      ),
-    },
-    {
-      id: "orchard",
-      label: "Seed Orchard",
-      path: "/orchard",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.4 19 2c1 2 2 4.1 2 9 0 4.97-4.03 9-9 9z" />
-          <path d="M12 20v-8" />
-        </svg>
-      ),
-    },
-    {
-      id: "research",
-      label: "Research Institute",
-      path: "/research",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M10 2v7.31L4.75 18.1a2 2 0 0 0 1.69 2.9h11.12a2 2 0 0 0 1.69-2.9L14 9.31V2" />
-          <path d="M8.5 2h7" />
-          <path d="M7 16h10" />
-        </svg>
-      ),
-    },
-    {
-      id: "treatment",
-      label: "Seed Processing cum Treatment Unit",
-      path: "/treatment",
-      icon: (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 21h18" />
-          <path d="M5 21V7l8 4V7l8 4v10" />
-          <path d="M17 14h.01" />
-          <path d="M17 17h.01" />
-        </svg>
-      ),
-    },
+    { id: 1, src: Banner_1, altKey: "dashboard.bannerAlt", number: 1 },
+    { id: 2, src: Banner_2, altKey: "dashboard.bannerAlt", number: 2 },
+    { id: 3, src: Banner_3, altKey: "dashboard.bannerAlt", number: 3 },
+    { id: 4, src: Banner_4, altKey: "dashboard.bannerAlt", number: 4 },
+    { id: 5, src: Banner_5, altKey: "dashboard.bannerAlt", number: 5 },
+    { id: 6, src: Banner_6, altKey: "dashboard.bannerAlt", number: 6 },
   ];
 
   const cardsData = [
     {
       id: 1,
-      category: "Overview",
-      title: "Total number of States Onboarded",
+      category: t("dashboard.overview"),
+      title: t("dashboard.statesOnboarded"),
       value: "15",
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 9 0 0 1 18 0z" />
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
           <circle cx="12" cy="10" r="3" />
         </svg>
       ),
     },
     {
       id: 2,
-      category: "Active",
-      title: "Total number of Nurseries across Nation",
+      category: t("dashboard.active"),
+      title: t("dashboard.nurseriesAcrossNation"),
       value: "867",
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
         </svg>
       ),
     },
     {
       id: 3,
-      category: "Inventory",
-      title: "Total number Species available",
+      category: t("dashboard.inventory"),
+      title: t("dashboard.speciesAvailable"),
       value: "0",
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.4 19 2c1 2 2 4.1 2 9 0 4.97-4.03 9-9 9z" />
           <path d="M12 20v-8" />
         </svg>
@@ -1051,22 +967,36 @@ function Dashboard() {
     },
     {
       id: 4,
-      category: "Distribution",
-      title: "Total seedlings available",
+      category: t("dashboard.distribution"),
+      title: t("dashboard.seedlingsAvailable"),
       value: "0",
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
         </svg>
       ),
     },
     {
       id: 5,
-      category: "Forestry",
-      title: "Seed Production Area / CPT",
+      category: t("dashboard.forestry"),
+      title: t("dashboard.seedProductionCpt"),
       value: "0",
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <path d="M12 2L2 22h20L12 2z" />
           <path d="M12 10v6" />
         </svg>
@@ -1074,11 +1004,18 @@ function Dashboard() {
     },
     {
       id: 6,
-      category: "Cultivation",
-      title: "Seed Orchard",
+      category: t("dashboard.cultivation"),
+      title: t("dashboard.seedOrchard"),
       value: "0",
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <circle cx="12" cy="12" r="10" />
           <path d="M8 12a4 4 0 0 0 8 0" />
         </svg>
@@ -1086,11 +1023,18 @@ function Dashboard() {
     },
     {
       id: 7,
-      category: "Research",
-      title: "Research Institute",
+      category: t("dashboard.research"),
+      title: t("dashboard.researchInstitute"),
       value: "0",
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
           <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
         </svg>
@@ -1098,11 +1042,18 @@ function Dashboard() {
     },
     {
       id: 8,
-      category: "Facility",
-      title: "Seed Processing Unit",
+      category: t("dashboard.facility"),
+      title: t("dashboard.seedProcessingUnit"),
       value: "0",
       icon: (
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
         </svg>
       ),
@@ -1110,65 +1061,57 @@ function Dashboard() {
   ];
 
   return (
-    <div className="dashboard-main-wrapper">
-      {/* Sidebar Navigation */}
-      <aside className="left-sidebar">
-        <div className="sidebar-brand-header">
-          <div className="brand-icon-box">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#27d07d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.4 19 2c1 2 2 4.1 2 9 0 4.97-4.03 9-9 9z" />
-              <path d="M12 20v-8" />
-            </svg>
-          </div>
-          <div className="brand-text-box">
-            <h2>Smart Forestry</h2>
-            <p>Harit-SANKALP</p>
-          </div>
-        </div>
-        <div className="sidebar-menu-list">
-          {sidebarMenuItems.map((item) => (
-            <div
-              key={item.id}
-              className={`sidebar-menu-item ${activeTab === item.id ? "active" : ""}`}
-              onClick={() => {
-                setActiveTab(item.id);
-                if (item.path) navigate(item.path);
-              }}
-            >
-              <span className="sidebar-item-icon">{item.icon}</span>
-              <span className="sidebar-item-text">{item.label}</span>
-            </div>
-          ))}
-        </div>
-      </aside>
-
-      {/* Main Dashboard Container */}
-      <div className="dashboard">
+    <div className="dashboard">
         {/* Banner Carousel Section */}
         <section className="carousel-section">
           <div className="dashboard-header-text">
-            <span className="overview-subheading">OVERVIEW</span>
-            <h1 className="overview-heading">Dashboard</h1>
+            <span className="overview-subheading">
+              {t('dashboard.overview')}
+            </span>
+
+            <h1 className="overview-heading">
+              {t('navigation.dashboard')}
+            </h1>
           </div>
 
           <Swiper
-            modules={[Navigation, Pagination, Autoplay]}
+            modules={[
+              Navigation,
+              Pagination,
+              Autoplay,
+            ]}
             slidesPerView={3}
             spaceBetween={24}
             navigation
             pagination={{ clickable: true }}
-            autoplay={{ delay: 4000, disableOnInteraction: false }}
+            autoplay={{
+              delay: 4000,
+              disableOnInteraction: false,
+            }}
             loop={true}
+            className="dashboard-banner-swiper"
             breakpoints={{
-              320: { slidesPerView: 1, spaceBetween: 12 },
-              768: { slidesPerView: 2, spaceBetween: 16 },
-              1024: { slidesPerView: 3, spaceBetween: 24 },
+              320: {
+                slidesPerView: 1,
+                spaceBetween: 12,
+              },
+              768: {
+                slidesPerView: 2,
+                spaceBetween: 16,
+              },
+              1024: {
+                slidesPerView: 3,
+                spaceBetween: 24,
+              },
             }}
           >
             {carouselImages.map((image) => (
               <SwiperSlide key={image.id}>
                 <div className="single-card">
-                  <img src={image.src} alt={image.alt} />
+                  <img
+                    src={image.src}
+                    alt={t(image.altKey, { number: image.number })}
+                  />
                 </div>
               </SwiperSlide>
             ))}
@@ -1177,128 +1120,168 @@ function Dashboard() {
 
         {/* Map & Quick Access */}
         <div className="dashboard-middle">
+
+          {/* India Map */}
           <div className="india-map-wrapper">
             <div className="map-header-bar">
-              <span className="section-sub-label">MAP VIEW</span>
+              <span className="section-sub-label">
+                {t('dashboard.mapView')}
+              </span>
+
               <div className="map-title-row">
-                <h3 className="map-main-title">Total number of Registered Nurseries</h3>
-                <span className="state-badge">State-wise</span>
+                <h3 className="map-main-title">
+                  🌱 {t('dashboard.registeredNurseries')}
+                </h3>
+
+                <span className="state-badge">
+                  {t('dashboard.stateWise')}
+                </span>
               </div>
             </div>
+
             <div className="india-map">
               <IndiaMap />
             </div>
           </div>
-
+          {/* Quick Access */}
           <div className="quick-access-wrapper">
-            <h3 className="quick-access-title">Quick Access</h3>
-            <div className="dashboard-pyramid">
-              <svg viewBox="0 0 800 450" width="100%" height="100%">
-                <polygon points="400,30 200,230 600,230" fill="#90caf9" />
-                <polygon points="200,230 10,420 400,420" fill="#a5d6a7" />
-                <polygon points="200,230 600,230 400,420" fill="#f48fb1" />
-                <polygon points="600,230 400,420 790,420" fill="#b39ddb" />
-
-                <Link to="/dashboard">
-                  <ellipse cx="400" cy="145" rx="80" ry="28" fill="white" stroke="#dddddd" />
-                  <text x="400" y="151" textAnchor="middle" fontSize="15" fontWeight="600">Dashboard</text>
-                </Link>
-
-                <Link to="/advance-booking">
-                  <ellipse cx="210" cy="320" rx="75" ry="28" fill="white" stroke="#dddddd" />
-                  <text x="210" y="326" textAnchor="middle" fontSize="15" fontWeight="600">Advance</text>
-                </Link>
-
-                <Link to="/login/national">
-                  <ellipse cx="400" cy="295" rx="70" ry="28" fill="white" stroke="#dddddd" />
-                  <text x="400" y="301" textAnchor="middle" fontSize="15" fontWeight="600">Login</text>
-                </Link>
-
-                <Link to="/faqs">
-                  <ellipse cx="590" cy="320" rx="75" ry="28" fill="white" stroke="#dddddd" />
-                  <text x="590" y="326" textAnchor="middle" fontSize="15" fontWeight="600">FAQs</text>
-                </Link>
-              </svg>
+            <h3 className="quick-access-title">{t('dashboard.quickAccess')}</h3>
+            <div className="quick-access-tree">
+              <img className="quick-access-tree-photo" src={QuickAccessTree} alt="" />
+              <button type="button" className="tree-link tree-link--dashboard" onClick={() => navigate("/dashboard")}>
+                <FiBarChart2 aria-hidden="true" />
+                {t('navigation.dashboard')}
+              </button>
+              <button type="button" className="tree-link tree-link--booking" onClick={() => navigate("/advance-booking")}>
+                <FiCalendar aria-hidden="true" />
+                {t('header.advanceBooking')}
+              </button>
+              <button type="button" className="tree-link tree-link--faqs" onClick={() => navigate("/faqs")}>
+                <FiHelpCircle aria-hidden="true" />
+                {t('header.faqs')}
+              </button>
+              <button type="button" className="tree-link tree-link--login" onClick={() => navigate("/login/national")}>
+                <FiLogIn aria-hidden="true" />
+                {t('navigation.login')}
+              </button>
             </div>
           </div>
+
+
         </div>
 
         {/* Statistics Cards Carousel Section */}
         <section className="stats-section">
+
           <div className="section-title">
-            <span>DASHBOARD</span>
-            <h2>Dashboard Statistics</h2>
-            <p>Statistics and analytics of the Harit SANKALP Portal.</p>
+            <span>
+              {t('navigation.dashboard')}
+            </span>
+
+            <h2>
+              {t('dashboard.statistics')}
+            </h2>
+
+            <p>
+              {t('dashboard.statisticsDescription')}
+            </p>
           </div>
 
           <div className="stats-carousel-container">
+
             <Swiper
-              modules={[Navigation, Pagination, Autoplay]}
+              modules={[
+                Navigation,
+                Pagination,
+                Autoplay,
+              ]}
               spaceBetween={16}
               slidesPerView={4}
               navigation={true}
-              pagination={{ clickable: true }}
-              autoplay={{ delay: 3500, disableOnInteraction: false }}
+              pagination={{
+                clickable: true,
+              }}
+              autoplay={{
+                delay: 3500,
+                disableOnInteraction: false,
+              }}
               breakpoints={{
-                320: { slidesPerView: 1, spaceBetween: 10 },
-                640: { slidesPerView: 2, spaceBetween: 12 },
-                992: { slidesPerView: 3, spaceBetween: 14 },
-                1200: { slidesPerView: 4, spaceBetween: 16 },
+                320: {
+                  slidesPerView: 1,
+                  spaceBetween: 10,
+                },
+                640: {
+                  slidesPerView: 2,
+                  spaceBetween: 12,
+                },
+                992: {
+                  slidesPerView: 3,
+                  spaceBetween: 14,
+                },
+                1200: {
+                  slidesPerView: 4,
+                  spaceBetween: 16,
+                },
               }}
               className="stats-swiper"
             >
               {cardsData.map((card) => (
                 <SwiperSlide key={card.id}>
+
                   <div className="stat-card">
+
                     <div className="stat-card-header">
-                      <div className="stat-icon-box">{card.icon}</div>
-                      <span className="stat-tag">{card.category}</span>
+
+                      <div className="stat-icon-box">
+                        {card.icon}
+                      </div>
+
+                      <span className="stat-tag">
+                        {card.category}
+                      </span>
+
                     </div>
 
                     <div className="stat-card-body">
-                      <p className="stat-card-title">{card.title}</p>
-                      <h3 className="stat-card-value">{card.value}</h3>
+
+                      <p className="stat-card-title">
+                        {card.title}
+                      </p>
+
+                      <h3 className="stat-card-value">
+                        {card.value}
+                      </h3>
+
                     </div>
 
-                    <a href="#details" className="stat-card-link">
-                      <span>View Details</span>
-                      <span className="stat-arrow">→</span>
+                    <a
+                      href="#details"
+                      className="stat-card-link"
+                    >
+                      <span>
+                        {t('home.viewDetails')}
+                      </span>
+
+                      <span className="stat-arrow">
+                        →
+                      </span>
                     </a>
+
                   </div>
+
                 </SwiperSlide>
               ))}
             </Swiper>
-          </div>
-        </section>
 
-        {/* Nursery Filters & Information */}
-        <section className="nursery-section">
-          <div className="section-title">
-            <span>NURSERY INFORMATION</span>
-            <h2>Forest Nursery Information</h2>
-            <p>Explore nursery services, registrations and reports across India.</p>
           </div>
 
-          <div className="chart-filters">
-            <button className="filter-btn">State</button>
-            <button className="filter-btn">District</button>
-            <button className="filter-btn" onClick={() => navigate("/species")}>Species</button>
-            <button className="filter-btn">Height</button>
-            <button className="filter-btn filter-btn-green">Filter</button>
-            <button className="filter-btn filter-btn-red">Reset</button>
-          </div>
         </section>
 
         {/* Reports & Charts Section */}
         <section className="chart-section">
-          <div className="section-title">
-            <span>ANALYTICS</span>
-            <h2>Reports & Charts</h2>
-            <p>Visual insights showing nursery distribution and statistics across the country.</p>
-          </div>
           <DashboardCharts />
         </section>
-      </div>
+
     </div>
   );
 }

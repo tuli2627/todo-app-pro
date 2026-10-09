@@ -16,8 +16,6 @@
 # # Core
 # # ---------------------------------------------------------------------------
 
-# SECRET_KEY = os.getenv('SECRET_KEY', 'unsafe-fallback-key-for-dev-only')
-
 # DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
@@ -217,7 +215,10 @@
 #             'handlers': ['console'],
 #             'level': 'INFO',
 #             'propagate': False,
-#         },
+#         },`
+# 
+# 
+# 
 #     },
 # }
 
@@ -225,9 +226,6 @@
 # # Google reCAPTCHA
 # # ---------------------------------------------------------------------------
 
-# # Google reCAPTCHA v2 Secret Key
-# RECAPTCHA_SECRET_KEY = '6LfCIHUtAAAAANqXloxdFytoKShd0M0OFr_YEXaO'
-# CORS_ALLOW_ALL_ORIGINS = True
 """
 Django settings for backend project — pro/production-ready config.
 
@@ -237,6 +235,7 @@ Reads sensitive values from environment (.env) instead of hardcoding them.
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -246,11 +245,17 @@ load_dotenv(BASE_DIR / '.env')
 # Core
 # ---------------------------------------------------------------------------
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'unsafe-fallback-key-for-dev-only')
+SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    raise ImproperlyConfigured('SECRET_KEY must be set in the environment.')
 
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,*').split(',')
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+    if host.strip()
+]
 
 # ---------------------------------------------------------------------------
 # Applications
@@ -323,19 +328,33 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # Database
 # ---------------------------------------------------------------------------
 
+DB_ENGINE = os.getenv('DB_ENGINE', 'mssql')
+DB_TRUSTED_CONNECTION = os.getenv('DB_TRUSTED_CONNECTION', 'True') == 'True'
+DB_OPTIONS = {
+    'driver': os.getenv('DB_DRIVER', 'ODBC Driver 17 for SQL Server'),
+    'extra_params': 'TrustServerCertificate=yes;',
+}
+
+if DB_TRUSTED_CONNECTION:
+    DB_OPTIONS['extra_params'] += 'Trusted_Connection=yes;'
+elif not os.getenv('DB_USER') or not os.getenv('DB_PASSWORD'):
+    raise ImproperlyConfigured(
+        'DB_USER and DB_PASSWORD must be set when DB_TRUSTED_CONNECTION is False.'
+    )
+
 DATABASES = {
     'default': {
-        'ENGINE': 'mssql',
-        'NAME': 'dbOSTPM',
-        'HOST': 'localhost',
-        'PORT': '',
-        'OPTIONS': {
-            'driver': 'ODBC Driver 17 for SQL Server',
-            'extra_params': 'Trusted_Connection=yes;TrustServerCertificate=yes;',
-        },
+        'ENGINE': DB_ENGINE,
+        'NAME': os.getenv('DB_NAME', 'dbOSTPM'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', ''),
+        'OPTIONS': DB_OPTIONS,
     }
 }
 
+if not DB_TRUSTED_CONNECTION:
+    DATABASES['default']['USER'] = os.environ['DB_USER']
+    DATABASES['default']['PASSWORD'] = os.environ['DB_PASSWORD']
 # ---------------------------------------------------------------------------
 # Password validation
 # ---------------------------------------------------------------------------
@@ -373,15 +392,31 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS Configuration
 # ---------------------------------------------------------------------------
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
-    for origin in os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000').split(',')
+    for origin in os.getenv(
+        'CORS_ALLOWED_ORIGINS',
+        'http://localhost:3000,http://127.0.0.1:3000,'
+        'http://localhost:3001,http://127.0.0.1:3001',
+    ).split(',')
     if origin.strip()
 ]
 
 CORS_ALLOW_CREDENTIALS = os.getenv('CORS_ALLOW_CREDENTIALS', 'False') == 'True'
+
+SECURE_SSL_REDIRECT = os.getenv(
+    'SECURE_SSL_REDIRECT',
+    'False' if DEBUG else 'True',
+) == 'True'
+SECURE_HSTS_SECONDS = int(os.getenv('SECURE_HSTS_SECONDS', '0' if DEBUG else '3600'))
+SECURE_HSTS_INCLUDE_SUBDOMAINS = (
+    os.getenv('SECURE_HSTS_INCLUDE_SUBDOMAINS', 'False') == 'True'
+)
+SECURE_HSTS_PRELOAD = os.getenv('SECURE_HSTS_PRELOAD', 'False') == 'True'
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 CORS_ALLOW_METHODS = [
     'GET',
@@ -416,8 +451,10 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'USER_ID_FIELD': 'login_id',
+    # 'USER_ID_FIELD': 'login_id',
     'USER_ID_CLAIM': 'user_id',
+    # "USER_ID_FIELD": "id",
+    "USER_ID_FIELD": "login_id",
 }
 
 # ---------------------------------------------------------------------------
@@ -461,4 +498,9 @@ LOGGING = {
 # Google reCAPTCHA
 # ---------------------------------------------------------------------------
 
-RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY', '6LfCIHUtAAAAANqXloxdFytoKShd0M0OFr_YEXaO')
+RECAPTCHA_SECRET_KEY = os.getenv('RECAPTCHA_SECRET_KEY', '')
+# PARIVESH API Configuration
+PARIVESH_LOGIN_URL = "https://parivesh.nic.in/parivesh_api/api/integration/login"
+# PARIVESH_LOGIN_URL = "https://stgdev.parivesh.nic.in/parivesh2_dev/api/integration/login"
+
+PARIVESH_SECRET_KEY = os.getenv('PARIVESH_SECRET_KEY', '')

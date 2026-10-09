@@ -5,7 +5,21 @@
 
 import axios from "axios";
 
-const BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:8000/api";
+const configuredBaseUrl = process.env.REACT_APP_API_BASE_URL;
+const BASE_URL = (() => {
+  const baseUrl = configuredBaseUrl || "http://localhost:8000/api";
+  if (
+    process.env.NODE_ENV !== "development"
+    || !/^https?:\/\/(?:localhost|127\.0\.0\.1):8000(?:[/?#]|$)/i.test(baseUrl)
+  ) {
+    return baseUrl;
+  }
+
+  const parsedUrl = new URL(baseUrl);
+  parsedUrl.protocol = "http:";
+  parsedUrl.hostname = "localhost";
+  return parsedUrl.toString().replace(/\/$/, "");
+})();
 
 const api = axios.create({
   baseURL: BASE_URL,
@@ -32,6 +46,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    if (axios.isCancel(error) || error.code === "ERR_CANCELED") {
+      return Promise.reject(error);
+    }
+
     const message =
       error.response?.data?.error?.message ||
       error.response?.data?.detail ||

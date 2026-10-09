@@ -1,0 +1,249 @@
+.guides-page {
+  min-height: 70vh;
+  padding: clamp(32px, 5vw, 66px) 24px 80px;
+  color: #20392a;
+  background:
+    radial-gradient(ellipse at 90% 0%, rgba(111, 168, 62, 0.12), transparent 32%),
+    #f7faf6;
+}
+
+.guides-content {
+  width: min(100%, 1320px);
+  margin: 0 auto;
+}
+
+.guides-heading {
+  position: relative;
+  margin-bottom: 52px;
+  padding: 0 0 27px;
+  border-bottom: 2px solid #248b52;
+  text-align: center;
+}
+
+.guides-heading__icon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 13px;
+  place-items: center;
+  border: 1px solid #d4e8d8;
+  border-radius: 17px;
+  color: #176d46;
+  background: #eaf5ec;
+}
+
+.guides-heading__icon svg {
+  width: 25px;
+  height: 25px;
+}
+
+.guides-eyebrow {
+  color: #258250;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.guides-heading h1 {
+  margin: 7px 0 10px;
+  color: #20392a;
+  font-size: clamp(30px, 4vw, 46px);
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.guides-heading p {
+  max-width: 700px;
+  margin: 0 auto;
+  color: #65766a;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.guide-section + .guide-section {
+  margin-top: 42px;
+}
+
+.guide-section__title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 18px;
+  color: #244532;
+  font-size: clamp(19px, 2.4vw, 25px);
+  font-weight: 700;
+}
+
+.guide-section__title svg {
+  width: 23px;
+  height: 23px;
+  color: #248b52;
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.guide-card {
+  display: flex;
+  min-width: 0;
+  min-height: 258px;
+  flex-direction: column;
+  padding: 21px;
+  border: 1px solid #dce8de;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(24, 68, 43, 0.06);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.guide-card:hover {
+  transform: translateY(-3px);
+  border-color: #8fbd9b;
+  box-shadow: 0 16px 34px rgba(24, 68, 43, 0.11);
+}
+
+.guide-card__icon {
+  display: grid;
+  width: 47px;
+  height: 47px;
+  flex: 0 0 47px;
+  place-items: center;
+  border-radius: 14px;
+  color: #176d46;
+  background: #eaf5ec;
+}
+
+.guide-card__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.guide-card h3 {
+  margin: 17px 0 7px;
+  color: #20392a;
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.guide-card p {
+  flex: 1;
+  margin: 0 0 18px;
+  color: #65766a;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.guide-card__link {
+  display: flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding: 0 13px;
+  border: 1px solid #dce8de;
+  border-radius: 11px;
+  color: #176d46;
+  background: #f6faf6;
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: none;
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.guide-card__link svg {
+  width: 16px;
+  height: 16px;
+}
+
+.guide-card__link:hover {
+  border-color: #176d46;
+  color: #fff;
+  background: #176d46;
+}
+
+.guide-card__link:focus-visible {
+  outline: 3px solid #e8872d;
+  outline-offset: 3px;
+}
+
+html[data-theme="dark"] .guides-page {
+  color: #e9f0eb;
+  background: radial-gradient(ellipse at 90% 0%, rgba(111, 168, 62, 0.1), transparent 32%), #101a16;
+}
+
+html[data-theme="dark"] .guides-heading h1,
+html[data-theme="dark"] .guide-section__title,
+html[data-theme="dark"] .guide-card h3 {
+  color: #e9f0eb;
+}
+
+html[data-theme="dark"] .guides-heading p,
+html[data-theme="dark"] .guide-card p {
+  color: #c1d2c6;
+}
+
+html[data-theme="dark"] .guides-heading__icon,
+html[data-theme="dark"] .guide-card__icon {
+  border-color: #42654e;
+  color: #d8eee0;
+  background: #244c34;
+}
+
+html[data-theme="dark"] .guide-card {
+  border-color: #405247;
+  background: #1b2c22;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+}
+
+html[data-theme="dark"] .guide-card:hover {
+  border-color: #668b70;
+}
+
+html[data-theme="dark"] .guide-card__link {
+  border-color: #52685a;
+  color: #d8eee0;
+  background: #14231b;
+}
+
+html[data-theme="dark"] .guide-card__link:hover {
+  border-color: #43875e;
+  color: #fff;
+  background: #176d46;
+}
+
+@media (max-width: 900px) {
+  .guide-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .guides-page {
+    padding-inline: 16px;
+  }
+
+  .guides-heading {
+    margin-bottom: 38px;
+  }
+
+  .guide-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .guide-card {
+    min-height: 230px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-card,
+  .guide-card__link {
+    transition: none;
+  }
+}

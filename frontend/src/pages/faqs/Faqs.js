@@ -1,74 +1,60 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { FiChevronDown, FiHelpCircle } from 'react-icons/fi';
 import './Faqs.css';
 
-const faqData = [
-  { question: "1. What is the purpose of this portal?", answer: "This portal is a centralized digital platform for planning, traceability, and monitoring of forest nurseries and planting material." },
-  { question: "2. What are the services provided by this platform?", answer: "Services include mapping of existing nurseries, end-to-end traceability of planting material, and unique QR code generation." },
-  { question: "3. What are the unique features of this platform?", answer: "Unique code generation for every entity and role-based workflows for different authorities." },
-  { question: "4. Who can use this platform?", answer: "Forest departments, nursery managers, and authorized government officials." },
-  { question: "5. Is user registration mandatory?", answer: "Yes, authorized personnel must register to access the role-based dashboard." },
-  { question: "6. What is a Seed Production Area (SPA)?", answer: "A designated area managed specifically to produce high-quality seeds for forestry." },
-  { question: "7. What is a Candidate Plus Tree (CPT)?", answer: "An outstanding tree selected based on its physical characteristics for potential use in breeding programs." },
-  { question: "8. What details are required for Nursery, SPA/CPT and Seed Orchard registration?", answer: "Location details, species available, capacity, and jurisdictional forest division." },
-  { question: "9. What is a Seed Orchard?", answer: "A plantation of genetically superior trees isolated to reduce pollination from genetically inferior outside sources." },
-  { question: "10. What is a Seed Processing cum Treatment Unit?", answer: "A facility where collected seeds are cleaned, treated, and prepared for storage or sowing." }
-];
+const faqKeys = Array.from({ length: 10 }, (_, index) => index + 1);
 
 function Faqs() {
   const [openIndex, setOpenIndex] = useState(null);
+  const { t } = useTranslation();
 
   const toggleFaq = (index) => {
-    setOpenIndex(openIndex === index ? null : index);
+    setOpenIndex((currentIndex) => currentIndex === index ? null : index);
   };
 
   return (
     <div className="faqs-container">
       
-      {/* Background Theme Elements */}
-      <div className="floating-leaves">
-        <span className="leaf">🍃</span>
-        <span className="leaf">🌿</span>
-        <span className="leaf">🍀</span>
-        <span className="leaf">🍃</span>
-      </div>
-
       <div className="faqs-content">
-        
-        {/* Teal Home Button */}
-        <Link to="/" className="faqs-home-btn">
-          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-          Home
-        </Link>
+        <div className="faqs-heading">
+          <span className="faqs-heading__icon"><FiHelpCircle aria-hidden="true" /></span>
+          <div>
+            <span className="faqs-eyebrow">{t('header.faqs')}</span>
+            <h1 className="faqs-title">{t('faq.title')}</h1>
+            <p className="faqs-subtitle">{t('home.portalName')} · {t('home.portalExpansion')}</p>
+          </div>
+        </div>
 
-        {/* Titles */}
-        <h1 className="faqs-title">Frequently Asked Questions (FAQs)</h1>
-        <h2 className="faqs-subtitle">Harit-SANKALP (System for Afforestation, Nursery Knowledge & Linkage Platform)</h2>
-
-        {/* Accordion List */}
         <div className="faqs-accordion">
-          {faqData.map((faq, index) => (
-            <div key={index} className="faq-item">
-              <div className="faq-question" onClick={() => toggleFaq(index)}>
-                <span>{faq.question}</span>
-                <span className={`faq-icon ${openIndex === index ? 'open' : ''}`}>
-                  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="18 15 12 9 6 15"></polyline>
-                  </svg>
-                </span>
+          {faqKeys.map((faqNumber, index) => (
+            <section key={faqNumber} className={`faq-item${openIndex === index ? ' is-open' : ''}`}>
+              <h2 className="faq-question-heading">
+                <button
+                  type="button"
+                  className="faq-question"
+                  aria-expanded={openIndex === index}
+                  aria-controls={`faq-answer-${faqNumber}`}
+                  id={`faq-question-${faqNumber}`}
+                  onClick={() => toggleFaq(index)}
+                >
+                  <span className="faq-number">{String(faqNumber).padStart(2, '0')}</span>
+                  <span className="faq-question__text">{t(`faq.items.${faqNumber}.question`)}</span>
+                  <FiChevronDown className={`faq-icon${openIndex === index ? ' open' : ''}`} aria-hidden="true" />
+                </button>
+              </h2>
+              <div
+                className="faq-answer"
+                id={`faq-answer-${faqNumber}`}
+                role="region"
+                aria-labelledby={`faq-question-${faqNumber}`}
+                hidden={openIndex !== index}
+              >
+                {t(`faq.items.${faqNumber}.answer`)}
               </div>
-              {openIndex === index && (
-                <div className="faq-answer">
-                  {faq.answer}
-                </div>
-              )}
-            </div>
+            </section>
           ))}
         </div>
-        
       </div>
     </div>
   );

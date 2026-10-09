@@ -111,6 +111,114 @@ class M002District(models.Model):
 
     def __str__(self):
         return self.district_name
+# ==========================================
+# M003 Sub-District Model
+# ==========================================
+class M003SubDistrict(models.Model):
+    subdistrict_id = models.IntegerField(
+        primary_key=True,
+        db_column='SubDistrict_ID'
+    )
+    subdistrict_district_id = models.IntegerField(
+        db_column='SubDistrict_District_ID'
+    )
+    subdistrict_name = models.CharField(
+        max_length=255,
+        db_column='SubDistrict_Name'
+    )
+    subdistrict_version = models.IntegerField(
+        db_column='SubDistrict_Version',
+        null=True,
+        blank=True
+    )
+    subdistrict_census2001code = models.IntegerField(
+        db_column='SubDistrict_Census2001Code',
+        null=True,
+        blank=True
+    )
+    subdistrict_census2011code = models.IntegerField(
+        db_column='SubDistrict_Census2011Code',
+        null=True,
+        blank=True
+    )
+    subdistrict_active = models.CharField(
+        max_length=1,
+        db_column='SubDistrict_Active',
+        null=True,
+        blank=True
+    )
+    subdistrict_entryby = models.IntegerField(
+        db_column='SubDistrict_EntryBy',
+        null=True,
+        blank=True
+    )
+    subdistrict_entryon = models.DateTimeField(
+        db_column='SubDistrict_EntryOn',
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'M003_SubDistrict'
+
+    def __str__(self):
+        return self.subdistrict_name
+# ==========================================
+# M004 Block Model
+# ==========================================
+class M004Block(models.Model):
+    block_code = models.IntegerField(
+        primary_key=True,
+        db_column='Block_Code'
+    )
+
+    district_code = models.IntegerField(
+        db_column='District_Code'
+    )
+
+    block_name = models.CharField(
+        max_length=255,
+        db_column='Block_Name'
+    )
+
+    block_version = models.IntegerField(
+        db_column='Block_Version',
+        null=True,
+        blank=True
+    )
+
+    block_active = models.CharField(
+        max_length=1,
+        db_column='Block_Active',
+        null=True,
+        blank=True
+    )
+
+    block_entryby = models.IntegerField(
+        db_column='Block_EntryBy',
+        null=True,
+        blank=True
+    )
+
+    block_entryon = models.DateTimeField(
+        db_column='Block_EntryOn',
+        null=True,
+        blank=True
+    )
+
+    sub_district_code = models.IntegerField(
+        db_column='Sub_District_Code',
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'M004_Block'
+
+    def __str__(self):
+        return self.block_name
 
 
 class M002Circle(models.Model):
@@ -146,8 +254,167 @@ class M003Division(models.Model):
 
     def __str__(self):
         return self.division_name
+# ==========================================
+# M004 Range Model
+# ==========================================
+class M004Range(models.Model):
+    range_id = models.IntegerField(
+        primary_key=True,
+        db_column='Range_ID'
+    )
 
+    range_division_id = models.IntegerField(
+        db_column='Range_Division_ID'
+    )
 
+    range_name = models.CharField(
+        max_length=255,
+        db_column='Range_Name'
+    )
+
+    range_version = models.IntegerField(
+        db_column='Range_Version',
+        null=True,
+        blank=True
+    )
+
+    range_active = models.CharField(
+        max_length=1,
+        db_column='Range_Active',
+        null=True,
+        blank=True
+    )
+
+    range_entryby = models.IntegerField(
+        db_column='Range_EntryBy',
+        null=True,
+        blank=True
+    )
+
+    range_entryon = models.DateTimeField(
+        db_column='Range_EntryOn',
+        null=True,
+        blank=True
+    )
+
+    range_updatedby = models.IntegerField(
+        db_column='Range_UpdatedBy',
+        null=True,
+        blank=True
+    )
+
+    range_updatedon = models.DateTimeField(
+        db_column='Range_UpdatedOn',
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'M004_Range'
+
+    def __str__(self):
+        return self.range_name
+class M005Section(models.Model):
+    section_id = models.IntegerField(
+        primary_key=True,
+        db_column='Section_ID'
+    )
+    section_range_id = models.IntegerField(
+        db_column='Section_Range_ID'
+    )
+    section_name = models.CharField(
+        max_length=255,
+        db_column='Section_Name'
+    )
+    section_version = models.IntegerField(
+        db_column='Section_Version',
+        null=True,
+        blank=True
+    )
+    section_active = models.CharField(
+        max_length=1,
+        db_column='Section_Active',
+        null=True,
+        blank=True
+    )
+    section_entryby = models.IntegerField(
+        db_column='Section_EntryBy',
+        null=True,
+        blank=True
+    )
+    section_entryon = models.DateTimeField(
+        db_column='Section_EntryOn',
+        null=True,
+        blank=True
+    )
+    section_updatedby = models.IntegerField(
+        db_column='Section_UpdatedBy',
+        null=True,
+        blank=True
+    )
+    section_updatedon = models.DateTimeField(
+        db_column='Section_UpdatedOn',
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'M005_Section'
+
+    def __str__(self):
+        return self.section_name
+class M006Compartment(models.Model):
+    compart_id = models.IntegerField(
+        primary_key=True,
+        db_column='Compart_ID'
+    )
+    compart_section_id = models.IntegerField(
+        db_column='Compart_Section_ID'
+    )
+    compart_name = models.CharField(
+        max_length=255,
+        db_column='Compart_Name'
+    )
+    compart_version = models.IntegerField(
+        db_column='Compart_Version',
+        null=True,
+        blank=True
+    )
+    compart_active = models.CharField(
+        max_length=1,
+        db_column='Compart_Active',
+        null=True,
+        blank=True
+    )
+    compart_entryby = models.IntegerField(
+        db_column='Compart_EntryBy',
+        null=True,
+        blank=True
+    )
+    compart_entryon = models.DateTimeField(
+        db_column='Compart_EntryOn',
+        null=True,
+        blank=True
+    )
+    compart_updatedby = models.IntegerField(
+        db_column='Compart_UpdatedBy',
+        null=True,
+        blank=True
+    )
+    compart_updatedon = models.DateTimeField(
+        db_column='Compart_UpdatedOn',
+        null=True,
+        blank=True
+    )
+
+    class Meta:
+        managed = False
+        db_table = 'M006_Compart'
+
+    def __str__(self):
+        return self.compart_name
 # ==========================================
 # T007 Nursery Model
 # ==========================================

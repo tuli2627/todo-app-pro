@@ -1,5 +1,366 @@
 {
-  "dashboard": "Dashboard",
-  "pages": "Pages",
-  "login": "Log In"
+  "navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "pages": "Pages",
+    "login": "Log In"
+  },
+  "accessibility": {
+    "skipToContent": "Skip to main content",
+    "mainNavigation": "Main navigation",
+    "tools": "Accessibility tools",
+    "decreaseText": "Decrease text size",
+    "resetText": "Reset text size to 100 percent",
+    "increaseText": "Increase text size",
+    "zoomLevel": "Text size {{percent}} percent",
+    "enableDark": "Enable dark theme",
+    "enableLight": "Enable light theme",
+    "enableReadAloud": "Enable read aloud on hover or keyboard focus",
+    "disableReadAloud": "Disable read aloud",
+    "voiceUnavailable": "No speech voice for {{language}} is installed on this device. Install its speech voice in device settings.",
+    "femaleVoiceUnavailable": "No female voice is available for this language; using the installed voice.",
+    "speechPlaybackError": "The browser could not play speech. Check your device's speech settings.",
+    "openSidebar": "Open dashboard menu",
+    "closeSidebar": "Close dashboard menu",
+    "dashboardSidebar": "Dashboard navigation"
+  },
+  "common": {
+    "close": "Close"
+  },
+  "header": {
+    "emblemAlt": "State Emblem of India",
+    "advanceBooking": "Advance Booking",
+    "ourNurseries": "Our Nurseries",
+    "faqs": "FAQs",
+    "userGuides": "User Guides",
+    "aboutUs": "About Us",
+    "national": "National",
+    "state": "State",
+    "silviculturist": "Silviculturist",
+    "circle": "Circle",
+    "dfo": "Divisional Forest Officer",
+    "ro": "Regional Officer",
+    "apo": "Assistant Project Officer",
+    "translate": "Translate",
+    "openLanguageSelector": "Open language selector"
+  },
+  "footer": {
+    "about": "A unified digital platform for planning, monitoring and managing forest nurseries and planting material across India.",
+    "twitter": "Follow us on X",
+    "youtube": "Watch us on YouTube",
+    "email": "Email us",
+    "quickLinks": "Quick Links",
+    "resources": "Resources",
+    "userGuides": "User Guides",
+    "gallery": "Nursery Gallery",
+    "contactUs": "Contact Us",
+    "ministry": "Ministry",
+    "nationalAuthority": "National CAMPA Authority",
+    "ministryName": "Ministry of Environment, Forest and Climate Change",
+    "governmentOfIndia": "Government of India",
+    "copyright": "© {{year}} Harit-SANKALP. All rights reserved.",
+    "technicalSupport": "Technical support by",
+    "contact": "Contact"
+  },
+  "home": {
+    "portalName": "Harit-SANKALP",
+    "governmentInitiative": "Government of India initiative",
+    "portalExpansion": "System for Afforestation, Nursery Knowledge & Linkage Platform",
+    "heroDescription": "A centralized digital platform for planning, monitoring and managing forest nurseries, plantation activities and planting material across India.",
+    "exploreNursery": "Explore Nurseries",
+    "learnMore": "Learn More",
+    "nurseries": "Nurseries",
+    "plants": "Plants",
+    "states": "States and Union Territories",
+    "whyHarit": "Why Harit-SANKALP",
+    "whyHeading": "A connected platform for a greener future",
+    "whyDescription": "Connect forestry stakeholders with reliable nursery information and traceable planting material.",
+    "yearsOfForestry": "Years of forestry experience",
+    "features": {
+      "uniqueCode": "Unique identification codes",
+      "qrCode": "QR code-based tracking",
+      "nurseryMapping": "Nursery mapping",
+      "traceability": "End-to-end traceability"
+    },
+    "ourServices": "Our Services",
+    "servicesHeading": "Supporting every step of forestry",
+    "servicesDescription": "Explore services that support seed production, nursery management and plantation activities.",
+    "ourNurseries": "Our Nurseries",
+    "featuredNurseries": "Featured Forest Nurseries",
+    "featuredNurseriesDescription": "Explore forest nurseries and planting material from across India.",
+    "forestNursery": "Forest Nursery {{number}}",
+    "nurseryCardDescription": "Growing healthy plants for a greener future.",
+    "viewDetails": "View Details",
+    "slides": {
+      "modernNursery": "Modern Forest Nursery",
+      "modernNurseryDescription": "A digitally managed nursery ecosystem.",
+      "qualityPlantation": "Quality Plantation",
+      "qualityPlantationDescription": "Healthy planting material across India.",
+      "afforestation": "Afforestation Mission",
+      "afforestationDescription": "Supporting sustainable green development.",
+      "seedToPlantation": "Seed to Plantation",
+      "seedToPlantationDescription": "Complete nursery lifecycle monitoring."
+    },
+    "services": {
+      "seedProduction": "Seed Production Area / Candidate Plus Tree",
+      "seedOrchard": "Seed Orchard",
+      "nursery": "Nursery",
+      "researchInstitute": "Research Institute",
+      "seedProcessing": "Seed Processing cum Treatment Unit",
+      "seedCollection": "Seed Collection",
+      "processingUnit": "Processing Unit",
+      "plantProduction": "Plant Production and Disposal",
+      "advanceBooking": "Advance Booking"
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions (FAQs)",
+    "items": {
+      "1": {
+        "question": "What is the purpose of this portal?",
+        "answer": "This portal is a centralized digital platform for planning, traceability and monitoring of forest nurseries and planting material."
+      },
+      "2": {
+        "question": "What services does this platform provide?",
+        "answer": "Services include mapping existing nurseries, end-to-end traceability of planting material and unique QR code generation."
+      },
+      "3": {
+        "question": "What are the unique features of this platform?",
+        "answer": "The platform provides a unique code for every entity and role-based workflows for different authorities."
+      },
+      "4": {
+        "question": "Who can use this platform?",
+        "answer": "Forest departments, nursery managers and authorized government officials can use this platform."
+      },
+      "5": {
+        "question": "Is user registration mandatory?",
+        "answer": "Yes. Authorized personnel must register to access the role-based dashboard."
+      },
+      "6": {
+        "question": "What is a Seed Production Area (SPA)?",
+        "answer": "A designated area managed specifically to produce high-quality seeds for forestry."
+      },
+      "7": {
+        "question": "What is a Candidate Plus Tree (CPT)?",
+        "answer": "An outstanding tree selected for its desirable physical characteristics and potential use in breeding programs."
+      },
+      "8": {
+        "question": "What details are required to register a Nursery, SPA/CPT or Seed Orchard?",
+        "answer": "Registration requires location details, available species, capacity and the relevant forest division."
+      },
+      "9": {
+        "question": "What is a Seed Orchard?",
+        "answer": "A plantation of genetically superior trees, isolated to reduce pollination from genetically inferior outside sources."
+      },
+      "10": {
+        "question": "What is a Seed Processing cum Treatment Unit?",
+        "answer": "A facility where collected seeds are cleaned, treated and prepared for storage or sowing."
+      }
+    }
+  },
+  "nursery": {
+    "title": "Our Nurseries",
+    "nursery": "Nursery",
+    "forestNursery": "Forest Nursery",
+    "plantNursery": "Plant Nursery",
+    "seedlingNursery": "Seedling Nursery",
+    "forestDepartmentNursery": "Forest Department Nursery"
+  },
+  "guides": {
+    "title": "User Guides & Documentation",
+    "description": "Browse practical guides for using Harit-SANKALP. Manuals open in a new tab.",
+    "openManual": "Open Manual",
+    "sections": {
+      "users": "User & Role Management",
+      "masters": "Masters & Species Management",
+      "operations": "Operations & Technical Guides"
+    },
+    "registration": {
+      "title": "User Registration Guide",
+      "description": "Step-by-step instructions for Range-Level Officers (RO)."
+    },
+    "approval": {
+      "title": "User Approval Guide",
+      "description": "Workflow for Divisional Forest Officers (DFO) to approve users."
+    },
+    "species": {
+      "title": "Species Master Management",
+      "description": "Adding and managing the primary species database."
+    },
+    "height": {
+      "title": "Quick Guide: Species Height",
+      "description": "A quick reference for managing species-height parameters."
+    },
+    "directory": {
+      "title": "Administrative Directory",
+      "description": "Managing jurisdiction boundaries and office directories."
+    },
+    "migration": {
+      "title": "Mapping Existing Nurseries",
+      "description": "Guide for adding and verifying existing nursery locations on the map."
+    },
+    "geo": {
+      "title": "Enable Location",
+      "description": "How to enable GPS and location permissions for field-site verification."
+    },
+    "platform": {
+      "title": "Harit-SANKALP User Manual",
+      "description": "An overview of the platform and its core workflows."
+    },
+    "support": {
+      "title": "Support & Troubleshooting",
+      "description": "Help with common issues, FAQs, and support channels."
+    }
+  },
+  "about": {
+    "title": "About Harit-SANKALP",
+    "description": "Harit-SANKALP (System for Afforestation, Nursery Knowledge & Linkage Platform) is a digital platform for connecting forest nurseries, planting material, and forestry stakeholders across India.",
+    "mission": "The platform supports nursery discovery, reliable planting-material information, and connected workflows for planning and monitoring afforestation activities. It brings information together to help government teams make informed decisions and improve traceability.",
+    "pillarNationwide": "A nationwide nursery network",
+    "pillarTraceability": "Traceable planting material",
+    "pillarPlanning": "Connected planning and monitoring",
+    "government": "Government of India",
+    "ministryLeadership": "Ministry Leadership",
+    "minister": "Minister of Environment, Forest and Climate Change; Chairperson, Governing Body of National CAMPA",
+    "ministerOfState": "Minister of State, Ministry of Environment, Forest and Climate Change",
+    "ministryName": "Ministry of Environment, Forest and Climate Change",
+    "nationalCampa": "National CAMPA Authority",
+    "authorityLeadership": "Leadership",
+    "secretary": "Secretary, Ministry of Environment, Forest and Climate Change",
+    "directorGeneral": "Director General of Forests and Special Secretary; Chairperson, Executive Committee of National CAMPA",
+    "ceo": "Chief Executive Officer, National Authority CAMPA; Member Secretary, Governing Body and Executive Committee",
+    "authorityName": "National Compensatory Afforestation Fund Management and Planning Authority (National CAMPA)",
+    "contactEyebrow": "Get in touch",
+    "contactTitle": "Contact & Office Addresses",
+    "ministryAddress": "Second Floor, Agni Wing, Indira Paryavaran Bhawan, Jor Bagh, New Delhi – 110003, Government of India.",
+    "authorityAddress": "Third Floor, Supreme Court Metro Station Building, New Delhi – 110001, Government of India."
+  },
+  "login": {
+    "title": "Welcome Back",
+    "subtitle": "Sign in to your account",
+    "email": "Email address",
+    "password": "Password",
+    "enterCaptcha": "Enter CAPTCHA",
+    "refreshCaptcha": "Refresh CAPTCHA",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "submit": "Log in as {{role}}",
+    "captchaMismatch": "The CAPTCHA you entered is incorrect. Please try again.",
+    "failed": "Login failed. Please check your credentials and try again.",
+    "serverUnavailable": "The server is unavailable. Please try again later."
+  },
+  "booking": {
+    "title": "Advance Booking Information",
+    "directoryDetails": "Directory Details",
+    "state": "State",
+    "selectState": "Select State",
+    "district": "District",
+    "selectDistrict": "Select District",
+    "circle": "Circle",
+    "selectCircle": "Select Circle",
+    "forestDivision": "Forest Division",
+    "selectForestDivision": "Select Forest Division",
+    "applicantDetails": "Applicant Details",
+    "type": "Applicant Type",
+    "selectType": "Select Type",
+    "individual": "Individual",
+    "private": "Private",
+    "department": "Department",
+    "name": "Applicant Name",
+    "contactPersonName": "Contact Person Name",
+    "contactPersonNumber": "Contact Person Number",
+    "bookingDetails": "Booking Details",
+    "nurseryName": "Nursery Name",
+    "selectName": "Select Nursery",
+    "species": "Species",
+    "select": "Select",
+    "numberOfPlants": "Number of Plants",
+    "availableBy": "Required By",
+    "amount": "Amount",
+    "uploadReceipt": "Upload Payment Receipt",
+    "acceptedImageFormats": "Accepted formats: JPG and JPEG",
+    "minimumImageSize": "Image size should be at least 50 KB",
+    "book": "Book Now",
+    "success": "Your advance booking request has been submitted successfully.",
+    "failure": "Unable to submit your booking. Please try again.",
+    "connectionError": "Unable to connect to the server. Please try again later."
+  },
+  "dashboard": {
+    "bannerAlt": "Harit-SANKALP banner {{number}}",
+    "smartForestry": "Smart Forestry",
+    "statesOnboarded": "States Onboarded",
+    "nurseriesAcrossNation": "Nurseries Across the Nation",
+    "speciesForDistribution": "Species for Distribution",
+    "seedlingsForDistribution": "Seedlings for Distribution",
+    "seedProductionCpt": "Seed Production Area / Candidate Plus Tree",
+    "seedOrchard": "Seed Orchard",
+    "researchInstitute": "Research Institute",
+    "seedProcessingUnit": "Seed Processing Unit",
+    "overview": "Overview",
+    "active": "Active",
+    "inventory": "Inventory",
+    "distribution": "Distribution",
+    "forestry": "Forestry",
+    "cultivation": "Cultivation",
+    "research": "Research",
+    "facility": "Facility",
+    "speciesAvailable": "Species Available",
+    "seedlingsAvailable": "Seedlings Available",
+    "nurseryInformation": "Nursery Information",
+    "nurseryInformationDescription": "Explore registered forest nurseries and their information.",
+    "forestNurseryInformation": "Forest Nursery Information",
+    "mapView": "Map View",
+    "statistics": "Statistics",
+    "statisticsDescription": "Summary of forestry and nursery information.",
+    "analytics": "Analytics",
+    "reportsCharts": "Reports and Charts",
+    "reportsDescription": "Review nursery and forestry data in charts and reports.",
+    "quickAccess": "Quick Access",
+    "filter": "Filter",
+    "reset": "Reset",
+    "stateWise": "State-wise",
+    "height": "Height",
+    "registeredNurseries": "Registered Nurseries"
+  },
+  "map": {
+    "loading": "Loading map data...",
+    "nurseriesIn": "Nurseries in",
+    "loadingDetails": "Loading nursery details...",
+    "noneRegistered": "No active nurseries registered.",
+    "noneFoundFor": "No active nurseries found for",
+    "photo": "Photo",
+    "nurseryName": "Nursery Name",
+    "address": "Address",
+    "contact": "Contact",
+    "contactPerson": "Contact Person",
+    "phone": "Phone",
+    "comingSoon": "Coming Soon",
+    "notAvailable": "Not available",
+    "totalNurseries": "Total Nurseries",
+    "density": "Density",
+    "highest": "Highest",
+    "kmlPreview3d": "3D KML footprint",
+    "kmlDemoLabel": "Demo only · approximate sample boundary",
+    "kmlElevationIncluded": "KML elevation data included",
+    "kmlElevationMissing": "No elevation in KML; footprint preview",
+    "kmlLoading": "Loading KML preview...",
+    "kmlUnavailable": "KML preview unavailable"
+  },
+  "charts": {
+    "totalNurseries": "Total Nurseries",
+    "statesClickDetails": "Locations (click a column for details)",
+    "numberOfNurseries": "Number of Nurseries",
+    "stateTrend": "Nursery trends",
+    "stateComparison": "State comparison",
+    "locationComparison": "Location comparison",
+    "nurseryShare": "Nursery distribution",
+    "stateOverview": "{{state}} Overview",
+    "loading": "Loading chart data...",
+    "noData": "No nursery data matches these filters.",
+    "heightFilterUnavailable": "Height filtering cannot be applied yet because nursery height data is not available.",
+    "speciesCountNote": "Species results count distinct active nurseries with an active booking for the selected species."
+  },
+  "todo": {
+    "noTodos": "No todos yet. Add one above!"
+  }
 }

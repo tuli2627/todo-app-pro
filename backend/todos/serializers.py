@@ -197,8 +197,9 @@
 
 #     def get_photoUrl(self, obj):
 #         return self.get_photo_url(obj)
+from django.urls import reverse
 from rest_framework import serializers
-from .models import Todo, T030AdvanceBooking, M001State, M002District, M002Circle, M003Division, T007Nursery
+from .models import Todo, T030AdvanceBooking, M001State, M002District, M002Circle, M003Division, M004Range, M003SubDistrict, M004Block,  M005Section, T007Nursery,  M006Compartment
 
 class TodoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -236,6 +237,34 @@ class M002DistrictSerializer(serializers.ModelSerializer):
     class Meta:
         model = M002District
         fields = ['district_id', 'district_name', 'district_state_id']
+# --- SUB-DISTRICT DROPDOWN ---
+class M003SubDistrictSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = M003SubDistrict
+        fields = [
+            'subdistrict_id',
+            'subdistrict_name',
+            'subdistrict_district_id'
+        ]
+# --- BLOCK DROPDOWN ---
+class M004BlockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = M004Block
+        fields = [
+            'block_code',
+            'block_name',
+            'district_code',
+            'sub_district_code'
+        ]
+# --- FOREST RANGE DROPDOWN ---
+class M004RangeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = M004Range
+        fields = [
+            'range_id',
+            'range_name',
+            'range_division_id'
+        ]
 
 
 # --- CIRCLE DROPDOWN ---
@@ -250,6 +279,22 @@ class M003DivisionSerializer(serializers.ModelSerializer):
     class Meta:
         model = M003Division
         fields = ['division_id', 'division_name', 'division_circle_id']
+class M005SectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = M005Section
+        fields = [
+            'section_id',
+            'section_name',
+            'section_range_id'
+        ]
+class M006CompartmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = M006Compartment
+        fields = [
+            'compart_id',
+            'compart_name',
+            'compart_section_id'
+        ]
 
 
 # --- MAP NURSERY DETAILS ---
@@ -260,6 +305,10 @@ class NurseryDetailSerializer(serializers.ModelSerializer):
     location = serializers.SerializerMethodField()
     phone = serializers.SerializerMethodField()
     contact_person = serializers.SerializerMethodField()
+    latitude = serializers.SerializerMethodField()
+    longitude = serializers.SerializerMethodField()
+    photo = serializers.SerializerMethodField()
+    kml_url = serializers.SerializerMethodField()
     photo_url = serializers.SerializerMethodField()
     photoUrl = serializers.SerializerMethodField()  # CamelCase alias for frontend compatibility
 
@@ -272,6 +321,10 @@ class NurseryDetailSerializer(serializers.ModelSerializer):
             'location', 
             'phone', 
             'contact_person', 
+            'latitude',
+            'longitude',
+            'photo',
+            'kml_url',
             'photo_url', 
             'photoUrl'
         ]
@@ -303,6 +356,36 @@ class NurseryDetailSerializer(serializers.ModelSerializer):
 
     def get_contact_person(self, obj):
         return self._get_val(obj, ['Nursery_Contact_Person_Name', 'nursery_contact_person_name', 'Nursery_MaintainBy', 'nursery_maintainby'])
+
+    def get_latitude(self, obj):
+        return self._get_val(obj, ['Nursery_Latitude', 'nursery_latitude', 'latitude'])
+
+    def get_longitude(self, obj):
+        return self._get_val(obj, ['Nursery_Longitude', 'nursery_longitude', 'longitude'])
+
+    def get_photo(self, obj):
+        return self._get_val(obj, [
+            'Nursery_PHOTO',
+            'nursery_photo',
+            'Nursery_Photo',
+            'ab_photo'
+        ]) or None
+
+    def get_kml_url(self, obj):
+        source = self._get_val(obj, [
+            'Nursery_KMLURL',
+            'nursery_kmlurl',
+            'kml_url'
+        ])
+        if not source:
+            return None
+
+        kml_path = reverse(
+            'nursery_kml',
+            kwargs={'nursery_id': self.get_id(obj)}
+        )
+        request = self.context.get('request')
+        return request.build_absolute_uri(kml_path) if request else kml_path
 
     def get_photo_url(self, obj):
         # Extract photo path matching exact SQL Server column casing [Nursery_PHOTO]

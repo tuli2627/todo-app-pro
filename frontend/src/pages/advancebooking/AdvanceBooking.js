@@ -434,9 +434,11 @@
 
 // export default AdvanceBooking;
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import './AdvanceBooking.css';
 
 function AdvanceBooking() {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     state: '',
     district: '',
@@ -549,12 +551,12 @@ function AdvanceBooking() {
         body: JSON.stringify(formData)
       });
       if (response.ok) {
-        alert("Booking submitted successfully!");
+        alert(t('booking.success'));
       } else {
-        alert("Failed to submit booking. Check server logs.");
+        alert(t('booking.failure'));
       }
     } catch (error) {
-      alert("Error connecting to the server.");
+      alert(t('booking.connectionError'));
     }
   };
 
@@ -563,19 +565,19 @@ function AdvanceBooking() {
       <div className="floating-leaves">
         <span className="leaf">🍃</span><span className="leaf">🌿</span><span className="leaf">🍀</span><span className="leaf">🍃</span>
       </div>
-      <h2 className="adv-booking-title">Advance Booking Information</h2>
+      <h2 className="adv-booking-title">{t('booking.title')}</h2>
 
       <form onSubmit={handleSubmit}>
         
         <div className="adv-form-section">
-          <div className="adv-section-badge">1. Directory Details</div>
+          <div className="adv-section-badge">{t('booking.directoryDetails')}</div>
           <div className="adv-form-grid">
             
             {/* 1. STATE DROPDOWN */}
             <div className="adv-form-group">
-              <label>State*</label>
+              <label>{t('booking.state')}*</label>
               <select name="state" value={formData.state} onChange={handleStateChange} required>
-                <option value="" disabled>Select State</option>
+                <option value="" disabled>{t('booking.selectState')}</option>
                 {statesList.map((stateObj) => (
                   <option key={stateObj.state_id} value={stateObj.state_id}>
                     {stateObj.state_name}
@@ -586,9 +588,9 @@ function AdvanceBooking() {
             
             {/* 2. DISTRICT DROPDOWN */}
             <div className="adv-form-group">
-              <label>District*</label>
+              <label>{t('booking.district')}*</label>
               <select name="district" value={formData.district} onChange={handleInputChange} disabled={!formData.state} required>
-                  <option value="">Select District</option>
+                  <option value="">{t('booking.selectDistrict')}</option>
                   {districtList.map((distObj) => (
                     <option key={distObj.district_id} value={distObj.district_id}>
                       {distObj.district_name}
@@ -599,9 +601,9 @@ function AdvanceBooking() {
 
             {/* 3. CIRCLE DROPDOWN */}
             <div className="adv-form-group">
-              <label>Circle*</label>
+              <label>{t('booking.circle')}*</label>
               <select name="circle" value={formData.circle} onChange={handleCircleChange} disabled={!formData.state} required>
-                  <option value="">Select Circle</option>
+                  <option value="">{t('booking.selectCircle')}</option>
                   {circleList.map((circObj) => (
                     <option key={circObj.circle_id} value={circObj.circle_id}>
                       {circObj.circle_name}
@@ -612,9 +614,9 @@ function AdvanceBooking() {
 
             {/* 4. FOREST DIVISION DROPDOWN */}
             <div className="adv-form-group">
-              <label>Forest Division*</label>
+              <label>{t('booking.forestDivision')}*</label>
               <select name="forestDivision" value={formData.forestDivision} onChange={handleInputChange} disabled={!formData.circle} required>
-                <option value="">Select Forest Division</option>
+                <option value="">{t('booking.selectForestDivision')}</option>
                 {divisionList.map((divObj) => (
                   <option key={divObj.division_id} value={divObj.division_id}>
                     {divObj.division_name}
@@ -626,38 +628,38 @@ function AdvanceBooking() {
         </div>
 
         <div className="adv-form-section">
-          <div className="adv-section-badge">2. Individual/ Private / Department Details</div>
+          <div className="adv-section-badge">{t('booking.applicantDetails')}</div>
           <div className="adv-form-grid">
             <div className="adv-form-group">
-              <label>Type*</label>
+              <label>{t('booking.type')}*</label>
               <select name="type" value={formData.type} onChange={handleInputChange} required>
-                  <option value="">Select Type</option>
-                  <option value="Individual">Individual</option>
-                  <option value="Private">Private</option>
-                  <option value="Department">Department</option>
+                  <option value="">{t('booking.selectType')}</option>
+                  <option value="Individual">{t('booking.individual')}</option>
+                  <option value="Private">{t('booking.private')}</option>
+                  <option value="Department">{t('booking.department')}</option>
                    
               </select>
             </div>
-            <div className="adv-form-group"><label>Name*</label><input type="text" name="name" value={formData.name} onChange={handleInputChange} required /></div>
-            <div className="adv-form-group"><label>Contact Person Name*</label><input type="text" name="contactPersonName" value={formData.contactPersonName} onChange={handleInputChange} required /></div>
-            <div className="adv-form-group"><label>Contact Person No*</label><input type="text" name="contactPersonNo" value={formData.contactPersonNo} onChange={handleInputChange} required /></div>
+            <div className="adv-form-group"><label>{t('booking.name')}*</label><input type="text" name="name" value={formData.name} onChange={handleInputChange} required /></div>
+            <div className="adv-form-group"><label>{t('booking.contactPersonName')}*</label><input type="text" name="contactPersonName" value={formData.contactPersonName} onChange={handleInputChange} required /></div>
+            <div className="adv-form-group"><label>{t('booking.contactPersonNumber')}*</label><input type="text" name="contactPersonNo" value={formData.contactPersonNo} onChange={handleInputChange} required /></div>
           </div>
         </div>
 
         <div className="adv-form-section">
-          <div className="adv-section-badge">3. Advance Booking Details</div>
+          <div className="adv-section-badge">{t('booking.bookingDetails')}</div>
           <div className="adv-form-grid">
-            <div className="adv-form-group"><label>Nursery Name*</label><select name="nurseryName" value={formData.nurseryName} onChange={handleInputChange} required><option value="">Select Name</option></select></div>
+            <div className="adv-form-group"><label>{t('booking.nurseryName')}*</label><select name="nurseryName" value={formData.nurseryName} onChange={handleInputChange} required><option value="">{t('booking.selectName')}</option></select></div>
             <div className="adv-form-group"></div> 
-            <div className="adv-form-group"><label>Species*</label><select name="species" value={formData.species} onChange={handleInputChange} required><option value="">Select</option></select></div>
-            <div className="adv-form-group"><label>No. of Plants*</label><input type="number" name="noOfPlants" value={formData.noOfPlants} onChange={handleInputChange} required /></div>
-            <div className="adv-form-group"><label>Plant to be made available by*</label><input type="date" name="availableDate" value={formData.availableDate} onChange={handleInputChange} required /></div>
-            <div className="adv-form-group"><label>Amount (INR)</label><input type="number" name="amount" value={formData.amount} onChange={handleInputChange} /></div>
+            <div className="adv-form-group"><label>{t('booking.species')}*</label><select name="species" value={formData.species} onChange={handleInputChange} required><option value="">{t('booking.select')}</option></select></div>
+            <div className="adv-form-group"><label>{t('booking.numberOfPlants')}*</label><input type="number" name="noOfPlants" value={formData.noOfPlants} onChange={handleInputChange} required /></div>
+            <div className="adv-form-group"><label>{t('booking.availableBy')}*</label><input type="date" name="availableDate" value={formData.availableDate} onChange={handleInputChange} required /></div>
+            <div className="adv-form-group"><label>{t('booking.amount')}</label><input type="number" name="amount" value={formData.amount} onChange={handleInputChange} /></div>
           </div>
         </div>
 
         <div className="adv-form-section">
-          <div className="adv-section-badge">4. Upload Payment Receipt</div>
+          <div className="adv-section-badge">{t('booking.uploadReceipt')}</div>
           <div className="adv-upload-container">
             <div className="adv-image-icon">
               <svg viewBox="0 0 24 24" width="80" height="80" stroke="black" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
@@ -666,13 +668,13 @@ function AdvanceBooking() {
             </div>
             <div className="adv-file-details">
               <div className="adv-file-input-row"><span className="adv-required-star">*</span><input type="file" accept=".jpg, .jpeg" onChange={handleFileChange} required /></div>
-              <div className="adv-warning-text"><p>*Only *.jpg / *.jpeg format</p><p>Image size should be at least 50 KB</p></div>
+              <div className="adv-warning-text"><p>{t('booking.acceptedImageFormats')}</p><p>{t('booking.minimumImageSize')}</p></div>
             </div>
           </div>
         </div>
 
         <div className="adv-submit-wrapper align-right">
-            <button type="submit" className="adv-book-btn">Book</button>
+            <button type="submit" className="adv-book-btn">{t('booking.book')}</button>
         </div>
       </form>
     </div>

@@ -1,7 +1,11 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import "./Footer.css";
 
 function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className="hs-footer">
       <svg className="hs-footer__skyline" viewBox="0 0 1280 56" preserveAspectRatio="none">
@@ -29,51 +33,49 @@ function Footer() {
             </svg>
             <span>Harit-<em>SANKALP</em></span>
           </div>
-          <p className="hs-footer__about">
-            A centralized digital platform for planning, traceability, and monitoring
-            of forest nurseries and planting material — from seed source to dispatch,
-            developed with technical support of NATIONAL CAMPA.
-          </p>
+          <p className="hs-footer__about">{t('footer.about')}</p>
           <div className="hs-footer__connect-row">
-            <a href="#" aria-label="Twitter">𝕏</a>
-            <a href="#" aria-label="YouTube">▶</a>
-            <a href="#" aria-label="Email">✉</a>
+            <a href="https://x.com" aria-label={t('footer.twitter')}>𝕏</a>
+            <a href="https://youtube.com" aria-label={t('footer.youtube')}>▶</a>
+            <a href="mailto:info@nationalcampa.nic.in" aria-label={t('footer.email')}>✉</a>
           </div>
         </div>
 
         <div className="hs-footer__col">
-          <h4>Quick links</h4>
+          <h4>{t('footer.quickLinks')}</h4>
           <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/dashboard">Dashboard</a></li>
-            <li><a href="/nurseries">Our Nurseries</a></li>
-            <li><a href="/advance-booking">Advance Booking</a></li>
+            <li><Link to="/">{t('navigation.home')}</Link></li>
+            <li><Link to="/dashboard">{t('navigation.dashboard')}</Link></li>
+            <li><Link to="/our-nurseries">{t('header.ourNurseries')}</Link></li>
+            <li><Link to="/about-us">{t('header.aboutUs')}</Link></li>
+            <li><Link to="/advance-booking">{t('header.advanceBooking')}</Link></li>
           </ul>
         </div>
 
         <div className="hs-footer__col">
-          <h4>Resources</h4>
+          <h4>{t('footer.resources')}</h4>
           <ul>
-            <li><a href="/faqs">FAQs</a></li>
-            <li><a href="/docs">User Guides</a></li>
-            <li><a href="/gallery">Gallery</a></li>
-            <li><a href="/contact">Contact Us</a></li>
+            <li><Link to="/faqs">{t('header.faqs')}</Link></li>
+            <li><Link to="/documentation">{t('footer.userGuides')}</Link></li>
+            <li><Link to="/about-us">{t('header.aboutUs')}</Link></li>
+            <li><Link to="/our-nurseries">{t('footer.gallery')}</Link></li>
+            <li><a href="mailto:info@nationalcampa.nic.in">{t('footer.contactUs')}</a></li>
           </ul>
         </div>
 
         <div className="hs-footer__col">
-          <h4>Ministry</h4>
+          <h4>{t('footer.ministry')}</h4>
           <ul>
-            <li><a href="#">National Authority, CAMPA</a></li>
-            <li><a href="#">Ministry of Environment, Forest and Climate Change</a></li>
-            <li><a href="#">Government of India</a></li>
+            <li><span>{t('footer.nationalAuthority')}</span></li>
+            <li><span>{t('footer.ministryName')}</span></li>
+            <li><span>{t('footer.governmentOfIndia')}</span></li>
           </ul>
         </div>
       </div>
 
       <div className="hs-footer__bottom">
-        <span>© {new Date().getFullYear()} Harit-SANKALP · Content managed by National Authority, CAMPA, MoEFCC, Government of India</span>
-        <span>Developed with technical support of <a href="#">NATIONAL CAMPA</a></span>
+        <span>{t('footer.copyright', { year: new Date().getFullYear() })}</span>
+        <span>{t('footer.technicalSupport')} <a href="https://nationalcampa.nic.in">NATIONAL CAMPA</a></span>
       </div>
     </footer>
   );

@@ -1,0 +1,375 @@
+.about-page {
+  min-height: 70vh;
+  padding: clamp(32px, 5vw, 68px) 24px 76px;
+  color: #20392a;
+  background: linear-gradient(180deg, #f5f9f3 0%, #fff 42%, #f7faf6 100%);
+}
+
+.about-intro,
+.about-leadership,
+.about-authority,
+.about-contact {
+  width: min(100%, 1200px);
+  margin: 0 auto;
+}
+
+.about-intro {
+  padding: 14px 0 54px;
+  text-align: center;
+}
+
+.about-intro__icon,
+.about-contact__icon {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 13px;
+  place-items: center;
+  border: 1px solid #d4e8d8;
+  border-radius: 17px;
+  color: #176d46;
+  background: #eaf5ec;
+}
+
+.about-intro__icon svg,
+.about-contact__icon svg {
+  width: 25px;
+  height: 25px;
+}
+
+.about-eyebrow {
+  color: #258250;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.about-intro h1 {
+  margin: 8px 0 14px;
+  color: #20392a;
+  font-size: clamp(32px, 4.5vw, 49px);
+  font-weight: 760;
+  line-height: 1.15;
+}
+
+.about-intro__lead {
+  max-width: 900px;
+  margin: 0 auto 12px;
+  color: #345b42;
+  font-size: clamp(17px, 2vw, 21px);
+  font-weight: 600;
+  line-height: 1.65;
+}
+
+.about-intro__body {
+  max-width: 850px;
+  margin: 0 auto;
+  color: #65766a;
+  font-size: 15px;
+  line-height: 1.8;
+}
+
+.about-pillars {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 11px;
+  margin-top: 25px;
+}
+
+.about-pillars div {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px solid #dce8de;
+  border-radius: 999px;
+  color: #315940;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.about-pillars svg {
+  width: 16px;
+  height: 16px;
+  color: #248b52;
+}
+
+.about-leadership,
+.about-authority {
+  padding: 30px 0 48px;
+}
+
+.about-section-heading {
+  margin-bottom: 19px;
+}
+
+.about-section-heading span {
+  color: #258250;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.about-section-heading h2,
+.about-contact__heading h2 {
+  margin: 6px 0 0;
+  color: #20392a;
+  font-size: clamp(23px, 3vw, 31px);
+  font-weight: 730;
+  line-height: 1.25;
+}
+
+.about-ministry-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.about-person {
+  border: 1px solid #dce8de;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(24, 68, 43, 0.06);
+}
+
+.about-person--minister {
+  display: flex;
+  align-items: center;
+  gap: 19px;
+  min-height: 185px;
+  padding: 22px;
+  border-top: 4px solid #198a46;
+}
+
+.about-person__portrait {
+  display: grid;
+  width: 88px;
+  height: 106px;
+  flex: 0 0 88px;
+  place-items: center;
+  border: 1px solid #c9ddce;
+  border-radius: 20px;
+  color: #fff;
+  background: linear-gradient(145deg, #176d46, #6fa83e);
+  box-shadow: 0 7px 16px rgba(24, 68, 43, 0.16);
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.about-person__portrait img {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+}
+
+.about-person__details h3,
+.about-person--authority h3 {
+  margin: 0 0 8px;
+  color: #20392a;
+  font-size: 19px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.about-person__details p,
+.about-person--authority p {
+  margin: 0 0 8px;
+  color: #4c6253;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.about-person small {
+  color: #718277;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.about-authority {
+  padding-top: 8px;
+}
+
+.about-authority-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.about-person--authority {
+  min-height: 240px;
+  padding: 22px;
+  border-top: 4px solid #83b98d;
+}
+
+.about-person--authority .about-person__portrait {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 18px;
+  border-radius: 50%;
+  font-size: 18px;
+}
+
+.about-contact {
+  margin-top: 25px;
+  padding: clamp(22px, 4vw, 36px);
+  border: 1px solid #dce8de;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 14px 35px rgba(24, 68, 43, 0.07);
+}
+
+.about-contact__heading {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.about-contact__icon {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  margin: 0;
+  border-radius: 14px;
+}
+
+.about-contact__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.about-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.about-contact-card {
+  min-width: 0;
+  padding: 19px;
+  border: 1px solid #e4ece5;
+  border-radius: 16px;
+  background: #f9fbf8;
+}
+
+.about-contact-card img {
+  width: auto;
+  height: 42px;
+  max-width: 110px;
+  object-fit: contain;
+  margin-bottom: 13px;
+}
+
+.about-contact-card h3 {
+  margin: 0 0 8px;
+  color: #294735;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.about-contact-card p {
+  margin: 0 0 13px;
+  color: #65766a;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.about-contact-card a {
+  color: #167648;
+  font-size: 13px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+html[data-theme="dark"] .about-page {
+  color: #e9f0eb;
+  background: linear-gradient(180deg, #14231b 0%, #101a16 42%, #14231b 100%);
+}
+
+html[data-theme="dark"] :is(.about-intro h1, .about-section-heading h2, .about-contact__heading h2, .about-person h3, .about-contact-card h3) {
+  color: #e9f0eb;
+}
+
+html[data-theme="dark"] :is(.about-intro__body, .about-person p, .about-person small, .about-contact-card p) {
+  color: #c1d2c6;
+}
+
+html[data-theme="dark"] .about-intro__lead {
+  color: #d8eee0;
+}
+
+html[data-theme="dark"] :is(.about-intro__icon, .about-contact__icon) {
+  border-color: #42654e;
+  color: #d8eee0;
+  background: #244c34;
+}
+
+html[data-theme="dark"] .about-pillars div,
+html[data-theme="dark"] .about-person,
+html[data-theme="dark"] .about-contact {
+  border-color: #405247;
+  color: #d8eee0;
+  background: #1b2c22;
+}
+
+html[data-theme="dark"] .about-person__portrait {
+  border-color: #668b70;
+}
+
+html[data-theme="dark"] .about-contact-card {
+  border-color: #34463a;
+  background: #14231b;
+}
+
+html[data-theme="dark"] .about-contact-card a {
+  color: #9fd8ad;
+}
+
+@media (max-width: 760px) {
+  .about-page {
+    padding-inline: 16px;
+  }
+
+  .about-ministry-grid,
+  .about-contact-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .about-authority-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .about-authority-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .about-person--minister {
+    align-items: flex-start;
+    gap: 14px;
+    padding: 17px;
+  }
+
+  .about-person--minister .about-person__portrait {
+    width: 64px;
+    height: 78px;
+    flex-basis: 64px;
+    border-radius: 15px;
+    font-size: 18px;
+  }
+
+  .about-person__details h3 {
+    font-size: 16px;
+  }
+
+  .about-person__details p {
+    font-size: 13px;
+  }
+}

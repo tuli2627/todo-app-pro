@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>Johama Nursery KML Preview Sample</name>
+    <description>
+      UI demonstration only. The approximate sample polygon is centered on the
+      recorded nursery GPS point; it is not an official nursery boundary.
+      Replace this file with the surveyed nursery KML when available.
+    </description>
+    <Placemark>
+      <name>Illustrative sample nursery footprint</name>
+      <description>
+        Synthetic example footprint for the 3D KML preview. The boundary and
+        area are illustrative and must not be used for land, survey, or
+        operational decisions.
+      </description>
+      <Style>
+        <LineStyle>
+          <color>ff65c87a</color>
+          <width>3</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>665ab77a</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <altitudeMode>clampToGround</altitudeMode>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>
+              74.39992,34.22002,0
+              74.40078,34.22002,0
+              74.40078,34.22067,0
+              74.39992,34.22067,0
+              74.39992,34.22002,0
+            </coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+    <Placemark>
+      <name>Recorded nursery GPS point</name>
+      <Point>
+        <coordinates>74.4003472222222,34.2203444444444,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
+</kml>

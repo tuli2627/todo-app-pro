@@ -1,0 +1,237 @@
+/* =========================================
+   OUR NURSERIES PAGE
+========================================= */
+
+.nursery-page {
+  width: 100%;
+  background: #ffffff;
+}
+
+
+/* =========================================
+   HERO / BANNER SECTION
+========================================= */
+
+.nursery-hero {
+  position: relative;
+  width: 100%;
+  height: 330px;
+
+  /* Use your separate background image here */
+  background-image: url("./bg pic nursery.webp");
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+}
+
+
+/* Dark overlay over hero image */
+
+.nursery-hero-overlay {
+  position: absolute;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.50);
+
+  z-index: 1;
+}
+
+
+/* =========================================
+   HERO CONTENT
+========================================= */
+
+.nursery-hero-content {
+  position: relative;
+
+  z-index: 2;
+
+  width: 85%;
+  max-width: 1400px;
+
+  margin: 0 auto;
+}
+
+
+.nursery-hero-content h1 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 58px;
+  font-weight: 700;
+
+  line-height: 1.1;
+}
+
+
+/* =========================================
+   GALLERY SECTION
+========================================= */
+
+.nursery-gallery-section {
+  width: 100%;
+
+  padding: 70px 0 90px;
+
+  background: #ffffff;
+}
+
+
+.nursery-gallery-container {
+  width: 85%;
+  max-width: 1400px;
+
+  margin: 0 auto;
+}
+
+
+/* =========================================
+   3 COLUMN GALLERY
+========================================= */
+
+.nursery-gallery-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 26px;
+}
+
+
+/* =========================================
+   NURSERY CARD
+========================================= */
+
+.nursery-card {
+  position: relative;
+
+  width: 100%;
+  height: 300px;
+
+  overflow: hidden;
+
+  background: #eeeeee;
+
+  border-radius: 2px;
+
+  cursor: pointer;
+}
+
+
+/* =========================================
+   NURSERY IMAGE
+========================================= */
+
+.nursery-image {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  display: block;
+
+  transition: transform 0.5s ease;
+}
+
+
+/* =========================================
+   IMAGE HOVER
+========================================= */
+
+.nursery-card:hover .nursery-image {
+  transform: scale(1.06);
+}
+
+
+/* =========================================
+   IMAGE TITLE OVERLAY
+========================================= */
+
+.nursery-card-overlay {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  padding: 45px 25px 20px;
+
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.75),
+    rgba(0, 0, 0, 0)
+  );
+
+  opacity: 0;
+
+  transition: opacity 0.3s ease;
+}
+
+
+.nursery-card:hover .nursery-card-overlay {
+  opacity: 1;
+}
+
+
+.nursery-card-overlay h3 {
+  margin: 0;
+
+  color: #ffffff;
+
+  font-size: 20px;
+
+  font-weight: 500;
+}
+
+
+/* =========================================
+   TABLET
+========================================= */
+
+@media (max-width: 992px) {
+
+  .nursery-gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .nursery-hero-content h1 {
+    font-size: 45px;
+  }
+
+}
+
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .nursery-gallery-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nursery-gallery-container {
+    width: 90%;
+  }
+
+  .nursery-hero {
+    height: 260px;
+  }
+
+  .nursery-hero-content {
+    width: 90%;
+  }
+
+  .nursery-hero-content h1 {
+    font-size: 36px;
+  }
+
+}

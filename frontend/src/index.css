@@ -1,15 +1,356 @@
-.goog-tooltip,
-.goog-tooltip:hover,
-.goog-text-highlight {
-    display: none !important;
+html,
+body,
+#root {
+  max-width: 100%;
+  min-height: 100%;
 }
 
-#goog-gt-tt,
-.goog-te-balloon-frame {
-    display: none !important;
-    visibility: hidden !important;
-}
-
+html,
 body {
-    top: 0 !important;
+  overflow-x: clip;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+main:focus {
+  outline: none;
+}
+
+.hs-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  background: #101a16;
+}
+
+html[data-theme="dark"] body {
+  background-color: #101a16;
+  color: #e9f0eb;
+}
+
+html[data-theme="dark"] :is(
+  .hero,
+  .why-section,
+  .services-section,
+  .gallery-section,
+  .faqs-container,
+  .guides-page,
+  .about-page,
+  .nursery-page,
+  .nursery-gallery-section,
+  .adv-booking-container,
+  .login-page,
+  .login-container,
+  .dashboard-main-wrapper,
+  .dashboard
+) {
+  color: #e9f0eb;
+  background-color: #101a16;
+  background-image: none;
+}
+
+html[data-theme="dark"] .hs-header {
+  background: #14231b;
+  border-color: #2b4034;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.32);
+}
+
+html[data-theme="dark"] .hs-header__utility {
+  border-color: #2b4034;
+  background: #101a16;
+}
+
+html[data-theme="dark"] .hs-header__link {
+  color: #e3eee6;
+}
+
+html[data-theme="dark"] .hs-header__link:hover,
+html[data-theme="dark"] .hs-header__link.is-active,
+html[data-theme="dark"] .hs-header__dropdown:hover > .hs-header__pages-trigger,
+html[data-theme="dark"] .hs-header__dropdown:focus-within > .hs-header__pages-trigger {
+  color: #d7f0dc;
+  border-color: #365542;
+  background: #20382a;
+}
+
+html[data-theme="dark"] .hs-header__logo-text {
+  color: #e3eee6;
+}
+
+html[data-theme="dark"] .hs-header__logo-divider {
+  background: #405247;
+}
+
+html[data-theme="dark"] .hs-header__logo-img {
+  border-color: #3b5545;
+  background: #f7faf7;
+}
+
+html[data-theme="dark"] .hs-accessibility-tools {
+  border-color: #405247;
+  background: #1b2c22;
+}
+
+html[data-theme="dark"] .hs-accessibility-tools__button {
+  color: #e3eee6;
+}
+
+html[data-theme="dark"] .hs-accessibility-tools__button:hover:not(:disabled) {
+  color: #ffffff;
+  background: #31543d;
+}
+
+html[data-theme="dark"] .hs-accessibility-tools__button.is-active {
+  color: #ffffff;
+  background: #31543d;
+}
+
+html[data-theme="dark"] .hs-dropdown-menu,
+html[data-theme="dark"] .custom-lang-dropdown {
+  border-color: #405247;
+  background-color: #1b2c22;
+}
+
+html[data-theme="dark"] .hs-dropdown-menu a,
+html[data-theme="dark"] .lang-option {
+  color: #e3eee6;
+}
+
+html[data-theme="dark"] .hs-dropdown-menu a:hover,
+html[data-theme="dark"] .lang-option:hover,
+html[data-theme="dark"] .lang-option[aria-pressed="true"] {
+  color: #ffffff;
+  background: #31543d;
+}
+
+html[data-theme="dark"] :is(
+  .login-card,
+  .faq-item,
+  .faq-question,
+  .faq-answer,
+  .adv-form-section,
+  .nursery-card,
+  .service-card,
+  .chart-card,
+  .stat-card,
+  .feature-box,
+  .counter-card,
+  .experience-card,
+  .faqs-accordion
+) {
+  color: #e9f0eb;
+  background-color: #1b2c22;
+  border-color: #405247;
+}
+
+html[data-theme="dark"] .app-sidebar__brand-icon {
+  color: #c1f2cf;
+  border-color: #547960;
+  background: #244c34;
+}
+
+html[data-theme="dark"] :is(
+  .hero,
+  .why-section,
+  .services-section,
+  .gallery-section
+) :is(h1, h2, h3, h4, p, li, strong, span) {
+  color: #e9f0eb;
+}
+
+html[data-theme="dark"] :is(
+  .overview-heading,
+  .overview-subheading,
+  .quick-access-title,
+  .map-main-title,
+  .section-sub-label,
+  .stat-card-title,
+  .stat-card-value,
+  .chart-card__header h3,
+  .chart-card__header p,
+  .charts-heading__copy h2,
+  .charts-heading__copy p,
+  .section-title h2,
+  .section-title p,
+  .section-title span,
+  .charts-heading__copy .section-title__eyebrow,
+  .faqs-title,
+  .faqs-subtitle,
+  .adv-booking-title,
+  .adv-section-badge,
+  .adv-form-group label,
+  .adv-warning-text,
+  .login-header h2,
+  .login-header p,
+  .about-section-heading h2,
+  .nursery-gallery-section
+) {
+  color: #e9f0eb;
+}
+
+html[data-theme="dark"] :is(
+  .stat-card,
+  .chart-card,
+  .charts-heading,
+  .chart-filters,
+  .quick-access-tree,
+  .india-map,
+  .faq-item,
+  .faq-question,
+  .faq-answer,
+  .adv-form-section,
+  .nursery-card
+) {
+  border-color: #405247;
+  background-color: #1b2c22;
+  background-image: none;
+}
+
+html[data-theme="dark"] .stat-card :is(.stat-tag, .stat-card-link, .stat-arrow) {
+  color: #dbe9df;
+}
+
+html[data-theme="dark"] .stat-card .stat-tag {
+  background: #304239;
+}
+
+html[data-theme="dark"] .dashboard .stats-swiper .swiper-slide .stat-card {
+  color: #e9f0eb;
+  border-color: #405247;
+  background: #1b2c22;
+  background-image: none;
+}
+
+html[data-theme="dark"] .section-title span,
+html[data-theme="dark"] .section-title__eyebrow {
+  border: 1px solid #42654e;
+  color: #d8eee0;
+  background: #244c34;
+}
+
+html[data-theme="dark"] .chart-filter {
+  color: #d0e3d5;
+}
+
+html[data-theme="dark"] .chart-filters__title {
+  color: #d8eee0;
+}
+
+html[data-theme="dark"] .chart-filter-error {
+  color: #ffaaa3;
+}
+
+html[data-theme="dark"] .chart-filter-note {
+  color: #c1d2c6;
+}
+
+html[data-theme="dark"] .chart-filter select,
+html[data-theme="dark"] .chart-filter-reset {
+  color: #e9f0eb;
+  border-color: #52685a;
+  background-color: #14231b;
+}
+
+html[data-theme="dark"] .chart-filter select:disabled {
+  color: #a7b8ac;
+  background-color: #26372d;
+}
+
+html[data-theme="dark"] .chart-filter-reset:hover {
+  color: #fff;
+  background-color: #286342;
+}
+
+html[data-theme="dark"] :is(
+  .faqs-content,
+  .adv-booking-container,
+  .login-card,
+  .nursery-gallery-section,
+  .why-section,
+  .services-section,
+  .gallery-section
+) :is(h1, h2, h3, h4, p, label, strong, li) {
+  color: #e9f0eb;
+}
+
+html[data-theme="dark"] :is(.feature-icon, .service-icon, .counter-icon, .experience-card h2) {
+  color: #c1f2cf;
+}
+
+html[data-theme="dark"] .service-card {
+  border-color: #405247;
+  background: #1b2c22;
+}
+
+html[data-theme="dark"] :is(.faq-question, .faq-icon) {
+  color: #d8eee0;
+}
+
+html[data-theme="dark"] .login-page,
+html[data-theme="dark"] .login-card {
+  border-color: #405247;
+  background-color: #1b2c22;
+}
+
+html[data-theme="dark"] .adv-image-icon svg {
+  stroke: #d8eee0;
+}
+
+html[data-theme="dark"] .adv-section-badge {
+  background: #245b38;
+}
+
+html[data-theme="dark"] .stat-icon-box {
+  color: #c1f2cf;
+  background-color: #294735;
+}
+
+html[data-theme="dark"] :is(.chart-card__icon--trend, .chart-card__icon--bars, .chart-card__icon--share) {
+  color: #d4f0dc;
+  background-color: #294735;
+}
+
+html[data-theme="dark"] :is(a, .service-container p, .input-icon, .password-toggle) {
+  color: #e9f0eb;
+}
+
+html[data-theme="dark"] .hs-footer {
+  border-top: 1px solid #365143;
+  background: #0b1711;
+}
+
+html[data-theme="dark"] :is(input, select, textarea) {
+  color: #e9f0eb;
+  border-color: #52685a;
+  background-color: #14231b;
+}
+
+html[data-theme="dark"] :is(input, select, textarea)::placeholder {
+  color: #b2c1b7;
+}
+
+html[data-theme="dark"] :is(.login-card, .faq-item, .faq-question, .faq-answer, .adv-form-section, .nursery-card, .service-card, .chart-card, .stat-card) :is(h1, h2, h3, h4, p, span, label) {
+  color: #e9f0eb;
+}
+
+*:focus-visible {
+  outline-color: #e8872d;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

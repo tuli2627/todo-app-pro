@@ -1,0 +1,25 @@
+{
+  "id": ".",
+  "name": "Harit-SANKALP",
+  "short_name": "Harit Sankalp",
+  "description": "Harit-SANKALP forest nursery and plantation management platform.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#f7faf5",
+  "theme_color": "#145c3e",
+  "icons": [
+    {
+      "src": "icons/harit-sankalp-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/harit-sankalp-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

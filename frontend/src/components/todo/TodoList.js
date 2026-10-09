@@ -1,9 +1,12 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import TodoItem from "./TodoItem";
 
 function TodoList({ todos, onToggle, onDelete }) {
+  const { t } = useTranslation();
+
   if (todos.length === 0) {
-    return <p style={{ color: "var(--color-text-muted)" }}>No todos yet. Add one above!</p>;
+    return <p style={{ color: "var(--color-text-muted)" }}>{t('todo.noTodos')}</p>;
   }
 
   return (
