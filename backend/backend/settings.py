@@ -233,6 +233,7 @@ Reads sensitive values from environment (.env) instead of hardcoding them.
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 from django.core.exceptions import ImproperlyConfigured
@@ -455,6 +456,7 @@ SIMPLE_JWT = {
     'USER_ID_CLAIM': 'user_id',
     # "USER_ID_FIELD": "id",
     "USER_ID_FIELD": "login_id",
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
 }
 
 # ---------------------------------------------------------------------------

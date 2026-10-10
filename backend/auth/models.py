@@ -304,6 +304,24 @@ class CampaRoUser(AbstractBaseUser):
 class T001UserMaster(models.Model):
     id = models.BigIntegerField(primary_key=True, db_column="UM_ID")
     level_id = models.PositiveSmallIntegerField(db_column="UM_Level_ID")
+    project_id = models.PositiveSmallIntegerField(
+        db_column="UM_Project_ID", null=True, blank=True
+    )
+    state_id = models.PositiveSmallIntegerField(
+        db_column="UM_State_ID", null=True, blank=True
+    )
+    district_id = models.BigIntegerField(
+        db_column="UM_District_ID", null=True, blank=True
+    )
+    circle_id = models.BigIntegerField(
+        db_column="UM_Circle_ID", null=True, blank=True
+    )
+    division_id = models.BigIntegerField(
+        db_column="UM_Division_ID", null=True, blank=True
+    )
+    range_id = models.BigIntegerField(
+        db_column="UM_Range_ID", null=True, blank=True
+    )
     user_type = models.CharField(max_length=1, db_column="UM_Type")
     fname = models.CharField(max_length=80, db_column="UM_FName")
     lname = models.CharField(max_length=80, db_column="UM_LName")
@@ -468,3 +486,22 @@ class CampaSilviculturistUser(AbstractBaseUser):
     class Meta:
         db_table = "CAMPA_silviculturist_user"
         managed = True
+
+
+class CampaWorkflowOffice(models.Model):
+    office_id = models.CharField(max_length=100)
+    role = models.CharField(max_length=20)
+    state_id = models.BigIntegerField()
+    circle_id = models.BigIntegerField(blank=True, null=True)
+    division_id = models.BigIntegerField(blank=True, null=True)
+    office_name = models.CharField(max_length=200, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "CAMPA_workflow_office"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["office_id", "role"],
+                name="campa_wf_office_role_uniq",
+            ),
+        ]

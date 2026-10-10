@@ -44,6 +44,12 @@ class PariveshLoginConfigurationTests(SimpleTestCase):
 
 class RoleSpecificLoginTests(TestCase):
     def _parivesh_request(self, role, returned_roles):
+        parivesh_role = {
+            "national": "National Campa",
+            "state": "Nodal Officer",
+            "circle": "CF",
+            "dfo": "DFO",
+        }[role]
         request = APIRequestFactory().post(
             "/api/auth/parivesh-login/",
             {"username": "user", "password": "password", "role": role},
@@ -54,7 +60,13 @@ class RoleSpecificLoginTests(TestCase):
             "data": {
                 "jwt": "test-token",
                 "roleName": returned_roles,
-                "roleNameAbbreviationDtos": [],
+                "roleNameAbbreviationDtos": [
+                    {
+                        "roleName": parivesh_role,
+                        "officeId": "stable-office-11",
+                        "officeName": "Sample Office",
+                    }
+                ],
             }
         }
         with patch("auth.views.settings.PARIVESH_SECRET_KEY", "configured"):
@@ -65,10 +77,124 @@ class RoleSpecificLoginTests(TestCase):
                 return PariveshLoginView.as_view()(request)
 
     def test_circle_role_is_authenticated_through_parivesh(self):
-        response = self._parivesh_request("circle", ["CF", "National Campa"])
+        with patch("auth.views._ensure_parivesh_state", return_value=3):
+            with patch(
+                "auth.views._resolve_parivesh_office",
+                return_value={"state_id": 3, "circle_id": 11, "division_id": None},
+            ):
+                response = self._parivesh_request("circle", ["CF", "National Campa"])
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["user"]["role"], "CF")
+
+    def test_circle_login_requires_existing_state(self):
+        with patch("auth.views._ensure_parivesh_state", return_value=None):
+            response = self._parivesh_request("circle", ["CF"])
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("State se login", response.data["error"])
+
+    def test_circle_login_rejects_unmapped_office_without_name(self):
+        request = APIRequestFactory().post(
+            "/api/auth/parivesh-login/",
+            {"username": "user", "password": "password", "role": "circle"},
+            format="json",
+        )
+        upstream_response = Mock(status_code=200)
+        upstream_response.json.return_value = {
+            "data": {
+                "jwt": "test-token",
+                "roleName": ["CF"],
+                "roleNameAbbreviationDtos": [
+                    {"roleName": "CF", "officeId": "stable-office-11"}
+                ],
+            }
+        }
+        with patch("auth.views.settings.PARIVESH_SECRET_KEY", "configured"):
+            with patch("auth.views._ensure_parivesh_state", return_value=3):
+                with patch("auth.views.requests.post", return_value=upstream_response):
+                    with patch(
+                        "auth.views.CampaWorkflowOffice.objects.filter"
+                    ) as office_filter:
+                        office_filter.return_value.first.return_value = None
+                        response = PariveshLoginView.as_view()(request)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("could not be mapped", response.data["error"])
+
+    def test_office_mapping_resolves_scope_without_relying_on_current_office_name(self):
+        from .models import CampaWorkflowOffice
+        from .views import _resolve_parivesh_office
+
+        mapped_office = CampaWorkflowOffice(
+            office_id="stable-office-11",
+            role="circle",
+            state_id=3,
+            circle_id=11,
+        )
+        scope = {
+            "office_id": "stable-office-11",
+            "office_name": "Renamed Circle",
+            "state_id": 3,
+        }
+        with patch(
+            "auth.views.CampaWorkflowOffice.objects.filter"
+        ) as office_filter, patch(
+            "auth.views._ensure_parivesh_circle",
+            side_effect=AssertionError("Existing office IDs should use their saved mapping."),
+        ):
+            office_filter.return_value.first.return_value = mapped_office
+            resolved = _resolve_parivesh_office("circle", scope)
+
+        self.assertEqual(resolved["circle_id"], 11)
+        self.assertEqual(scope["office_id"], "stable-office-11")
+
+    def test_first_office_login_persists_mapping_by_office_id_and_role(self):
+        from .models import CampaWorkflowOffice
+        from .views import _resolve_parivesh_office
+
+        mapped_office = CampaWorkflowOffice(
+            office_id="stable-office-11",
+            role="circle",
+            state_id=3,
+            circle_id=11,
+        )
+        scope = {
+            "office_id": 11,
+            "office_name": "Sample Circle",
+            "state_id": 3,
+        }
+        with patch(
+            "auth.views.CampaWorkflowOffice.objects.filter"
+        ) as office_filter, patch(
+            "auth.views.CampaWorkflowOffice.objects.get_or_create",
+            return_value=(mapped_office, True),
+        ) as get_or_create, patch(
+            "auth.views._ensure_parivesh_circle",
+            return_value=11,
+        ):
+            office_filter.return_value.first.return_value = None
+            resolved = _resolve_parivesh_office("circle", scope)
+
+        self.assertEqual(resolved["circle_id"], 11)
+        self.assertEqual(scope["office_id"], "11")
+        get_or_create.assert_called_once_with(
+            office_id="11",
+            role="circle",
+            defaults={
+                "state_id": 3,
+                "circle_id": 11,
+                "division_id": None,
+                "office_name": "Sample Circle",
+            },
+        )
+
+    def test_dfo_login_requires_existing_state_and_circle(self):
+        with patch("auth.views._ensure_parivesh_state", return_value=None):
+            response = self._parivesh_request("dfo", ["DFO"])
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("State aur Circle se login", response.data["error"])
 
     def test_selected_role_must_match_parivesh_account(self):
         response = self._parivesh_request("dfo", ["National Campa"])

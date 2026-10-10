@@ -1,0 +1,112 @@
+.antique-toaster {
+  position: fixed;
+  z-index: 3000;
+  top: 90px;
+  right: 22px;
+  display: grid;
+  width: min(390px, calc(100vw - 32px));
+  gap: 11px;
+  pointer-events: none;
+}
+
+.antique-toast {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) 30px;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border: 1px solid #d8c7a3;
+  border-radius: 15px;
+  color: #263b2e;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(250, 245, 231, 0.98));
+  box-shadow: 0 14px 36px rgba(29, 48, 35, 0.2), inset 0 0 0 3px rgba(192, 155, 91,  0.08);
+  animation: antique-toast-enter 240ms ease-out both;
+  pointer-events: auto;
+}
+
+.antique-toast__icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid #c9ac72;
+  border-radius: 12px;
+  color: #765a24;
+  background: #f3e8cf;
+  font-size: 18px;
+}
+
+.antique-toast--success .antique-toast__icon {
+  color: #286244;
+  border-color: #a9c4a7;
+  background: #e7f0df;
+}
+
+.antique-toast--error .antique-toast__icon {
+  color: #8c3930;
+  border-color: #dfb1a4;
+  background: #f8e8df;
+}
+
+.antique-toast__message {
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.antique-toast > button {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+
+.antique-toast > button:hover {
+  background: rgba(104, 86, 49, 0.12);
+}
+
+html[data-theme="dark"] .antique-toast {
+  border-color: #695d40;
+  color: #edf2e9;
+  background: linear-gradient(135deg, #1c2a21, #29362b);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4), inset 0 0 0 3px rgba(192, 155, 91, 0.1);
+}
+
+html[data-theme="dark"] .antique-toast__icon {
+  color: #e8d19b;
+  border-color: #695d40;
+  background: #3c392c;
+}
+
+html[data-theme="dark"] .antique-toast--success .antique-toast__icon {
+  color: #bce1c2;
+  border-color: #44634b;
+  background: #203a2b;
+}
+
+html[data-theme="dark"] .antique-toast--error .antique-toast__icon {
+  color: #ffcec3;
+  border-color: #754b43;
+  background: #452a28;
+}
+
+@keyframes antique-toast-enter {
+  from { opacity: 0; transform: translateY(-8px) translateX(10px); }
+  to { opacity: 1; transform: translateY(0) translateX(0); }
+}
+
+@media (max-width: 520px) {
+  .antique-toaster {
+    top: 78px;
+    right: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .antique-toast { animation: none; }
+}

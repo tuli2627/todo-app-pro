@@ -1,0 +1,471 @@
+.field-progress__topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.field-progress__topline a,
+.field-progress__topline button,
+.field-progress__site-meta button,
+.field-progress__species-heading button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.field-progress__topline a {
+  color: var(--color-primary, #275c38);
+  text-decoration: none;
+}
+
+.field-progress__topline button,
+.field-progress__site-meta button,
+.field-progress__species-heading button,
+.field-progress__assessment-form button,
+.field-progress__submit {
+  border: 0;
+  border-radius: 0.6rem;
+  padding: 0.7rem 1rem;
+  color: #fff;
+  background: #27613b;
+  cursor: pointer;
+}
+
+.field-progress__topline button:disabled,
+.field-progress__submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.field-progress__summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.25rem 0;
+}
+
+.field-progress__summary article {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  border: 1px solid rgba(42, 89, 53, 0.16);
+  border-radius: 0.9rem;
+  padding: 1.1rem;
+  background: var(--surface, #fff);
+  box-shadow: 0 0.4rem 1.4rem rgba(32, 54, 37, 0.07);
+}
+
+.field-progress__summary strong {
+  color: #27613b;
+  font-size: 1.7rem;
+}
+
+.field-progress__notice {
+  margin: 1rem 0;
+  border-radius: 0.6rem;
+  padding: 0.9rem 1rem;
+  color: #19572d;
+  background: #e6f3e8;
+}
+
+.field-progress__overdue {
+  margin: 1rem 0;
+  border: 1px solid #f1c5b9;
+  border-left: 5px solid #c45b43;
+  border-radius: 0.85rem;
+  padding: 1rem 1.2rem;
+  color: #462a25;
+  background: linear-gradient(135deg, #fff9f5, #fff1ec);
+  box-shadow: 0 0.5rem 1.5rem rgba(91, 46, 35, 0.07);
+}
+
+.field-progress__overdue h2,
+.field-progress__overdue h3 {
+  margin: 0 0 0.45rem;
+  color: #843d31;
+  font-size: 1.1rem;
+}
+
+.field-progress__overdue p {
+  margin: 0 0 0.8rem;
+  color: #62443d;
+}
+
+.field-progress__overdue ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.field-progress__pending-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: 0.6rem;
+  max-height: 24rem;
+  overflow: auto;
+}
+
+.field-progress__pending-list li {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+  border: 1px solid rgba(196, 91, 67, 0.18);
+  border-radius: 0.65rem;
+  padding: 0.7rem 0.8rem;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.field-progress__pending-list strong {
+  overflow-wrap: anywhere;
+  color: #302722;
+}
+
+.field-progress__pending-list span {
+  overflow-wrap: anywhere;
+  color: #675850;
+  font-size: 0.9rem;
+}
+
+.field-progress__pending-list em {
+  color: #9a4939;
+  font-size: 0.84rem;
+  font-style: normal;
+  font-weight: 700;
+}
+
+.field-progress__submit-hint {
+  margin: 0;
+  max-width: 40rem;
+  color: #754130;
+  font-size: 0.9rem;
+}
+
+.field-progress__form {
+  display: grid;
+  gap: 1rem;
+  border-radius: 0.9rem;
+  padding: 1.25rem;
+  background: var(--surface, #fff);
+  box-shadow: 0 0.4rem 1.4rem rgba(32, 54, 37, 0.07);
+}
+
+.field-progress__form label,
+.field-progress__assessment-form label {
+  display: grid;
+  gap: 0.4rem;
+  color: var(--text-primary, #253328);
+  font-weight: 600;
+}
+
+.field-progress__form input,
+.field-progress__form select,
+.field-progress__form textarea,
+.field-progress__assessment-form input,
+.field-progress__assessment-form select,
+.field-progress__assessment-form textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #cbd5cb;
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.75rem;
+  color: inherit;
+  background: var(--surface, #fff);
+  font: inherit;
+}
+
+.field-progress__site-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.field-progress__gps {
+  color: #245c37;
+  font-size: 0.9rem;
+}
+
+.field-progress__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.field-progress__species {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.field-progress__species-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.field-progress__species-heading h3 {
+  margin: 0;
+}
+
+.field-progress__species-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  border: 1px solid #d6dfd5;
+  border-radius: 0.7rem;
+  padding: 1rem;
+}
+
+.field-progress__species-row legend {
+  padding: 0 0.35rem;
+  font-weight: 700;
+}
+
+.field-progress__remove {
+  justify-self: start;
+  border: 0;
+  color: #9a342d;
+  background: transparent;
+  cursor: pointer;
+}
+
+.field-progress__photo {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.65rem !important;
+  width: fit-content;
+  border: 1px dashed #78917b;
+  border-radius: 0.65rem;
+  padding: 0.75rem;
+  cursor: pointer;
+}
+
+.field-progress__photo input {
+  max-width: 17rem;
+}
+
+.field-progress__submit {
+  justify-self: start;
+  min-width: 11rem;
+}
+
+.field-progress__table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid #dce4dc;
+  border-radius: 0.75rem;
+}
+
+.field-progress__table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface, #fff);
+}
+
+.field-progress__table th {
+  padding: 0.8rem;
+  color: #fff;
+  background: #27613b;
+  text-align: left;
+}
+
+.field-progress__table td {
+  border-top: 1px solid #e1e8e1;
+  padding: 0.8rem;
+  text-align: left;
+}
+
+.field-progress__table tbody tr[tabindex] {
+  cursor: pointer;
+}
+
+.field-progress__table tbody tr:hover {
+  background: rgba(39, 97, 59, 0.07);
+}
+
+.field-progress__table small {
+  display: block;
+  margin-top: 0.2rem;
+  opacity: 0.75;
+}
+
+.field-progress__empty {
+  padding: 1rem;
+  color: var(--text-secondary, #59675d);
+}
+
+.field-progress__load-more {
+  display: block;
+  margin: 0.9rem auto;
+  border: 1px solid #27613b;
+  border-radius: 0.55rem;
+  padding: 0.65rem 1rem;
+  color: #27613b;
+  background: var(--surface, #fff);
+  cursor: pointer;
+}
+
+.field-progress__backdrop {
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(8, 20, 11, 0.66);
+}
+
+.field-progress__detail {
+  position: relative;
+  width: min(58rem, 100%);
+  max-height: min(90vh, 60rem);
+  overflow-y: auto;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  color: var(--text-primary, #253328);
+  background: var(--surface, #fff);
+}
+
+.field-progress__close {
+  position: absolute;
+  top: 0.65rem;
+  right: 0.85rem;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+.field-progress__detail-photo {
+  display: block;
+  width: min(100%, 34rem);
+  max-height: 22rem;
+  margin: 1rem auto;
+  border-radius: 0.8rem;
+  object-fit: cover;
+}
+
+.field-progress__comparison {
+  margin: 1rem 0;
+  border: 1px solid #dce4dc;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.field-progress__comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.6rem;
+}
+
+.field-progress__map {
+  width: 100%;
+  height: 18rem;
+  margin: 1rem 0;
+  border-radius: 0.8rem;
+}
+
+.field-progress__species-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.75rem;
+}
+
+.field-progress__species-cards article,
+.field-progress__assessment-card {
+  display: grid;
+  gap: 0.4rem;
+  border: 1px solid #dce4dc;
+  border-radius: 0.65rem;
+  padding: 0.85rem;
+}
+
+.field-progress__assessment-card {
+  margin-top: 1rem;
+}
+
+.field-progress__assessment-form {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid #dce4dc;
+  padding-top: 1rem;
+}
+
+.field-progress__checkbox {
+  display: flex !important;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.field-progress__checkbox input {
+  width: auto;
+}
+
+.progress-loading {
+  display: flex;
+  min-height: 16rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+}
+
+html[data-theme="dark"] .field-progress__summary article,
+html[data-theme="dark"] .field-progress__form,
+html[data-theme="dark"] .field-progress__table,
+html[data-theme="dark"] .field-progress__detail {
+  color: #e3ece3;
+  border-color: #405b48;
+  background: #122319;
+}
+
+html[data-theme="dark"] .field-progress__form input,
+html[data-theme="dark"] .field-progress__form select,
+html[data-theme="dark"] .field-progress__form textarea,
+html[data-theme="dark"] .field-progress__assessment-form input,
+html[data-theme="dark"] .field-progress__assessment-form select,
+html[data-theme="dark"] .field-progress__assessment-form textarea {
+  color: #edf5ed;
+  border-color: #405b48;
+  background: #101a16;
+}
+
+html[data-theme="dark"] .field-progress__species-row,
+html[data-theme="dark"] .field-progress__species-cards article,
+html[data-theme="dark"] .field-progress__assessment-card,
+html[data-theme="dark"] .field-progress__comparison {
+  border-color: #405b48;
+}
+
+html[data-theme="dark"] .field-progress__table td {
+  border-color: #30483a;
+}
+
+html[data-theme="dark"] .field-progress__gps {
+  color: #b9e6c3;
+}
+
+@media (max-width: 760px) {
+  .field-progress__grid,
+  .field-progress__species-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  .field-progress__summary {
+    grid-template-columns: 1fr;
+  }
+
+  .field-progress__grid,
+  .field-progress__species-row {
+    grid-template-columns: 1fr;
+  }
+
+  .field-progress__topline {
+    align-items: flex-start;
+  }
+}

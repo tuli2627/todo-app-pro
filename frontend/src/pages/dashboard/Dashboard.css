@@ -493,8 +493,12 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   padding-top: 12px;
+  border: 0;
   border-top: 1px solid rgba(18, 51, 36, 0.12);
+  background: transparent;
+  cursor: pointer;
   font-size: 12px;
   font-weight: 700;
   color: #1b5e20;

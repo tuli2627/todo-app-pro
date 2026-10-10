@@ -1,5 +1,7 @@
 # Todo App — Pro Level (Django REST + React)
 
+For Harit-SANKALP startup instructions, public pages, login, and internal workflow usage, see [USER_GUIDE.md](./USER_GUIDE.md).
+
 
 Production-style structure: middleware, common reusable modules, env-based CORS,
 consistent API response shapes, and a proper component architecture on the frontend.

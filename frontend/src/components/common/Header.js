@@ -1,12 +1,13 @@
 import { Link, NavLink } from "react-router-dom";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FiChevronDown, FiGlobe, FiGrid, FiHome, FiLayers, FiLogIn, FiMoon, FiSun, FiVolume2 } from "react-icons/fi";
+import { FiChevronDown, FiGlobe, FiGrid, FiHome, FiLayers, FiLogIn, FiLogOut, FiMoon, FiSun, FiVolume2 } from "react-icons/fi";
 import "./Header.css";
 import moefccLogo from "../../assets/images/moefcc.png";
 import campaLogo from "../../assets/images/campa.png";
 import emblemLogo from "../../assets/images/emblem.png";
 import sankalpLogo from "../../assets/images/sankalp.png";
+import { AUTH_SESSION_CHANGED, clearAuthSession } from "../../services/authSession";
 
 const languages = [
   { code: 'hi', name: 'Hindi (हिन्दी)' },
@@ -33,8 +34,9 @@ const speechLanguages = {
 };
 
 function Header() {
-  const [showTranslator, setShowTranslator] = useState(false);
+  const [openMenu, setOpenMenu] = useState(null);
   const { t, i18n } = useTranslation();
+  const [authenticated, setAuthenticated] = useState(() => Boolean(localStorage.getItem("accessToken")));
   const [readAloud, setReadAloud] = useState(() => localStorage.getItem("siteReadAloud") === "true");
   const [speechStatus, setSpeechStatus] = useState("");
   const speechTimer = useRef(null);
@@ -45,6 +47,34 @@ function Header() {
   const [theme, setTheme] = useState(() => (
     localStorage.getItem("siteTheme") === "dark" ? "dark" : "light"
   ));
+
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if (!event.target.closest(".hs-header__dropdown, .translator-wrapper")) {
+        setOpenMenu(null);
+      }
+    };
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setOpenMenu(null);
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    const updateAuthentication = () => setAuthenticated(Boolean(localStorage.getItem("accessToken")));
+    window.addEventListener(AUTH_SESSION_CHANGED, updateAuthentication);
+    window.addEventListener("storage", updateAuthentication);
+    return () => {
+      window.removeEventListener(AUTH_SESSION_CHANGED, updateAuthentication);
+      window.removeEventListener("storage", updateAuthentication);
+    };
+  }, []);
 
   useEffect(() => {
     document.documentElement.style.fontSize = `${textZoom}%`;
@@ -142,19 +172,9 @@ function Header() {
     };
   }, [i18n.resolvedLanguage, readAloud, t]);
 
-  const handleTranslatorEnter = () => {
-    setShowTranslator(true);
-  };
-
-  const handleTranslatorLeave = (event) => {
-    if (!event.currentTarget.contains(event.relatedTarget)) {
-      setShowTranslator(false);
-    }
-  };
-
   const handleLanguageChange = (langCode) => {
     i18n.changeLanguage(langCode);
-    setShowTranslator(false);
+    setOpenMenu(null);
   };
 
   return (
@@ -250,53 +270,76 @@ function Header() {
             <FiGrid className="hs-header__icon hs-header__nav-icon" aria-hidden="true" />
             {t('navigation.dashboard')}
           </NavLink>
-          <div className="hs-header__dropdown">
-  <button type="button" className="hs-header__link hs-header__pages-trigger">
+          <div className={`hs-header__dropdown${openMenu === "pages" ? " is-open" : ""}`}>
+  <button
+    type="button"
+    className="hs-header__link hs-header__pages-trigger"
+    aria-haspopup="true"
+    aria-expanded={openMenu === "pages"}
+    onClick={() => setOpenMenu((current) => current === "pages" ? null : "pages")}
+  >
     <FiLayers className="hs-header__icon hs-header__nav-icon" aria-hidden="true" />
     {t('navigation.pages')}
     <FiChevronDown className="hs-header__icon hs-header__link-caret" aria-hidden="true" />
   </button>
 
-  <div className="hs-dropdown-menu">
-    <Link to="/advance-booking">{t('header.advanceBooking')}</Link>
-    <Link to="/our-nurseries">{t('header.ourNurseries')}</Link>
-    <Link to="/faqs">{t('header.faqs')}</Link>
-    <Link to="/documentation">{t('header.userGuides')}</Link>
-    <Link to="/about-us">{t('header.aboutUs')}</Link>
+  <div className="hs-dropdown-menu" aria-hidden={openMenu !== "pages"}>
+    <Link to="/advance-booking" onClick={() => setOpenMenu(null)}>{t('header.advanceBooking')}</Link>
+    <Link to="/our-nurseries" onClick={() => setOpenMenu(null)}>{t('header.ourNurseries')}</Link>
+    <Link to="/faqs" onClick={() => setOpenMenu(null)}>{t('header.faqs')}</Link>
+    <Link to="/documentation" onClick={() => setOpenMenu(null)}>{t('header.userGuides')}</Link>
+    <Link to="/about-us" onClick={() => setOpenMenu(null)}>{t('header.aboutUs')}</Link>
   </div>
 </div>
 
           <div className="hs-header__actions">
-           <div className="hs-header__dropdown">
-  <button type="button" className="hs-header__btn hs-header__btn--login" aria-haspopup="true" aria-label={t('navigation.login')}>
+           {authenticated && (
+             <button
+               type="button"
+               className="hs-header__btn hs-header__btn--logout"
+               onClick={() => {
+                 clearAuthSession();
+                 window.location.replace("/");
+               }}
+             >
+               <FiLogOut className="hs-header__icon hs-header__action-icon" aria-hidden="true" />
+               <span>{t("workflow.logout")}</span>
+             </button>
+           )}
+           <div className={`hs-header__dropdown${openMenu === "login" ? " is-open" : ""}`}>
+  <button
+    type="button"
+    className="hs-header__btn hs-header__btn--login"
+    aria-haspopup="true"
+    aria-expanded={openMenu === "login"}
+    aria-label={t('navigation.login')}
+    onClick={() => setOpenMenu((current) => current === "login" ? null : "login")}
+  >
     <FiLogIn className="hs-header__icon hs-header__action-icon" aria-hidden="true" />
     <span>{t('navigation.login')}</span>
     <FiChevronDown className="hs-header__icon hs-header__action-chevron" aria-hidden="true" />
   </button>
 
-  <div className="hs-dropdown-menu">
-    <Link to="/login/national">{t('header.national')}</Link>
-    <Link to="/login/state">{t('header.state')}</Link>
-    <Link to="/login/silviculturist">{t('header.silviculturist')}</Link>
-    <Link to="/login/circle">{t('header.circle')}</Link>
-    <Link to="/login/dfo">{t('header.dfo')}</Link>
-    <Link to="/login/ro">{t('header.ro')}</Link>
+  <div className="hs-dropdown-menu" aria-hidden={openMenu !== "login"}>
+    <Link to="/login/national" onClick={() => setOpenMenu(null)}>{t('header.national')}</Link>
+    <Link to="/login/state" onClick={() => setOpenMenu(null)}>{t('header.state')}</Link>
+    <Link to="/login/silviculturist" onClick={() => setOpenMenu(null)}>{t('header.silviculturist')}</Link>
+    <Link to="/login/circle" onClick={() => setOpenMenu(null)}>{t('header.circle')}</Link>
+    <Link to="/login/dfo" onClick={() => setOpenMenu(null)}>{t('header.dfo')}</Link>
+    <Link to="/login/ro" onClick={() => setOpenMenu(null)}>{t('header.ro')}</Link>
 
   </div>
 </div>
             <div
-              className="translator-wrapper"
-              onMouseEnter={handleTranslatorEnter}
-              onMouseLeave={handleTranslatorLeave}
-              onFocus={handleTranslatorEnter}
-              onBlur={handleTranslatorLeave}
+              className={`translator-wrapper${openMenu === "language" ? " is-open" : ""}`}
             >
               <button
                 type="button"
                 className="hs-header__btn hs-header__btn--language"
                 aria-haspopup="true"
-                aria-expanded={showTranslator}
+                aria-expanded={openMenu === "language"}
                 aria-label={t('header.openLanguageSelector')}
+                onClick={() => setOpenMenu((current) => current === "language" ? null : "language")}
               >
                 <FiGlobe className="hs-header__icon hs-header__action-icon" aria-hidden="true" />
                 <span>{t('header.translate')}</span>
@@ -304,7 +347,7 @@ function Header() {
               </button>
               
               {/* Hamara Custom Dropdown UI */}
-              {showTranslator && (
+              {openMenu === "language" && (
                 <div className="custom-lang-dropdown">
                   <ul className="lang-list">
                     {languages.map((lang) => (

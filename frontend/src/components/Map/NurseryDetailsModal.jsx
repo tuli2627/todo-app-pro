@@ -10,9 +10,9 @@ import {
   Marker,
   Popup,
   GeoJSON,
-  TileLayer,
   useMap,
 } from "react-leaflet";
+import SatelliteTileLayer from "./SatelliteTileLayer";
 import L from "leaflet";
 import { FiCrosshair, FiMapPin, FiX } from "react-icons/fi";
 import api from "../../services/api";
@@ -29,8 +29,6 @@ const INDIA_BOUNDS = {
   west: 67,
   east: 98.5,
 };
-const SATELLITE_TILE_URL =
-  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 
 const getCoordinates = (nursery) => {
   const rawLatitude = nursery.latitude ?? nursery.nursery_latitude;
@@ -65,7 +63,7 @@ const getCoordinates = (nursery) => {
   return [latitude, longitude];
 };
 
-const getNurseryPhotoUrl = (nursery) => {
+export const getNurseryPhotoUrl = (nursery) => {
   const photo =
     nursery.photo ||
     nursery.Nursery_PHOTO ||
@@ -741,10 +739,7 @@ function NurseryDetailsModal({
                     maxBoundsViscosity={1}
                     className="nursery-map__canvas"
                   >
-                    <TileLayer
-                      attribution='Imagery &copy; <a href="https://www.esri.com/" target="_blank" rel="noreferrer">Esri</a>, Maxar, Earthstar Geographics, and the GIS User Community'
-                      url={SATELLITE_TILE_URL}
-                    />
+                    <SatelliteTileLayer />
                     <MapViewport
                       nurseries={mappedNurseries}
                       resetKey={resetKey}

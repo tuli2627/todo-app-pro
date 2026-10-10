@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { FiBarChart2, FiBookOpen, FiCalendar, FiHelpCircle, FiHome, FiInfo, FiLogIn, FiMap, FiMenu, FiX } from "react-icons/fi";
 import Header from "./Header";
 import Footer from "./Footer";
+import ChatbotWidget from "./ChatbotWidget";
 import "./Layout.css";
 
 const sidebarItems = [
@@ -117,6 +118,7 @@ function Layout({ children }) {
                     </div>
                 </div>
             )}
+            <ChatbotWidget />
             <Footer />
         </>
     );

@@ -1,237 +1,324 @@
-/* =========================================
-   OUR NURSERIES PAGE
-========================================= */
-
 .nursery-page {
   width: 100%;
-  background: #ffffff;
+  min-height: 70vh;
+  color: #183b2a;
+  background: #f4f8f4;
 }
-
-
-/* =========================================
-   HERO / BANNER SECTION
-========================================= */
 
 .nursery-hero {
   position: relative;
-  width: 100%;
-  height: 330px;
-
-  /* Use your separate background image here */
-  background-image: url("./bg pic nursery.webp");
-
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-
   display: flex;
+  min-height: 250px;
   align-items: center;
-
   overflow: hidden;
+  background: url("./bg pic nursery.jpg") center 45% / cover no-repeat;
 }
-
-
-/* Dark overlay over hero image */
 
 .nursery-hero-overlay {
   position: absolute;
   inset: 0;
-
-  background: rgba(0, 0, 0, 0.50);
-
-  z-index: 1;
+  background: linear-gradient(90deg, rgba(7, 31, 20, .76), rgba(7, 31, 20, .15));
 }
 
-
-/* =========================================
-   HERO CONTENT
-========================================= */
-
-.nursery-hero-content {
+.nursery-hero-content,
+.nursery-gallery-container {
   position: relative;
-
-  z-index: 2;
-
-  width: 85%;
-  max-width: 1400px;
-
+  z-index: 1;
+  width: min(90%, 1400px);
   margin: 0 auto;
 }
-
 
 .nursery-hero-content h1 {
   margin: 0;
-
-  color: #ffffff;
-
-  font-size: 58px;
-  font-weight: 700;
-
-  line-height: 1.1;
+  color: #fff;
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
 }
 
-
-/* =========================================
-   GALLERY SECTION
-========================================= */
+.nursery-hero-content p {
+  margin: 12px 0 0;
+  color: #f0f6ef;
+  font-size: 1.05rem;
+}
 
 .nursery-gallery-section {
-  width: 100%;
-
-  padding: 70px 0 90px;
-
-  background: #ffffff;
+  min-height: 380px;
+  padding: 48px 0 72px;
 }
 
-
-.nursery-gallery-container {
-  width: 85%;
-  max-width: 1400px;
-
-  margin: 0 auto;
+.nursery-list-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  margin-bottom: 26px;
 }
 
+.nursery-detail-eyebrow {
+  color: #558264;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
 
-/* =========================================
-   3 COLUMN GALLERY
-========================================= */
+.nursery-list-heading h2,
+.nursery-detail-heading h2 {
+  margin: 5px 0 0;
+  color: #173d2a;
+  font-size: clamp(1.6rem, 3vw, 2.3rem);
+}
 
-.nursery-gallery-grid {
+.nursery-list-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.nursery-list-filters input,
+.nursery-list-filters select {
+  min-width: 210px;
+  min-height: 44px;
+  padding: 9px 13px;
+  border: 1px solid #cfddd1;
+  border-radius: 10px;
+  color: #183b2a;
+  background: #fff;
+}
+
+.nursery-live-grid {
   display: grid;
-
-  grid-template-columns: repeat(3, 1fr);
-
-  gap: 26px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
 }
 
-
-/* =========================================
-   NURSERY CARD
-========================================= */
-
-.nursery-card {
-  position: relative;
-
-  width: 100%;
-  height: 300px;
-
+.nursery-live-card {
   overflow: hidden;
+  border: 1px solid #dce7dd;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 9px 24px rgba(21, 59, 38, .08);
+}
 
-  background: #eeeeee;
-
-  border-radius: 2px;
-
+.nursery-live-card__image-button {
+  display: block;
+  width: 100%;
+  height: 230px;
+  padding: 0;
+  border: 0;
+  background: linear-gradient(135deg, #dce9dc, #a9c5ad);
   cursor: pointer;
 }
 
-
-/* =========================================
-   NURSERY IMAGE
-========================================= */
-
-.nursery-image {
+.nursery-live-card__image-button img {
   width: 100%;
   height: 100%;
-
   object-fit: cover;
+}
 
+.nursery-live-card__no-image {
+  display: grid;
+  height: 100%;
+  place-items: center;
+  color: #44694f;
+  font-weight: 600;
+}
+
+.nursery-live-card__body {
+  padding: 18px 20px 20px;
+}
+
+.nursery-live-card__body h2 {
+  margin: 0 0 8px;
+  color: #183b2a;
+  font-size: 1.2rem;
+}
+
+.nursery-live-card__body p {
+  min-height: 44px;
+  margin: 0 0 16px;
+  color: #5e7063;
+  line-height: 1.45;
+}
+
+.nursery-live-card__details,
+.nursery-back-button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 999px;
+  color: white;
+  background: #247449;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.nursery-detail-page {
+  padding: 24px;
+  border: 1px solid #dce7dd;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(21, 59, 38, .08);
+}
+
+.nursery-back-button {
+  margin-bottom: 24px;
+}
+
+.nursery-detail-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.nursery-detail-heading p {
+  color: #617368;
+}
+
+.nursery-detail-heading img {
+  width: min(38%, 360px);
+  height: 210px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.nursery-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.nursery-detail-grid article {
+  display: grid;
+  gap: 6px;
+  padding: 15px;
+  border-radius: 12px;
+  background: #f1f6f1;
+}
+
+.nursery-detail-grid span {
+  color: #688070;
+  font-size: .85rem;
+}
+
+.nursery-detail-grid strong {
+  overflow-wrap: anywhere;
+  color: #1e4932;
+}
+
+.nursery-detail-map,
+.nursery-detail-map .leaflet-container {
+  height: 390px;
+  border-radius: 14px;
+}
+
+.nursery-detail-map {
+  overflow: hidden;
+}
+
+.nursery-load-error {
+  color: #a32e2e;
+}
+
+.nursery-load-more {
   display: block;
-
-  transition: transform 0.5s ease;
+  margin: 28px auto 0;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: #247449;
+  font-weight: 700;
+  cursor: pointer;
 }
 
-
-/* =========================================
-   IMAGE HOVER
-========================================= */
-
-.nursery-card:hover .nursery-image {
-  transform: scale(1.06);
+.nursery-load-more:disabled {
+  cursor: wait;
+  opacity: .65;
 }
 
-
-/* =========================================
-   IMAGE TITLE OVERLAY
-========================================= */
-
-.nursery-card-overlay {
-  position: absolute;
-
-  left: 0;
-  right: 0;
-  bottom: 0;
-
-  padding: 45px 25px 20px;
-
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.75),
-    rgba(0, 0, 0, 0)
-  );
-
-  opacity: 0;
-
-  transition: opacity 0.3s ease;
+@media (max-width: 900px) {
+  .nursery-live-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-
-.nursery-card:hover .nursery-card-overlay {
-  opacity: 1;
-}
-
-
-.nursery-card-overlay h3 {
-  margin: 0;
-
-  color: #ffffff;
-
-  font-size: 20px;
-
-  font-weight: 500;
-}
-
-
-/* =========================================
-   TABLET
-========================================= */
-
-@media (max-width: 992px) {
-
-  .nursery-gallery-grid {
-    grid-template-columns: repeat(2, 1fr);
+@media (max-width: 620px) {
+  .nursery-hero {
+    min-height: 210px;
   }
 
-  .nursery-hero-content h1 {
-    font-size: 45px;
+  .nursery-list-heading,
+  .nursery-detail-heading {
+    align-items: stretch;
+    flex-direction: column;
   }
 
-}
+  .nursery-list-filters {
+    width: 100%;
+  }
 
+  .nursery-list-filters input,
+  .nursery-list-filters select {
+    width: 100%;
+  }
 
-/* =========================================
-   MOBILE
-========================================= */
-
-@media (max-width: 600px) {
-
-  .nursery-gallery-grid {
+  .nursery-live-grid,
+  .nursery-detail-grid {
     grid-template-columns: 1fr;
   }
 
-  .nursery-gallery-container {
-    width: 90%;
+  .nursery-detail-heading img {
+    width: 100%;
   }
 
-  .nursery-hero {
-    height: 260px;
+  .nursery-detail-page {
+    padding: 16px;
   }
+}
 
-  .nursery-hero-content {
-    width: 90%;
-  }
+html[data-theme="dark"] .nursery-page {
+  color: #e6efe8;
+  background: #0e1c16;
+}
 
-  .nursery-hero-content h1 {
-    font-size: 36px;
-  }
+html[data-theme="dark"] .nursery-gallery-section {
+  background: #0e1c16;
+}
 
+html[data-theme="dark"] .nursery-list-heading h2,
+html[data-theme="dark"] .nursery-detail-heading h2,
+html[data-theme="dark"] .nursery-live-card__body h2 {
+  color: #f1f7f2;
+}
+
+html[data-theme="dark"] .nursery-list-filters input,
+html[data-theme="dark"] .nursery-list-filters select,
+html[data-theme="dark"] .nursery-detail-page,
+html[data-theme="dark"] .nursery-live-card {
+  border-color: #345441;
+  color: #e6efe8;
+  background: #172b20;
+}
+
+html[data-theme="dark"] .nursery-list-filters input,
+html[data-theme="dark"] .nursery-list-filters select {
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] .nursery-live-card__body p,
+html[data-theme="dark"] .nursery-detail-heading p {
+  color: #b6c9bb;
+}
+
+html[data-theme="dark"] .nursery-detail-grid article {
+  background: #203b2b;
+}
+
+html[data-theme="dark"] .nursery-detail-grid span {
+  color: #b6c9bb;
+}
+
+html[data-theme="dark"] .nursery-detail-grid strong {
+  color: #e3eee6;
 }

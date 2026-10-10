@@ -11,14 +11,14 @@ import anandMohanPhoto from "../../assets/images/anand-Mohan.jpeg";
 import "./AboutUs.css";
 
 const ministryLeaders = [
-  { name: "Shri. Bhupender Yadav", photo: bhupenderPhoto, roleKey: "about.minister" },
-  { name: "Shri Kirti Vardhan Singh", photo: kirtiVardhanPhoto, roleKey: "about.ministerOfState" },
+  { nameKey: "about.leaders.bhupenderYadav", photo: bhupenderPhoto, roleKey: "about.minister" },
+  { nameKey: "about.leaders.kirtiVardhanSingh", photo: kirtiVardhanPhoto, roleKey: "about.ministerOfState" },
 ];
 
 const authorityLeaders = [
-  { name: "Shri Tanmay Kumar", photo: tanmayKumarPhoto, roleKey: "about.secretary" },
-  { name: "Shri Santosh Tewari", photo: santoshTewariPhoto, roleKey: "about.directorGeneral" },
-  { name: "Shri Anand Mohan", photo: anandMohanPhoto, roleKey: "about.ceo" },
+  { nameKey: "about.leaders.tanmayKumar", photo: tanmayKumarPhoto, roleKey: "about.secretary" },
+  { nameKey: "about.leaders.santoshTewari", photo: santoshTewariPhoto, roleKey: "about.directorGeneral" },
+  { nameKey: "about.leaders.anandMohan", photo: anandMohanPhoto, roleKey: "about.ceo" },
 ];
 
 function AboutUs() {
@@ -46,12 +46,12 @@ function AboutUs() {
         </header>
         <div className="about-ministry-grid">
           {ministryLeaders.map((person) => (
-            <article className="about-person about-person--minister" key={person.name}>
+            <article className="about-person about-person--minister" key={person.nameKey}>
               <div className="about-person__portrait">
-                <img src={person.photo} alt={person.name} />
+                <img src={person.photo} alt={t(person.nameKey)} />
               </div>
               <div className="about-person__details">
-                <h3>{person.name}</h3>
+                <h3>{t(person.nameKey)}</h3>
                 <p>{t(person.roleKey)}</p>
                 <small>{t("about.ministryName")}</small>
               </div>
@@ -67,11 +67,11 @@ function AboutUs() {
         </header>
         <div className="about-authority-grid">
           {authorityLeaders.map((person) => (
-            <article className="about-person about-person--authority" key={person.name}>
+            <article className="about-person about-person--authority" key={person.nameKey}>
               <div className="about-person__portrait">
-                <img src={person.photo} alt={person.name} />
+                <img src={person.photo} alt={t(person.nameKey)} />
               </div>
-              <h3>{person.name}</h3>
+              <h3>{t(person.nameKey)}</h3>
               <p>{t(person.roleKey)}</p>
               <small>{t("about.authorityName")}</small>
             </article>

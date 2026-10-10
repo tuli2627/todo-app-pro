@@ -514,14 +514,14 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import api from "../../services/api";
+import { getNurseryPhotoUrl } from "../../components/Map/NurseryDetailsModal";
 import "./Home.css";
 
 import hero1 from "../../assets/images/hero1.jpeg";
 import hero2 from "../../assets/images/hero2.jpg";
 import hero3 from "../../assets/images/hero3.jpeg";
 import hero4 from "../../assets/images/hero4.jpg";
-import hero5 from "../../assets/images/hero5.jpg";
-import hero6 from "../../assets/images/hero6.jpg";
 import why_1 from "../../assets/images/why_1.png";
 import why_2 from "../../assets/images/why_2.png";
 import why_3 from "../../assets/images/why_3.png";
@@ -556,15 +556,6 @@ const slides = [
     titleKey: "home.slides.seedToPlantation",
     descKey: "home.slides.seedToPlantationDescription"
   }
-];
-
-const nurseryImages = [
-  hero1,
-  hero2,
-  hero3,
-  hero4,
-  hero5,
-  hero6
 ];
 
 const services = [
@@ -610,12 +601,36 @@ function Home() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [current, setCurrent] = useState(0);
+  const [summary, setSummary] = useState(null);
+  const [featuredNurseries, setFeaturedNurseries] = useState([]);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrent((prev) => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    let currentRequest = true;
+    const loadHomeData = () => {
+      api.get("public-dashboard/summary/")
+        .then(({ data }) => { if (currentRequest) setSummary(data); })
+        .catch((error) => console.error("Unable to load live home totals:", error));
+      api.get("public-dashboard/nurseries/", { params: { limit: 6 } })
+        .then(({ data }) => {
+          if (currentRequest) {
+            setFeaturedNurseries(Array.isArray(data.results) ? data.results : []);
+          }
+        })
+        .catch((error) => console.error("Unable to load featured nurseries:", error));
+    };
+    loadHomeData();
+    const timer = window.setInterval(loadHomeData, 60_000);
+    return () => {
+      currentRequest = false;
+      window.clearInterval(timer);
+    };
   }, []);
 
   const nextSlide = () =>
@@ -626,11 +641,18 @@ function Home() {
 
   // Navigation Handler for Service Cards
   const handleServiceNavigation = (serviceKey) => {
-    if (serviceKey === "home.services.advanceBooking") {
-      navigate("/advance-booking");
-    } else {
-      navigate("/login/national");
-    }
+    const destinations = {
+      "home.services.advanceBooking": "/advance-booking",
+      "home.services.nursery": "/our-nurseries",
+      "home.services.seedProduction": "/dashboard/details/spa-cpt",
+      "home.services.seedOrchard": "/dashboard/details/seed-orchards",
+      "home.services.researchInstitute": "/dashboard/details/research-institutes",
+      "home.services.seedProcessing": "/dashboard/details/processing-units",
+      "home.services.seedCollection": "/dashboard/details/progress",
+      "home.services.processingUnit": "/dashboard/details/processing-units",
+      "home.services.plantProduction": "/dashboard/details/seedlings",
+    };
+    navigate(destinations[serviceKey] || "/dashboard");
   };
 
   return (
@@ -664,28 +686,28 @@ function Home() {
             </p>
 
             <div className="hero-buttons">
-              <button className="btn-primary">
+              <button className="btn-primary" onClick={() => navigate("/our-nurseries")}>
                 {t('home.exploreNursery')}
               </button>
 
-              <button className="btn-outline">
+              <button className="btn-outline" onClick={() => navigate("/dashboard")}>
                 {t('home.learnMore')}
               </button>
             </div>
 
             <div className="stats">
               <div className="stat-card">
-                <h3>1000</h3>
+                <h3>{summary ? Number(summary.nurseries).toLocaleString() : "—"}</h3>
                 <span>{t('home.nurseries')}</span>
               </div>
 
               <div className="stat-card">
-                <h3>3M+</h3>
+                <h3>{summary ? Number(summary.seedlings_available).toLocaleString() : "—"}</h3>
                 <span>{t('home.plants')}</span>
               </div>
 
               <div className="stat-card">
-                <h3>36</h3>
+                <h3>{summary ? Number(summary.states_onboarded).toLocaleString() : "—"}</h3>
                 <span>{t('home.states')}</span>
               </div>
             </div>
@@ -833,18 +855,28 @@ function Home() {
         </div>
 
         <div className="gallery-grid">
-          {nurseryImages.map((image, index) => (
-            <div className="gallery-card" key={index}>
-              <img src={image} alt="" />
+          {featuredNurseries.map((nursery) => (
+            <div className="gallery-card" key={nursery.id}>
+              <img
+                src={getNurseryPhotoUrl(nursery) || hero1}
+                alt={nursery.name}
+                onError={(event) => {
+                  event.currentTarget.onerror = null;
+                  event.currentTarget.src = hero1;
+                }}
+              />
               <div className="gallery-overlay">
-                <h3>{t('home.forestNursery', { number: index + 1 })}</h3>
+                <h3>{nursery.name}</h3>
                 <p>
-                  {t('home.nurseryCardDescription')}
+                  {[nursery.address || nursery.location, nursery.district, nursery.state].filter(Boolean).join(", ")}
                 </p>
-                <button>{t('home.viewDetails')} →</button>
+                <button onClick={() => navigate(`/our-nurseries?nursery=${nursery.id}`)}>{t('home.viewDetails')} →</button>
               </div>
             </div>
           ))}
+          {featuredNurseries.length === 0 && (
+            <p className="gallery-empty">{t("nursery.noResults")}</p>
+          )}
         </div>
       </section>
     </>

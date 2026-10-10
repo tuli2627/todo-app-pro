@@ -4,6 +4,8 @@
  */
 
 import axios from "axios";
+import { clearAuthSession } from "./authSession";
+import { getApiErrorMessage } from "./apiErrors";
 
 const configuredBaseUrl = process.env.REACT_APP_API_BASE_URL;
 const BASE_URL = (() => {
@@ -26,13 +28,17 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  timeout: 10000,
+  timeout: 30000,
 });
 
 // Request interceptor — good place to attach auth tokens later, and to log
 // every outgoing call during development.
 api.interceptors.request.use(
   (config) => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
     if (process.env.NODE_ENV === "development") {
       console.log(`→ ${config.method?.toUpperCase()} ${config.url}`);
     }
@@ -50,11 +56,22 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    const message =
-      error.response?.data?.error?.message ||
-      error.response?.data?.detail ||
-      error.message ||
-      "Something went wrong. Please try again.";
+    const isAuthenticationRequest = error.config?.url?.startsWith("auth/");
+    if (
+      error.response?.status === 401 &&
+      !isAuthenticationRequest &&
+      localStorage.getItem("accessToken")
+    ) {
+      clearAuthSession();
+      if (window.location.pathname !== "/") {
+        window.location.replace("/");
+      }
+    }
+
+    const message = getApiErrorMessage(
+      error.response?.data,
+      error.message || "Something went wrong. Please try again."
+    );
 
     if (process.env.NODE_ENV === "development") {
       console.error(`✗ ${error.config?.method?.toUpperCase()} ${error.config?.url} — ${message}`);

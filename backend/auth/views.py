@@ -561,12 +561,29 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from todos.models import M001State, M002Circle, M003Division
 from .models import (
+    CampaWorkflowOffice,
     CampaSilviculturistUser,
     T001UserMaster,
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _workflow_tokens(refresh, *, user_id, role, scope, name):
+    claims = {
+        "workflow_user_id": user_id,
+        "workflow_role": role,
+        "workflow_scope": scope,
+        "workflow_name": name,
+    }
+    if hasattr(refresh, "__setitem__"):
+        for key, value in claims.items():
+            refresh[key] = value
+    access = refresh.access_token
+    return str(refresh), str(access)
+
 
 class RORegistrationView(APIView):
     def post(self, request):
@@ -673,11 +690,11 @@ class RORegistrationView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         if any(
-            number and len(number) > 15
+            number and not re.fullmatch(r"\d{10}", number)
             for number in (contact_number, alternate_contact_number)
         ):
             return Response(
-                {"error": "Contact numbers cannot exceed 15 characters."},
+                {"error": "Contact numbers must contain exactly 10 digits without spaces or symbols."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -865,24 +882,46 @@ class ROLoginView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        refresh = RefreshToken.for_user(user)
-
         full_name = f"{user.fname or ''} {user.lname or ''}".strip()
+        refresh = RefreshToken.for_user(user)
+        scope = {
+            "state_id": getattr(user, "state_id", None),
+            "district_id": getattr(user, "district_id", None),
+            "circle_id": getattr(user, "circle_id", None),
+            "division_id": getattr(user, "division_id", None),
+            "range_id": getattr(user, "range_id", None),
+        }
+        if scope["division_id"] and not scope["circle_id"]:
+            scope["circle_id"] = (
+                M003Division.objects.filter(
+                    division_id=scope["division_id"],
+                    division_active="Y",
+                ).values_list("division_circle_id", flat=True).first()
+            )
+        refresh_token, access_token = _workflow_tokens(
+            refresh,
+            user_id=user.id,
+            role="ro",
+            scope=scope,
+            name=full_name,
+        )
 
         return Response(
             {
                 "success": True,
                 "message": "RO login successful.",
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
+                "refresh": refresh_token,
+                "access": access_token,
                 "user": {
                     "id": user.id,
                     "userid": user.emailid,
                     "name": full_name,
                     "email": user.emailid,
                     "role": user.role,
+                    "workflow_role": "ro",
                     "user_type": "RO",
                     "designation": user.designation,
+                    "scope": scope,
                 }
             },
             status=status.HTTP_200_OK
@@ -939,21 +978,48 @@ class SilviculturistLoginView(APIView):
         refresh = RefreshToken.for_user(user)
 
         full_name = f"{user.fname or ''} {user.lname or ''}".strip()
+        workflow_account = T001UserMaster.objects.filter(
+            emailid__iexact=emailid,
+        ).first()
+        if workflow_account is None:
+            return Response(
+                {
+                    "success": False,
+                    "error": "This account is not linked to an internal office. Contact your administrator."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        scope = {
+            "state_id": workflow_account.state_id,
+            "district_id": workflow_account.district_id,
+            "circle_id": workflow_account.circle_id,
+            "division_id": workflow_account.division_id,
+            "range_id": workflow_account.range_id,
+        }
+        refresh_token, access_token = _workflow_tokens(
+            refresh,
+            user_id=workflow_account.id,
+            role="silviculturist",
+            scope=scope,
+            name=full_name,
+        )
 
         return Response(
             {
                 "success": True,
                 "message": "Silviculturist login successful.",
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
+                "refresh": refresh_token,
+                "access": access_token,
                 "user": {
                     "id": user.id,
                     "userid": user.emailid,
                     "name": full_name,
                     "email": user.emailid,
                     "role": user.role,
+                    "workflow_role": "silviculturist",
                     "user_type": "Silviculturist",
                     "designation": user.designation or "",
+                    "scope": scope,
                 }
             },
             status=status.HTTP_200_OK
@@ -1179,6 +1245,188 @@ class SilviculturistLoginView(APIView):
 #                 },
 #                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
 #             )
+def _int_or_none(value):
+    try:
+        if value is None or value == "":
+            return None
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _next_directory_id(cursor, table, column):
+    cursor.execute(
+        f"SELECT ISNULL(MAX({column}), 0) + 1 "
+        f"FROM dbo.{table} WITH (TABLOCKX, HOLDLOCK)"
+    )
+    return cursor.fetchone()[0]
+
+
+def _clean_office_name(value):
+    if not isinstance(value, str):
+        return ""
+    return value.strip()
+
+
+def _ensure_parivesh_state(state_id, state_name, *, create=False):
+    """Look up M001_State from PARIVESH. Insert only when create=True and the name is new."""
+    parsed_id = _int_or_none(state_id)
+    name = _clean_office_name(state_name)
+    if not name and parsed_id is None:
+        return None
+
+    existing = None
+    if name:
+        existing = (
+            M001State.objects.filter(state_name__iexact=name)
+            .order_by("state_id")
+            .first()
+        )
+    if existing is None and parsed_id is not None:
+        existing = M001State.objects.filter(state_id=parsed_id).first()
+    if existing is not None:
+        if existing.state_active != "Y":
+            existing.state_active = "Y"
+            existing.save(update_fields=["state_active"])
+        return existing.state_id
+    if not create:
+        return None
+
+    create_name = name or f"State {parsed_id}"
+    with transaction.atomic(), connection.cursor() as cursor:
+        new_id = parsed_id
+        if new_id is None or M001State.objects.filter(state_id=new_id).exists():
+            new_id = _next_directory_id(cursor, "M001_State", "State_ID")
+        cursor.execute(
+            "INSERT INTO dbo.M001_State "
+            "(State_ID, State_Name, State_Code, State_Active, State_Entryon) "
+            "VALUES (%s, %s, %s, 'Y', %s)",
+            [new_id, create_name, str(new_id)[:10], timezone.now()],
+        )
+    return new_id
+
+
+def _ensure_parivesh_circle(state_id, office_name):
+    name = _clean_office_name(office_name)
+    if not state_id or not name:
+        return None
+    existing = (
+        M002Circle.objects.filter(circle_state_id=state_id, circle_name__iexact=name)
+        .order_by("circle_id")
+        .first()
+    )
+    if existing is not None:
+        if existing.circle_active != "Y":
+            existing.circle_active = "Y"
+            existing.save(update_fields=["circle_active"])
+        return existing.circle_id
+    with transaction.atomic(), connection.cursor() as cursor:
+        new_id = _next_directory_id(cursor, "M002_Circle", "Circle_ID")
+        cursor.execute(
+            "INSERT INTO dbo.M002_Circle "
+            "(Circle_ID, Circle_State_ID, Circle_Name, Circle_Active, Circle_Entryon) "
+            "VALUES (%s, %s, %s, 'Y', %s)",
+            [new_id, state_id, name, timezone.now()],
+        )
+    return new_id
+
+
+def _ensure_parivesh_division(state_id, office_name):
+    name = _clean_office_name(office_name)
+    if not state_id or not name:
+        return None, None
+    circle_ids = list(
+        M002Circle.objects.filter(
+            circle_state_id=state_id,
+            circle_active="Y",
+        ).values_list("circle_id", flat=True)
+    )
+    if circle_ids:
+        existing = (
+            M003Division.objects.filter(
+                division_circle_id__in=circle_ids,
+                division_name__iexact=name,
+            )
+            .order_by("division_id")
+            .first()
+        )
+        if existing is not None:
+            if existing.division_active != "Y":
+                existing.division_active = "Y"
+                existing.save(update_fields=["division_active"])
+            return existing.division_id, existing.division_circle_id
+    if not circle_ids:
+        return None, None
+    circle_id = circle_ids[0]
+    with transaction.atomic(), connection.cursor() as cursor:
+        new_id = _next_directory_id(cursor, "M003_Division", "Division_ID")
+        cursor.execute(
+            "INSERT INTO dbo.M003_Division "
+            "(Division_ID, Division_Circle_ID, Division_Name, Division_Version, "
+            "Division_Active, Division_EntryOn) "
+            "VALUES (%s, %s, %s, 1, 'Y', %s)",
+            [new_id, circle_id, name, timezone.now()],
+        )
+    return new_id, circle_id
+
+
+def _resolve_parivesh_office(role, scope):
+    office_id = scope.get("office_id")
+    if office_id in (None, ""):
+        return None
+    office_id = str(office_id).strip()
+    if not office_id or len(office_id) > 100:
+        return None
+    scope["office_id"] = office_id
+
+    mapping = CampaWorkflowOffice.objects.filter(
+        office_id=office_id,
+        role=role,
+    ).first()
+    state_id = scope.get("state_id")
+    if mapping:
+        if state_id and mapping.state_id != state_id:
+            return None
+        return {
+            "state_id": mapping.state_id,
+            "circle_id": mapping.circle_id,
+            "division_id": mapping.division_id,
+        }
+
+    office_name = _clean_office_name(scope.get("office_name"))
+    if not office_name:
+        return None
+    if role == "circle":
+        circle_id = _ensure_parivesh_circle(state_id, office_name)
+        if not circle_id:
+            return None
+        division_id = None
+    elif role == "dfo":
+        division_id, circle_id = _ensure_parivesh_division(state_id, office_name)
+        if not division_id or not circle_id:
+            return None
+    else:
+        return None
+
+    mapping, _ = CampaWorkflowOffice.objects.get_or_create(
+        office_id=office_id,
+        role=role,
+        defaults={
+            "state_id": state_id,
+            "circle_id": circle_id,
+            "division_id": division_id,
+            "office_name": office_name,
+        },
+    )
+    if mapping.state_id != state_id:
+        return None
+    return {
+        "state_id": mapping.state_id,
+        "circle_id": mapping.circle_id,
+        "division_id": mapping.division_id,
+    }
+
+
 class PariveshLoginView(APIView):
     def post(self, request):
         username = request.data.get("username")
@@ -1339,17 +1587,137 @@ class PariveshLoginView(APIView):
                 None
             )
 
+            matched_role = requested_role or next(
+                (
+                    role_name
+                    for role_name, aliases in role_aliases.items()
+                    if user_role.strip().lower() in aliases
+                ),
+                None,
+            )
+            if matched_role is None:
+                return Response(
+                    {"success": False, "error": "Unable to determine the selected workflow role."},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
+            workflow_role = {
+                "national": "national",
+                "state": "state",
+                "circle": "circle",
+                "dfo": "dfo",
+            }[matched_role]
+            scope = {
+                "state_id": _ensure_parivesh_state(
+                    data.get("stateid"),
+                    data.get("stateName"),
+                    create=workflow_role == "state",
+                ),
+                "office_id": (
+                    selected_office.get("officeId") if selected_office else None
+                ),
+                "office_name": (
+                    selected_office.get("officeName") if selected_office else None
+                ),
+                "office_type_id": (
+                    selected_office.get("officeTypeId") if selected_office else None
+                ),
+                "office_type_name": (
+                    selected_office.get("officeTypeName") if selected_office else None
+                ),
+            }
+            if workflow_role == "circle":
+                if not scope["state_id"]:
+                    return Response(
+                        {
+                            "success": False,
+                            "error": (
+                                "Pehle apne State se login karein, "
+                                "phir Circle se login karein."
+                            ),
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                if not scope["office_id"]:
+                    return Response(
+                        {
+                            "success": False,
+                            "error": (
+                                "PARIVESH did not return a stable Circle office ID for this login. "
+                                "Select your Circle office and try again."
+                            ),
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                office_scope = _resolve_parivesh_office("circle", scope)
+                scope["circle_id"] = office_scope["circle_id"] if office_scope else None
+                if not scope["circle_id"]:
+                    return Response(
+                        {"success": False, "error": "The selected Circle office could not be mapped."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            elif workflow_role == "dfo":
+                if not scope["office_id"]:
+                    return Response(
+                        {
+                            "success": False,
+                            "error": (
+                                "PARIVESH did not return a stable Division office ID for this login. "
+                                "Select your DFO office and try again."
+                            ),
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                has_circle = bool(
+                    scope["state_id"]
+                    and M002Circle.objects.filter(
+                        circle_state_id=scope["state_id"],
+                        circle_active="Y",
+                    ).exists()
+                )
+                if not scope["state_id"] or not has_circle:
+                    return Response(
+                        {
+                            "success": False,
+                            "error": (
+                                "Pehle apne State aur Circle se login karein, "
+                                "phir DFO se login karein."
+                            ),
+                        },
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                office_scope = _resolve_parivesh_office("dfo", scope)
+                scope["division_id"] = office_scope["division_id"] if office_scope else None
+                scope["circle_id"] = office_scope["circle_id"] if office_scope else None
+                if not scope["division_id"] or not scope["circle_id"]:
+                    return Response(
+                        {"success": False, "error": "The selected Division office could not be mapped."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+            refresh = RefreshToken()
+            workflow_user_id = data.get("userid") or data.get("username") or username.strip()
+            refresh_token, access_token = _workflow_tokens(
+                refresh,
+                user_id=workflow_user_id,
+                role=workflow_role,
+                scope=scope,
+                name=data.get("name") or data.get("username") or "",
+            )
+
             return Response(
                 {
                     "success": True,
                     "message": "PARIVESH login successful.",
-                    "access": jwt_token,
-                    "refresh": data.get("refreshToken"),
+                    "access": access_token,
+                    "refresh": refresh_token,
+                    "parivesh_access": jwt_token,
                     "user": {
                         "userid": data.get("userid"),
                         "username": data.get("username"),
                         "name": data.get("name"),
                         "role": user_role,
+                        "workflow_role": workflow_role,
+                        "scope": scope,
                         "roleName": role_names,
                         "userType": data.get("userType"),
                         "stateid": data.get("stateid"),

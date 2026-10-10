@@ -436,9 +436,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import './AdvanceBooking.css';
+import { useToast } from '../../components/common/ToastProvider';
 
 function AdvanceBooking() {
   const { t } = useTranslation();
+  const notify = useToast();
   const [formData, setFormData] = useState({
     state: '',
     district: '',
@@ -551,12 +553,12 @@ function AdvanceBooking() {
         body: JSON.stringify(formData)
       });
       if (response.ok) {
-        alert(t('booking.success'));
+        notify(t('booking.success'), 'success');
       } else {
-        alert(t('booking.failure'));
+        notify(t('booking.failure'), 'error');
       }
-    } catch (error) {
-      alert(t('booking.connectionError'));
+    } catch {
+      notify(t('booking.connectionError'), 'error');
     }
   };
 

@@ -443,7 +443,7 @@ def dashboard_chart_data(request):
 
     filter_ids = {}
     for parameter in ('state_id', 'district_id', 'species_id'):
-        value = request.query_params.get(parameter)
+        value = request.query_params.get(parameter)     
         if not value:
             filter_ids[parameter] = None
             continue

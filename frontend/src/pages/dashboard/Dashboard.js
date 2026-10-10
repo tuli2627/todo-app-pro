@@ -874,11 +874,12 @@
 // }
 
 // export default Dashboard;
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import DashboardCharts from "../../components/Map/DashboardCharts";
-import IndiaMap from "../../components/Map/IndiaMap";
+import IndiaSatelliteMap from "../../components/Map/IndiaSatelliteMap";
 import { useNavigate } from "react-router-dom";
+import api from "../../services/api";
 import { FiBarChart2, FiCalendar, FiHelpCircle, FiLogIn } from "react-icons/fi";
 import "./Dashboard.css";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -899,6 +900,35 @@ import QuickAccessTree from "../../assets/images/quick-access-tree.png";
 function Dashboard() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [summary, setSummary] = useState(null);
+  const mapScopeStateId = useMemo(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem("userData") || "null");
+      return user?.workflow_role && user.workflow_role !== "national"
+        ? user.workflow_scope?.state_id
+        : undefined;
+    } catch {
+      return undefined;
+    }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    const loadSummary = () => api.get("public-dashboard/summary/")
+      .then(({ data }) => { if (active) setSummary(data); })
+      .catch((error) => console.error("Unable to load live dashboard totals:", error));
+    loadSummary();
+    const timer = window.setInterval(loadSummary, 60_000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  const openProgressDetails = (state) => {
+    navigate(`/dashboard/details/progress?level=state&office_id=${state.state_id}`);
+  };
+
   const carouselImages = [
     { id: 1, src: Banner_1, altKey: "dashboard.bannerAlt", number: 1 },
     { id: 2, src: Banner_2, altKey: "dashboard.bannerAlt", number: 2 },
@@ -913,7 +943,8 @@ function Dashboard() {
       id: 1,
       category: t("dashboard.overview"),
       title: t("dashboard.statesOnboarded"),
-      value: "15",
+      value: summary ? Number(summary.states_onboarded).toLocaleString() : "—",
+      detailKey: "states",
       icon: (
         <svg
           width="18"
@@ -932,7 +963,8 @@ function Dashboard() {
       id: 2,
       category: t("dashboard.active"),
       title: t("dashboard.nurseriesAcrossNation"),
-      value: "867",
+      value: summary ? Number(summary.nurseries).toLocaleString() : "—",
+      detailKey: "nurseries",
       icon: (
         <svg
           width="18"
@@ -950,7 +982,8 @@ function Dashboard() {
       id: 3,
       category: t("dashboard.inventory"),
       title: t("dashboard.speciesAvailable"),
-      value: "0",
+      value: summary ? Number(summary.species_available).toLocaleString() : "—",
+      detailKey: "species",
       icon: (
         <svg
           width="18"
@@ -969,7 +1002,8 @@ function Dashboard() {
       id: 4,
       category: t("dashboard.distribution"),
       title: t("dashboard.seedlingsAvailable"),
-      value: "0",
+      value: summary ? Number(summary.seedlings_available).toLocaleString() : "—",
+      detailKey: "seedlings",
       icon: (
         <svg
           width="18"
@@ -987,7 +1021,8 @@ function Dashboard() {
       id: 5,
       category: t("dashboard.forestry"),
       title: t("dashboard.seedProductionCpt"),
-      value: "0",
+      value: summary ? Number(summary.spa_cpt).toLocaleString() : "—",
+      detailKey: "spa-cpt",
       icon: (
         <svg
           width="18"
@@ -1006,7 +1041,8 @@ function Dashboard() {
       id: 6,
       category: t("dashboard.cultivation"),
       title: t("dashboard.seedOrchard"),
-      value: "0",
+      value: summary ? Number(summary.seed_orchards).toLocaleString() : "—",
+      detailKey: "seed-orchards",
       icon: (
         <svg
           width="18"
@@ -1025,7 +1061,8 @@ function Dashboard() {
       id: 7,
       category: t("dashboard.research"),
       title: t("dashboard.researchInstitute"),
-      value: "0",
+      value: summary ? Number(summary.research_institutes).toLocaleString() : "—",
+      detailKey: "research-institutes",
       icon: (
         <svg
           width="18"
@@ -1044,7 +1081,8 @@ function Dashboard() {
       id: 8,
       category: t("dashboard.facility"),
       title: t("dashboard.seedProcessingUnit"),
-      value: "0",
+      value: summary ? Number(summary.processing_units).toLocaleString() : "—",
+      detailKey: "processing-units",
       icon: (
         <svg
           width="18"
@@ -1140,7 +1178,7 @@ function Dashboard() {
             </div>
 
             <div className="india-map">
-              <IndiaMap />
+              <IndiaSatelliteMap onStateSelect={openProgressDetails} scopeStateId={mapScopeStateId} />
             </div>
           </div>
           {/* Quick Access */}
@@ -1254,9 +1292,10 @@ function Dashboard() {
 
                     </div>
 
-                    <a
-                      href="#details"
+                    <button
+                      type="button"
                       className="stat-card-link"
+                      onClick={() => navigate(`/dashboard/details/${card.detailKey}`)}
                     >
                       <span>
                         {t('home.viewDetails')}
@@ -1265,7 +1304,7 @@ function Dashboard() {
                       <span className="stat-arrow">
                         →
                       </span>
-                    </a>
+                    </button>
 
                   </div>
 

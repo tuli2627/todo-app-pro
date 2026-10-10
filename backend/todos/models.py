@@ -57,7 +57,24 @@
 #             managed = False
 #             db_table = 'CAMPA_dfo_user'
 # 
+import os
+import uuid
+
 from django.db import models
+
+
+def field_progress_photo_path(instance, filename):
+    extension = os.path.splitext(filename)[1].lower()
+    if extension not in {".jpg", ".jpeg", ".png", ".webp"}:
+        extension = ".jpg"
+    return f"field-reports/{uuid.uuid4().hex}{extension}"
+
+
+def silviculturist_photo_path(instance, filename):
+    extension = os.path.splitext(filename)[1].lower()
+    if extension not in {".jpg", ".jpeg", ".png", ".webp"}:
+        extension = ".jpg"
+    return f"field-assessments/{uuid.uuid4().hex}{extension}"
 
 
 class Todo(models.Model):
@@ -511,3 +528,120 @@ class T030AdvanceBooking(models.Model):
     class Meta:
         managed = False
         db_table = 'T030_AdvanceBooking'
+
+
+class FieldProgressReport(models.Model):
+    period_start = models.DateField()
+    period_end = models.DateField()
+    site_module = models.CharField(max_length=32)
+    site_record_id = models.BigIntegerField()
+    site_name = models.CharField(max_length=255)
+    state_id = models.BigIntegerField()
+    state_name = models.CharField(max_length=150)
+    circle_id = models.BigIntegerField(null=True, blank=True)
+    circle_name = models.CharField(max_length=255, blank=True)
+    division_id = models.BigIntegerField(null=True, blank=True)
+    division_name = models.CharField(max_length=255, blank=True)
+    range_id = models.BigIntegerField(null=True, blank=True)
+    range_name = models.CharField(max_length=255, blank=True)
+    submitted_by = models.BigIntegerField()
+    submitted_by_name = models.CharField(max_length=255)
+    reporter_role = models.CharField(max_length=24, default="ro")
+    site_latitude = models.DecimalField(max_digits=10, decimal_places=7)
+    site_longitude = models.DecimalField(max_digits=10, decimal_places=7)
+    captured_latitude = models.DecimalField(max_digits=10, decimal_places=7)
+    captured_longitude = models.DecimalField(max_digits=10, decimal_places=7)
+    gps_accuracy_m = models.DecimalField(max_digits=8, decimal_places=2)
+    site_distance_m = models.DecimalField(max_digits=12, decimal_places=2)
+    inspection_date = models.DateField()
+    species_details = models.TextField()
+    planted_last_3_months = models.PositiveIntegerField(default=0)
+    plants_alive = models.PositiveIntegerField(default=0)
+    plants_dead = models.PositiveIntegerField(default=0)
+    seedlings_produced = models.PositiveIntegerField(default=0)
+    seedlings_available = models.PositiveIntegerField(default=0)
+    seedlings_distributed = models.PositiveIntegerField(default=0)
+    seed_source = models.CharField(max_length=500, blank=True)
+    seed_quantity_kg = models.DecimalField(max_digits=12, decimal_places=3, null=True, blank=True)
+    seed_collection_date = models.DateField(null=True, blank=True)
+    issues = models.TextField(blank=True)
+    field_photo = models.FileField(upload_to=field_progress_photo_path)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "workflow_field_progress_report"
+        constraints = [
+            models.UniqueConstraint(
+                fields=("period_start", "site_module", "site_record_id"),
+                name="uq_field_report_site_period",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=("period_start", "period_end"), name="ix_field_report_period"),
+            models.Index(fields=("inspection_date",), name="ix_field_report_inspection"),
+            models.Index(fields=("state_id", "circle_id", "division_id"), name="ix_field_report_scope"),
+            models.Index(fields=("created_at",), name="ix_field_report_created"),
+        ]
+
+
+class SilviculturistAssessment(models.Model):
+    report = models.ForeignKey(
+        FieldProgressReport,
+        on_delete=models.CASCADE,
+        related_name="technical_assessments",
+        null=True,
+        blank=True,
+    )
+    site_module = models.CharField(max_length=32, null=True, blank=True)
+    site_record_id = models.BigIntegerField(null=True, blank=True)
+    site_name = models.CharField(max_length=255, null=True, blank=True)
+    assessed_by = models.BigIntegerField()
+    assessed_by_name = models.CharField(max_length=255)
+    category = models.CharField(
+        max_length=32,
+        choices=(
+            ("satisfactory", "Satisfactory"),
+            ("needs_improvement", "Needs Improvement"),
+            ("critical", "Critical Review Required"),
+        ),
+    )
+    reasons = models.TextField()
+    recommendations = models.TextField()
+    scientific_assessment = models.TextField(blank=True)
+    field_inspection = models.BooleanField(default=False)
+    captured_latitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
+    captured_longitude = models.DecimalField(max_digits=10, decimal_places=7, null=True, blank=True)
+    gps_accuracy_m = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    site_distance_m = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    field_photo = models.FileField(upload_to=silviculturist_photo_path, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "workflow_silviculturist_assessment"
+        indexes = [
+            models.Index(fields=("report", "created_at"), name="ix_silvi_assessment_report"),
+            models.Index(
+                fields=("site_module", "site_record_id", "created_at"),
+                name="ix_silvi_assessment_site",
+            ),
+        ]
+
+
+class WorkflowTechnicalRecommendation(models.Model):
+    module = models.CharField(max_length=32)
+    record_id = models.BigIntegerField()
+    reviewed_by = models.BigIntegerField()
+    reviewer_name = models.CharField(max_length=255)
+    requested_fields = models.TextField(default="[]")
+    recommendation = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    addressed_by = models.BigIntegerField(null=True, blank=True)
+    addressed_by_name = models.CharField(max_length=255, blank=True)
+    addressed_at = models.DateTimeField(null=True, blank=True)
+    correction_values = models.TextField(default="{}")
+
+    class Meta:
+        db_table = "workflow_technical_recommendation"
+        indexes = [
+            models.Index(fields=("module", "record_id", "created_at"), name="ix_workflow_tech_rec"),
+        ]

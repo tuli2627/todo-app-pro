@@ -2105,7 +2105,7 @@
 // };
 
 // export default IndiaMap;
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Chart } from "react-google-charts";
 import api from "../../services/api";
@@ -2202,54 +2202,15 @@ const getCleanName = (input) => {
 };
 
 // ============================================================
-// MANUAL STATE COLORS
-// ============================================================
-//
-// States NOT present here remain WHITE.
-//
-// 1 = very light green
-// 2 = light green
-// 3 = medium light green
-// 4 = medium green
-// 5 = dark green
-// ============================================================
-
-const STATE_COLOR_LEVEL = {
-  // DARK GREEN
-  "IN-GJ": 5, // Gujarat
-
-  // MEDIUM-DARK GREEN
-  "IN-KA": 4, // Karnataka
-
-  // MEDIUM GREEN
-  "IN-JK": 3, // Jammu & Kashmir
-  "IN-MP": 3, // Madhya Pradesh
-
-  // LIGHT GREEN
-  "IN-HP": 2, // Himachal Pradesh
-  "IN-WB": 2, // West Bengal
-  "IN-PB": 2, // Punjab
-  "IN-MN": 2, // Manipur
-  "IN-MZ": 2, // Mizoram
-
-  // VERY LIGHT GREEN
-  "IN-RJ": 1, // Rajasthan
-  "IN-AR": 1, // Arunachal Pradesh
-  "IN-SK": 1, // Sikkim
-  "IN-NL": 1, // Nagaland
-  "IN-TR": 1, // Tripura
-};
-
-// ============================================================
 // INDIA MAP COMPONENT
 // ============================================================
 
-const IndiaMap = () => {
+const IndiaMap = ({ onStateSelect, scopeStateId }) => {
   const { t } = useTranslation();
   const [mapData, setMapData] = useState([]);
 
   const [chartData, setChartData] = useState([
-    ["State", "ColorLevel"],
+    ["State", t("map.totalNurseries"), { type: "string", role: "tooltip" }],
   ]);
 
   const [totalNurseries, setTotalNurseries] = useState(0);
@@ -2281,28 +2242,25 @@ const IndiaMap = () => {
 
   const [loadingHover, setLoadingHover] = useState(false);
 
-  const [tooltipPos, setTooltipPos] = useState({
+  const tooltipPos = {
     x: 0,
     y: 0,
-  });
-
-  const containerRef = useRef(null);
+  };
 
   // ==========================================================
   // FETCH DATA
   // ==========================================================
 
-  useEffect(() => {
-    fetchMapData();
-  }, []);
-
-  const fetchMapData = async () => {
+  const fetchMapData = useCallback(async () => {
     try {
       const response = await api.get("/map-data/");
 
-      const data = Array.isArray(response.data)
+      const allStates = Array.isArray(response.data)
         ? response.data
         : [];
+      const data = scopeStateId == null
+        ? allStates
+        : allStates.filter((state) => String(state.state_id) === String(scopeStateId));
 
       setMapData(data);
 
@@ -2311,7 +2269,7 @@ const IndiaMap = () => {
       // --------------------------------------------------------
 
       const formattedChartData = [
-        ["State", "ColorLevel"],
+        ["State", t("map.totalNurseries"), { type: "string", role: "tooltip" }],
       ];
 
       let total = 0;
@@ -2344,16 +2302,10 @@ const IndiaMap = () => {
           };
         }
 
-        // ------------------------------------------------------
-        // MANUAL COLOR LEVEL
-        // ------------------------------------------------------
-
-        const colorLevel =
-          STATE_COLOR_LEVEL[isoCode] || 0;
-
         formattedChartData.push([
           isoCode,
-          colorLevel,
+          count,
+          `${t("map.nurseriesIn")} ${cleanName} (${count})`,
         ]);
       });
 
@@ -2373,7 +2325,7 @@ const IndiaMap = () => {
       setMapData([]);
 
       setChartData([
-        ["State", "ColorLevel"],
+        ["State", t("map.totalNurseries"), { type: "string", role: "tooltip" }],
       ]);
 
       setTotalNurseries(0);
@@ -2383,76 +2335,34 @@ const IndiaMap = () => {
         count: 0,
       });
     }
-  };
+  }, [scopeStateId, t]);
+
+  useEffect(() => {
+    fetchMapData();
+  }, [fetchMapData]);
 
   // ==========================================================
   // MOUSE MOVE
   // ==========================================================
 
-  const handleMouseMove = (e) => {
-    if (!containerRef.current) {
-      return;
+  const fetchStateDetailsForHover = async (stateRecord) => {
+    setLoadingHover(true);
+    try {
+      const response = await api.get("/nurseries/state-details/", {
+        params: {
+          state_id: stateRecord.state_id,
+          stateCode: stateRecord.state_code,
+          state_name: getCleanName(stateRecord.state_name || stateRecord.state_code),
+        },
+      });
+      setHoverNurseries(response?.data?.nurseries || []);
+    } catch (error) {
+      console.error("Error fetching hover nursery details:", error);
+      setHoverNurseries([]);
+    } finally {
+      setLoadingHover(false);
     }
-
-    const rect =
-      containerRef.current.getBoundingClientRect();
-
-    setTooltipPos({
-      x:
-        e.clientX -
-        rect.left +
-        15,
-
-      y:
-        e.clientY -
-        rect.top +
-        15,
-    });
   };
-
-  // ==========================================================
-  // HOVER DETAILS
-  // ==========================================================
-
-  const fetchStateDetailsForHover =
-    async (stateRecord) => {
-      setLoadingHover(true);
-
-      try {
-        const cleanName =
-          getCleanName(
-            stateRecord.state_name ||
-              stateRecord.state_code
-          );
-
-        const response = await api.get("/nurseries/state-details/", {
-          params: {
-            state_id: stateRecord.state_id,
-            stateCode: stateRecord.state_code,
-            state_name: cleanName,
-          },
-        });
-
-        if (
-          response?.data?.nurseries
-        ) {
-          setHoverNurseries(
-            response.data.nurseries
-          );
-        } else {
-          setHoverNurseries([]);
-        }
-      } catch (error) {
-        console.error(
-          "Error fetching hover nursery details:",
-          error
-        );
-
-        setHoverNurseries([]);
-      } finally {
-        setLoadingHover(false);
-      }
-    };
 
   // ==========================================================
   // MAP EVENTS
@@ -2522,73 +2432,26 @@ const IndiaMap = () => {
       },
     },
 
-    // --------------------------------------------------------
-    // HOVER
-    // --------------------------------------------------------
-
     {
-      eventName: "onregionover",
+      eventName: "onmouseover",
+      callback: ({ eventArgs }) => {
+        const event = eventArgs?.[0];
+        const stateRecord = Number.isInteger(event?.row)
+          ? mapData[event.row]
+          : mapData.find((item) => (
+            getIsoCode(item.state_code || item.state_name) === getIsoCode(event?.region)
+          ));
 
-      callback: ({ region }) => {
-        try {
-          if (
-            !region ||
-            !mapData.length
-          ) {
-            return;
-          }
-
-          const cleanRegionName =
-            getCleanName(region);
-
-          const isoRegion =
-            getIsoCode(region);
-
-          const stateRecord =
-            mapData.find((item) => {
-              const itemIso =
-                getIsoCode(
-                  item.state_code ||
-                    item.state_name
-                );
-
-              return (
-                itemIso ===
-                  isoRegion ||
-                getCleanName(
-                  item.state_name
-                ) ===
-                  cleanRegionName
-              );
-            });
-
-          setHoverState(
-            cleanRegionName
-          );
-
-          if (stateRecord) {
-            fetchStateDetailsForHover(
-              stateRecord
-            );
-          } else {
-            setHoverNurseries([]);
-          }
-        } catch (err) {
-          console.error(
-            "Map hover error:",
-            err
-          );
+        setHoverState(stateRecord
+          ? getCleanName(stateRecord.state_name || stateRecord.state_code)
+          : null);
+        if (stateRecord) {
+          fetchStateDetailsForHover(stateRecord);
         }
       },
     },
-
-    // --------------------------------------------------------
-    // HOVER OUT
-    // --------------------------------------------------------
-
     {
-      eventName: "onregionout",
-
+      eventName: "onmouseout",
       callback: () => {
         setHoverState(null);
         setHoverNurseries([]);
@@ -2610,6 +2473,15 @@ const IndiaMap = () => {
         stateName ||
           stateCode
       );
+
+    if (onStateSelect) {
+      onStateSelect({
+        state_id: stateId,
+        state_code: stateCode,
+        state_name: cleanName,
+      });
+      return;
+    }
 
     setSelectedState(
       cleanName
@@ -2665,14 +2537,19 @@ const IndiaMap = () => {
   // MAP OPTIONS
   // ==========================================================
 
+  const scopedState = scopeStateId == null
+    ? null
+    : mapData.find((state) => String(state.state_id) === String(scopeStateId));
   const chartOptions = {
-    region: "IN",
+    region: scopedState ? getIsoCode(scopedState.state_code || scopedState.state_name) : "IN",
 
     domain: "IN",
 
     displayMode: "regions",
 
     resolution: "provinces",
+
+    enableRegionInteractivity: true,
 
     // --------------------------------------------------------
     // FIXED MANUAL COLORS
@@ -2681,7 +2558,7 @@ const IndiaMap = () => {
     colorAxis: {
       minValue: 0,
 
-      maxValue: 5,
+      maxValue: highestState.count || 1,
 
       colors: [
         "#FFFFFF",
@@ -2710,13 +2587,6 @@ const IndiaMap = () => {
 
     legend: "none",
 
-    // --------------------------------------------------------
-    // DISABLE DEFAULT TOOLTIP
-    // --------------------------------------------------------
-
-    tooltip: {
-      trigger: "none",
-    },
   };
 
   // ==========================================================
@@ -2725,10 +2595,6 @@ const IndiaMap = () => {
 
   return (
     <div
-      ref={containerRef}
-      onMouseMove={
-        handleMouseMove
-      }
       style={{
         maxWidth: "700px",
         margin: "0 auto",
@@ -2841,12 +2707,10 @@ const IndiaMap = () => {
                   "4px",
               }}
             >
-              Nurseries in{" "}
-              {hoverState} (
-              {
-                hoverNurseries.length
-              }
-              )
+              {t("map.nurseriesIn")} {hoverState} (
+              {mapData.find((item) =>
+                getCleanName(item.state_name || item.state_code) === hoverState
+              )?.nurseries_count ?? hoverNurseries.length})
             </h4>
 
             {loadingHover ? (

@@ -84,6 +84,64 @@
     animation: fadeUp .8s ease;
 }
 
+.login-brand-mark {
+    display: block;
+    width: 66px;
+    height: 66px;
+    object-fit: contain;
+    margin: 0 auto 14px;
+    padding: 7px;
+    border: 1px solid #d8c7a3;
+    border-radius: 20px;
+    background: linear-gradient(145deg, #fffef8, #f2ead7);
+    box-shadow: 0 7px 18px rgba(94, 76, 42, .14), inset 0 0 0 3px rgba(192, 155, 91, .1);
+}
+
+.login-role-select {
+    display: grid;
+    gap: 8px;
+    margin: 0 0 18px;
+    color: #516254;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.login-role-select select {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 14px;
+    border: 1px solid #d8c7a3;
+    border-radius: 13px;
+    color: #263d2e;
+    background: linear-gradient(135deg, #fffef9, #f8f3e8);
+    font: inherit;
+    cursor: pointer;
+}
+
+.captcha-code {
+    display: flex;
+    min-width: 148px;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border: 1px solid #c8ae78;
+    border-radius: 12px;
+    color: #483b23;
+    background:
+        repeating-linear-gradient(135deg, rgba(123, 103, 60, .07) 0 2px, transparent 2px 7px),
+        linear-gradient(145deg, #f5ecd7, #e7d9ba);
+    font: 800 17px/1 'Inter', sans-serif;
+    letter-spacing: .2em;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.captcha-code svg {
+    flex: 0 0 auto;
+    font-size: 15px;
+    letter-spacing: 0;
+}
+
 @keyframes fadeUp {
     0% { transform: translateY(20px); opacity: 0; }
     100% { transform: translateY(0); opacity: 1; }
@@ -166,4 +224,44 @@
     background: #6fa83e;
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(14, 71, 54, 0.2);
+}
+
+html[data-theme="dark"] .login-card {
+    border-color: #5f644e;
+    background: rgba(25, 40, 31, .94);
+    box-shadow: 0 22px 58px rgba(0, 0, 0, .32), inset 0 0 0 3px rgba(193, 160, 99, .06);
+}
+
+html[data-theme="dark"] .login-header h2,
+html[data-theme="dark"] .login-role-select {
+    color: #e4efdf;
+}
+
+html[data-theme="dark"] .login-header p {
+    color: #c0cec2;
+}
+
+html[data-theme="dark"] .login-role-select select {
+    border-color: #526653;
+    color: #e9f0eb;
+    background: #14231b;
+}
+
+html[data-theme="dark"] .captcha-code {
+    border-color: #776847;
+    color: #f1e5c8;
+    background:
+        repeating-linear-gradient(135deg, rgba(232, 209, 155, .08) 0 2px, transparent 2px 7px),
+        linear-gradient(145deg, #39382c, #302f26);
+}
+
+html[data-theme="dark"] .login-brand-mark {
+    border-color: #695d40;
+    background: linear-gradient(145deg, #f7f4e9, #e5ddc8);
+}
+
+@media (max-width: 520px) {
+    .login-card {
+        padding: 34px 24px;
+    }
 }

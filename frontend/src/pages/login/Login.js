@@ -2,13 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import "./Login.css";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FiUser, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiUser, FiLock, FiEye, FiEyeOff, FiRefreshCw } from "react-icons/fi";
 import api from "../../services/api";
+import { storeAuthSession } from "../../services/authSession";
+import { useToast } from "../../components/common/ToastProvider";
+import sankalpLogo from "../../assets/images/sankalp.png";
 
 function Login() {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate(); 
+  const notify = useToast();
   const role = location.pathname.split("/").pop().toUpperCase();
   const isROLogin = role === "RO";
   const isSilviculturistLogin = role === "SILVICULTURIST";
@@ -41,7 +45,7 @@ function Login() {
   e.preventDefault();
 
   if (!isROLogin && captchaInput !== captchaText) {
-    alert(t('login.captchaMismatch'));
+    notify(t('login.captchaMismatch'), "error");
     generateCaptcha();
     setCaptchaInput("");
     return;
@@ -74,20 +78,15 @@ function Login() {
           : "auth/parivesh-login/";
       const { data } = await api.post(endpoint, loginData);
 
-      localStorage.setItem("accessToken", data.access);
-      if (data.refresh) {
-        localStorage.setItem("refreshToken", data.refresh);
-      }
-      if (data.user) {
-        localStorage.setItem("userData", JSON.stringify(data.user));
-      }
-      navigate("/dashboard");
+      storeAuthSession(data);
+      navigate("/internal/dashboard");
     } catch (error) {
       const responseError = error.response?.data?.error;
-      alert(
+      notify(
         typeof responseError === "string"
           ? responseError
-          : error.message || t("login.serverUnavailable")
+          : error.message || t("login.serverUnavailable"),
+        "error"
       );
     }
   };
@@ -107,12 +106,26 @@ function Login() {
       </div>
 
       <div className="login-card">
+        <img className="login-brand-mark" src={sankalpLogo} alt={t("home.portalName")} />
         <div className="login-header">
           <h2>{t('login.title')}</h2>
           <p>{t('login.subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit}>
+          {!isSilviculturistLogin && (
+            <label className="login-role-select">
+              <span>{t("login.roleSelection")}</span>
+              <select
+                value={role.toLowerCase()}
+                onChange={(event) => navigate(`/login/${event.target.value}`)}
+              >
+                {["national", "state", "circle", "dfo", "ro"].map((item) => (
+                  <option value={item} key={item}>{t(`workflow.roles.${item}`)}</option>
+                ))}
+              </select>
+            </label>
+          )}
           <div className="input-group">
             <FiUser className="input-icon" />
             <input 
@@ -153,26 +166,16 @@ function Login() {
               required
               style={{ flex: 1, padding: "10px", border: "1px solid #ccc", borderRadius: "4px" }}
             />
-            <div 
+            <button
+              type="button"
+              className="captcha-code"
               onClick={generateCaptcha}
               title={t('login.refreshCaptcha')}
-              style={{ 
-                background: "linear-gradient(45deg, #d3d3d3, #9e9e9e)", 
-                color: "#000",
-                fontWeight: "bold",
-                letterSpacing: "4px",
-                padding: "10px 20px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                userSelect: "none",
-                borderRadius: "4px",
-                textDecoration: "line-through" 
-              }}
+              aria-label={t('login.refreshCaptcha')}
             >
               {captchaText}
-              </div>
+              <FiRefreshCw aria-hidden="true" />
+            </button>
             </div>
           )}
 

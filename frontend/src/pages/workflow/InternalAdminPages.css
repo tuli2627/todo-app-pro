@@ -1,0 +1,282 @@
+.workflow-admin {
+  padding-bottom: 48px;
+}
+
+.workflow-admin__nav {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin: 24px 0;
+  padding: 4px 2px 12px;
+}
+
+.workflow-admin__nav a,
+.workflow-admin__filters button,
+.workflow-admin__action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 9px 15px;
+  border: 1px solid #cbd9ce;
+  border-radius: 999px;
+  color: #285b40;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.workflow-admin__nav a[aria-current="page"] {
+  border-color: #216c47;
+  color: #fff;
+  background: #216c47;
+  box-shadow: 0 5px 14px rgba(33, 108, 71, 0.19);
+}
+
+.workflow-admin__panel {
+  margin-top: 20px;
+  padding: clamp(18px, 3vw, 30px);
+  border: 1px solid rgba(113, 144, 99, 0.27);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(29, 68, 46, 0.08);
+}
+
+.workflow-admin__heading,
+.workflow-admin__filters,
+.workflow-admin__inline-form,
+.workflow-admin__password-form {
+  display: flex;
+  align-items: end;
+  gap: 14px;
+}
+
+.workflow-admin__heading {
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.workflow-admin__heading h2 {
+  margin: 0;
+  color: #173a2c;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.workflow-admin__heading p {
+  margin: 6px 0 0;
+  color: #617267;
+}
+
+.workflow-admin__filters {
+  flex-wrap: wrap;
+}
+
+.workflow-admin__filters select,
+.workflow-admin__password-form input,
+.workflow-admin__inline-form input,
+.workflow-admin__inline-form select,
+.workflow-admin__actions select {
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid #cbd9ce;
+  border-radius: 10px;
+  color: #243b2e;
+  background: #fff;
+  font: inherit;
+}
+
+.workflow-admin__inline-form {
+  flex-wrap: wrap;
+  margin-bottom: 22px;
+  padding: 18px;
+  border-radius: 16px;
+  background: #f5f8f4;
+}
+
+.workflow-admin__inline-form .workflow-field {
+  flex: 1 1 210px;
+}
+
+.workflow-admin__inline-form .workflow-button {
+  min-height: 42px;
+  white-space: nowrap;
+}
+
+.workflow-admin__table {
+  min-width: 900px;
+}
+
+.workflow-admin__actions {
+  min-width: 250px;
+}
+
+.workflow-admin__actions button {
+  margin: 3px;
+  padding: 7px 11px;
+  border: 1px solid #23744a;
+  border-radius: 999px;
+  color: #fff;
+  background: #23744a;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.workflow-admin__actions button:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.workflow-admin__silviculturist-refresh,
+.workflow-admin__silviculturist-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 15px;
+  border: 1px solid #216c47;
+  border-radius: 999px;
+  color: #fff;
+  background: #216c47;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.workflow-admin__silviculturist-refresh:hover:not(:disabled),
+.workflow-admin__silviculturist-toggle:hover:not(:disabled) {
+  border-color: #155536;
+  background: #155536;
+  transform: translateY(-1px);
+}
+
+.workflow-admin__silviculturist-toggle.is-active {
+  border-color: #a9493e;
+  background: #a9493e;
+}
+
+.workflow-admin__silviculturist-toggle.is-active:hover:not(:disabled) {
+  border-color: #873a32;
+  background: #873a32;
+}
+
+.workflow-admin__silviculturist-refresh:disabled,
+.workflow-admin__silviculturist-toggle:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.workflow-admin__silviculturist-refresh:focus-visible,
+.workflow-admin__silviculturist-toggle:focus-visible {
+  outline: 3px solid rgba(33, 108, 71, 0.28);
+  outline-offset: 2px;
+}
+
+.workflow-admin__action-button {
+  min-height: 34px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.workflow-admin__password-form {
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #f5f8f4;
+}
+
+.workflow-admin__password-form strong {
+  margin-right: auto;
+}
+
+.workflow-admin__password-form button {
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 999px;
+  color: #fff;
+  background: #216c47;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+[data-theme="dark"] .workflow-admin__panel {
+  border-color: rgba(150, 179, 151, 0.24);
+  background: #17231d;
+}
+
+[data-theme="dark"] .workflow-admin__heading h2,
+[data-theme="dark"] .workflow-admin__heading p,
+[data-theme="dark"] .workflow-admin__password-form strong {
+  color: #e1ebe2;
+}
+
+[data-theme="dark"] .workflow-admin__nav a,
+[data-theme="dark"] .workflow-admin__filters button,
+[data-theme="dark"] .workflow-admin__action-button {
+  border-color: #48604f;
+  color: #d6ead9;
+  background: #24352b;
+}
+
+[data-theme="dark"] .workflow-admin__silviculturist-refresh {
+  border-color: #3e9663;
+  background: #286b47;
+}
+
+[data-theme="dark"] .workflow-admin__silviculturist-toggle.is-active {
+  border-color: #b75a4f;
+  background: #8e4038;
+}
+
+[data-theme="dark"] .workflow-admin__nav a[aria-current="page"] {
+  border-color: #3e9663;
+  color: #fff;
+  background: #286b47;
+}
+
+[data-theme="dark"] .workflow-admin__inline-form,
+[data-theme="dark"] .workflow-admin__password-form {
+  background: #202f25;
+}
+
+[data-theme="dark"] .workflow-admin__filters select,
+[data-theme="dark"] .workflow-admin__password-form input,
+[data-theme="dark"] .workflow-admin__inline-form input,
+[data-theme="dark"] .workflow-admin__inline-form select,
+[data-theme="dark"] .workflow-admin__actions select {
+  border-color: #48604f;
+  color: #e1ebe2;
+  background: #17231d;
+}
+
+@media (max-width: 760px) {
+  .workflow-admin__heading,
+  .workflow-admin__inline-form,
+  .workflow-admin__password-form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .workflow-admin__heading {
+    align-items: flex-start;
+  }
+
+  .workflow-admin__inline-form .workflow-field {
+    flex-basis: auto;
+  }
+}

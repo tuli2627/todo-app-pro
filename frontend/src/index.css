@@ -341,6 +341,48 @@ html[data-theme="dark"] :is(input, select, textarea)::placeholder {
   color: #b2c1b7;
 }
 
+html[data-theme="dark"] :is(
+  .about-intro,
+  .about-person,
+  .about-contact,
+  .about-contact-card,
+  .guide-card,
+  .guides-heading,
+  .nursery-table-wrap,
+  .workflow-approval-item,
+  .workflow-empty,
+  .workflow-success,
+  .workflow-alert
+) {
+  color: #e9f0eb;
+  border-color: #405247;
+  background-color: #1b2c22;
+}
+
+html[data-theme="dark"] :is(
+  .about-intro h1,
+  .about-intro h2,
+  .about-person h3,
+  .about-contact-card h3,
+  .guides-heading h1,
+  .guide-card h3,
+  .workflow-approval-item h2
+) {
+  color: #e3eee6;
+}
+
+html[data-theme="dark"] :is(
+  .about-intro p,
+  .about-person p,
+  .about-person small,
+  .about-contact-card p,
+  .guides-heading p,
+  .guide-card p,
+  .workflow-approval-item p
+) {
+  color: #b7c7bc;
+}
+
 html[data-theme="dark"] :is(.login-card, .faq-item, .faq-question, .faq-answer, .adv-form-section, .nursery-card, .service-card, .chart-card, .stat-card) :is(h1, h2, h3, h4, p, span, label) {
   color: #e9f0eb;
 }
