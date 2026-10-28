@@ -257,14 +257,17 @@
   text-transform: uppercase;
   margin-bottom: 4px;
   display: block;
+  min-height: 15px; /* Add this line */
 }
-
 .map-title-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
+  min-height: 28px; /* Add this line */
 }
+
+
 
 .map-main-title {
   font-size: 20px;
@@ -287,8 +290,12 @@
   font-size: 23px;
   font-weight: 700;
   color: #173c2b;
-  margin: 0 0 14px;
+  margin: 0 0 12px; /* Changed bottom margin from 14px to 12px */
   letter-spacing: -0.025em;
+  padding-top: 19px; /* Add this to compensate for the missing sub-label */
+  min-height: 28px; /* Add this to match the map title height */
+  display: flex; /* Add this for vertical alignment */
+  align-items: center; /* Add this for vertical alignment */
 }
 
 .india-map {

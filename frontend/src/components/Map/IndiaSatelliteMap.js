@@ -77,18 +77,49 @@ function IndiaSatelliteMap({ onStateSelect, scopeStateId }) {
         const { data: stateData } = await api.get("/map-data/", {
           signal: controller.signal,
         });
-        if (!active) return;
+        // if (!active) return;
+        // setNurseries(records);
+        // setStates(stateData || []);
+        // setHighestState(
+        //   (stateData || []).reduce(
+        //     (highest, state) => (
+        //       !highest || state.nurseries_count > highest.nurseries_count
+        //         ? state
+        //         : highest
+        //     ),
+        //     null
+        //   )
+        // );
+       
+
+      // } catch (error) {
+      if (!active) return;
+        
         setNurseries(records);
         setStates(stateData || []);
+
+        const stateCounts = records.reduce((acc, nursery) => {
+          const stateName = (nursery.state || "").trim().toUpperCase();
+          if (stateName) {
+            acc[stateName] = (acc[stateName] || 0) + 1;
+          }
+          return acc;
+        }, {});
+
+        let topState = null;
+        let maxCount = -1;
+
+        for (const [name, count] of Object.entries(stateCounts)) {
+          if (count > maxCount) {
+            maxCount = count;
+            topState = name;
+          }
+        }
+
         setHighestState(
-          (stateData || []).reduce(
-            (highest, state) => (
-              !highest || state.nurseries_count > highest.nurseries_count
-                ? state
-                : highest
-            ),
-            null
-          )
+          topState 
+            ? { state_name: topState, nurseries_count: maxCount }
+            : null
         );
       } catch (error) {
         if (active && !controller.signal.aborted) {
