@@ -28,7 +28,9 @@ import FieldProgressPage from "./pages/workflow/FieldProgressPage";
 
 function App() {
   return (
-    <BrowserRouter>
+    // 
+    <BrowserRouter basename="/Harit-SANKALP">
+    
       <ToastProvider>
         <SessionExpiryWatcher />
         <Layout>
