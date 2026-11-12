@@ -19,7 +19,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from auth.workflow_auth import WorkflowJWTAuthentication
-from auth.models import CampaSilviculturistUser, T001UserMaster
+from auth.models import (
+    CampaSilviculturistUser,
+    CampaStateWorkflowSession,
+    T001UserMaster,
+)
 from .models import (
     M001State,
     M002Circle,
@@ -1685,7 +1689,7 @@ def workflow_decision(request, module, record_id):
 @authentication_classes([WorkflowJWTAuthentication])
 @permission_classes([IsAuthenticated])
 def workflow_technical_review(request, module, record_id):
-    if request.user.role != "silviculturist":
+    if request.user.account_role != "silviculturist":
         raise PermissionDenied("Only Silviculturists can record technical checks.")
     if module not in SILVICULTURIST_MODULES:
         raise PermissionDenied("This workflow does not require a Silviculturist technical check.")
@@ -2292,7 +2296,8 @@ def workflow_admin_silviculturists(request):
         offset = min(max(_int(request.query_params.get("offset")) or 0, 0), 1_000_000)
         records = list(users.order_by("-id").values(
             "id", "fname", "lname", "emailid", "contact_number",
-            "state_id", "circle_id", "division_id",
+            "state_id", "circle_id", "division_id", "approved", "active",
+            "account_blocked",
         )[offset:offset + limit])
         state_names = dict(M001State.objects.filter(
             state_id__in={record["state_id"] for record in records}
@@ -2310,7 +2315,14 @@ def workflow_admin_silviculturists(request):
             ).values("emailid", "is_active")
         }
         for record in records:
-            record["active"] = account_states.get(record["emailid"].lower(), False)
+            account_active = account_states.get(record["emailid"].lower(), False)
+            record["approved"] = record["approved"] == "Y"
+            record["active"] = (
+                account_active
+                and record["approved"]
+                and record["active"] == "Y"
+                and record["account_blocked"] != "Y"
+            )
             record["state_name"] = state_names.get(record["state_id"])
             record["circle_name"] = circle_names.get(record["circle_id"])
             record["division_name"] = division_names.get(record["division_id"])
@@ -2328,14 +2340,29 @@ def workflow_admin_silviculturists(request):
             raise ValidationError({"action": "Select activate or deactivate."})
         target = _silviculturist_accounts(actor).filter(
             id=user_id, emailid__in=linked_emails
-        ).values("emailid").first()
+        ).values("emailid", "state_id").first()
         if target is None:
             raise PermissionDenied("The selected Silviculturist is outside your assigned office.")
-        updated = CampaSilviculturistUser.objects.filter(
-            emailid__iexact=target["emailid"]
-        ).update(is_active=(action == "activate"))
-        if updated != 1:
-            raise ValidationError("The Silviculturist account could not be updated.")
+        if action == "activate" and actor.role != "national":
+            raise PermissionDenied("Only N-CAMPA can approve Silviculturist registrations.")
+        with transaction.atomic():
+            updated = CampaSilviculturistUser.objects.filter(
+                emailid__iexact=target["emailid"]
+            ).update(is_active=(action == "activate"))
+            master_updated = T001UserMaster.objects.filter(
+                id=user_id,
+            ).update(
+                active="Y" if action == "activate" else "N",
+                **({"approved": "Y"} if action == "activate" else {}),
+            )
+            if updated != 1 or master_updated != 1:
+                raise ValidationError("The Silviculturist account could not be updated.")
+            if action == "deactivate":
+                CampaStateWorkflowSession.objects.filter(
+                    state_id=target["state_id"],
+                    workflow_role="silviculturist",
+                    workflow_user_id=str(user_id),
+                ).delete()
         return Response({"user_id": user_id, "action": action, "success": True})
 
     fname = request.data.get("fname")

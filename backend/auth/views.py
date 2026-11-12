@@ -550,6 +550,7 @@ import hmac
 import logging
 import re
 import requests
+import uuid
 from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator
 from django.db import connection, transaction
@@ -557,12 +558,15 @@ from django.conf import settings
 from django.utils import timezone
 from rest_framework import response
 from rest_framework import response
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from todos.models import M001State, M002Circle, M003Division
 from .models import (
+    CampaSilviculturistIdentity,
+    CampaStateWorkflowSession,
     CampaWorkflowOffice,
     CampaSilviculturistUser,
     T001UserMaster,
@@ -571,18 +575,33 @@ from .models import (
 logger = logging.getLogger(__name__)
 
 
-def _workflow_tokens(refresh, *, user_id, role, scope, name):
+def _workflow_tokens(refresh, *, user_id, role, scope, name, state_session_id=None):
     claims = {
         "workflow_user_id": user_id,
         "workflow_role": role,
         "workflow_scope": scope,
         "workflow_name": name,
     }
+    if state_session_id is not None:
+        claims["workflow_session_id"] = str(state_session_id)
     if hasattr(refresh, "__setitem__"):
         for key, value in claims.items():
             refresh[key] = value
     access = refresh.access_token
     return str(refresh), str(access)
+
+
+def _activate_state_workflow_session(state_id, user_id, role):
+    session_id = uuid.uuid4()
+    CampaStateWorkflowSession.objects.update_or_create(
+        state_id=state_id,
+        defaults={
+            "session_id": session_id,
+            "workflow_role": role,
+            "workflow_user_id": str(user_id),
+        },
+    )
+    return session_id
 
 
 class RORegistrationView(APIView):
@@ -757,65 +776,195 @@ class RORegistrationView(APIView):
 
 
 class SilviculturistRegistrationView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        states = list(
+            M001State.objects.filter(state_active="Y")
+            .order_by("state_name")
+            .values("state_id", "state_name")
+        )
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT Designation_ID, Designation_Name "
+                "FROM dbo.M015_Designation WHERE Designation_Active = 'Y' "
+                "ORDER BY Designation_Name"
+            )
+            designations = [
+                {"id": row[0], "name": row[1]}
+                for row in cursor.fetchall()
+            ]
+        return Response({"states": states, "designations": designations})
+
     def post(self, request):
-        emailid = request.data.get("emailid")
+        emailid = request.data.get("emailid") or request.data.get("email")
+        fname = request.data.get("fname")
+        lname = request.data.get("lname")
         password = request.data.get("password")
         confirm_password = request.data.get("confirm_password")
-
-        if not emailid or not password or not confirm_password:
-            return Response(
-                {
-                    "error": "Email, password and confirm password are required."
-                },
-                status=status.HTTP_400_BAD_REQUEST
+        aadhaar_number = request.data.get("aadhaar_number")
+        if not all(
+            isinstance(value, str) and value.strip()
+            for value in (
+                emailid, fname, lname, password, confirm_password, aadhaar_number
             )
-
+        ):
+            return Response(
+                {"error": "Name, email, password and confirmation are required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        emailid = emailid.strip()
+        fname = fname.strip()
+        lname = lname.strip()
+        if not re.fullmatch(r"\d{12}", aadhaar_number):
+            return Response(
+                {"error": "Enter a valid 12-digit Aadhaar number."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if len(emailid) > 200 or len(fname) > 80 or len(lname) > 80:
+            return Response(
+                {"error": "Email and name fields exceed the allowed length."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            EmailValidator()(emailid)
+        except ValidationError:
+            return Response(
+                {"error": "Enter a valid email address."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if len(password) < 8 or len(password) > 1024:
+            return Response(
+                {"error": "Password must be between 8 and 1024 characters long."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         if password != confirm_password:
             return Response(
-                {
-                    "error": "Password and Confirm Password do not match."
-                },
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Password and Confirm Password do not match."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
+        def positive_id(value):
+            if isinstance(value, bool):
+                return None
+            if isinstance(value, int):
+                return value if value > 0 else None
+            if isinstance(value, str) and re.fullmatch(r"\d+", value.strip()):
+                parsed = int(value.strip())
+                return parsed if parsed > 0 else None
+            return None
 
-        if CampaSilviculturistUser.objects.filter(emailid=emailid).exists():
+        state_id = positive_id(request.data.get("state_id"))
+        designation_id = positive_id(request.data.get("designation_id"))
+        if state_id is None or designation_id is None:
             return Response(
-                {
-                    "error": "This email ID is already registered."
-                },
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": "Select a valid state and designation."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
+        if not M001State.objects.filter(
+            state_id=state_id,
+            state_active="Y",
+        ).exists():
+            return Response(
+                {"error": "Select an active state."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        contact_number = request.data.get("contact_number") or None
+        if contact_number is not None and (
+            not isinstance(contact_number, str)
+            or not re.fullmatch(r"\d{10}", contact_number)
+        ):
+            return Response(
+                {"error": "Contact number must contain exactly 10 digits."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        from django.contrib.auth.hashers import make_password
 
-        user = CampaSilviculturistUser(
-            user_level="Silviculturist",
-            fname=request.data.get("fname"),
-            lname=request.data.get("lname"),
-            emailid=emailid,
-            contact_number=request.data.get("contact_number"),
-            alternate_contact_number=request.data.get(
-                "alternate_contact_number"
-            ),
-            designation=request.data.get("designation"),
-            role=request.data.get("role", "User"),
-            is_active=True
-        )
-
-        user.set_password(password)
-        user.save()
+        with transaction.atomic():
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT Designation_Name FROM dbo.M015_Designation "
+                    "WHERE Designation_ID = %s AND Designation_Active = 'Y'",
+                    [designation_id],
+                )
+                designation_row = cursor.fetchone()
+                if designation_row is None:
+                    return Response(
+                        {"error": "Select an active designation."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                cursor.execute(
+                    "SELECT ISNULL(MAX(UM_ID), 0) + 1 "
+                    "FROM dbo.T001_UserMaster WITH (TABLOCKX, HOLDLOCK)"
+                )
+                user_id = cursor.fetchone()[0]
+                if T001UserMaster.objects.filter(emailid__iexact=emailid).exists() or \
+                        CampaSilviculturistUser.objects.filter(emailid__iexact=emailid).exists():
+                    return Response(
+                        {"error": "This email ID is already registered."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+                hashed_password = make_password(password)
+                now = timezone.now()
+                cursor.execute(
+                    """
+                    INSERT INTO dbo.T001_UserMaster (
+                        UM_ID, UM_Project_ID, UM_Level_ID, UM_State_ID,
+                        UM_District_ID, UM_Circle_ID, UM_Division_ID, UM_Range_ID,
+                        UM_Type, UM_FName, UM_LName, UM_EmailID, UM_Password,
+                        UM_Designation_ID, UM_MobileNo, UM_AlternateMobileNo,
+                        Language_Code, UM_EntryDate, UM_Approved, UM_Active,
+                        UM_Password_Attempted, UM_Password_Set, UM_AC_Blocked,
+                        UM_Nodal_officer, UM_Status
+                    ) VALUES (
+                        %s, 2001, 5, %s, NULL, NULL, NULL, NULL, 'U',
+                        %s, %s, %s, %s, %s, %s, NULL, 99, %s, 'N', 'N',
+                        0, 'Y', 'N', 0, 0
+                    )
+                    """,
+                    [
+                        user_id,
+                        state_id,
+                        fname,
+                        lname,
+                        emailid,
+                        hashed_password,
+                        designation_id,
+                        contact_number,
+                        now,
+                    ],
+                )
+            user = CampaSilviculturistUser(
+                user_level="Silviculturist",
+                fname=fname,
+                lname=lname,
+                emailid=emailid,
+                contact_number=contact_number,
+                designation=designation_row[0],
+                role="User",
+                is_active=False,
+            )
+            user.set_password(password)
+            user.save()
+            CampaSilviculturistIdentity.objects.create(
+                user_id=user_id,
+                aadhaar_last4=aadhaar_number[-4:],
+            )
 
         return Response(
             {
-                "message": "Silviculturist user registered successfully.",
+                "message": "Registration submitted. N-CAMPA approval is required before login.",
                 "user": {
-                    "id": user.id,
-                    "emailid": user.emailid,
-                    "fname": user.fname,
-                    "lname": user.lname,
-                    "designation": user.designation,
-                    "role": user.role
-                }
+                    "id": user_id,
+                    "emailid": emailid,
+                    "fname": fname,
+                    "lname": lname,
+                    "designation": designation_row[0],
+                    "state_id": state_id,
+                    "role": "Silviculturist",
+                    "approved": False,
+                },
             },
-            status=status.HTTP_201_CREATED
+            status=status.HTTP_201_CREATED,
         )
 
 
@@ -933,7 +1082,12 @@ class SilviculturistLoginView(APIView):
         emailid = request.data.get("userid")
         password = request.data.get("password")
 
-        if not emailid or not password:
+        if (
+            not isinstance(emailid, str)
+            or not isinstance(password, str)
+            or not emailid.strip()
+            or not password
+        ):
             return Response(
                 {
                     "success": False,
@@ -957,26 +1111,6 @@ class SilviculturistLoginView(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
-        if not user.is_active:
-            return Response(
-                {
-                    "success": False,
-                    "error": "This Silviculturist account is inactive."
-                },
-                status=status.HTTP_403_FORBIDDEN
-            )
-
-        if not user.check_password(password):
-            return Response(
-                {
-                    "success": False,
-                    "error": "Invalid email or password."
-                },
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-        refresh = RefreshToken.for_user(user)
-
         full_name = f"{user.fname or ''} {user.lname or ''}".strip()
         workflow_account = T001UserMaster.objects.filter(
             emailid__iexact=emailid,
@@ -989,6 +1123,28 @@ class SilviculturistLoginView(APIView):
                 },
                 status=status.HTTP_403_FORBIDDEN,
             )
+        if (
+            not user.is_active
+            or workflow_account.approved != "Y"
+            or workflow_account.active != "Y"
+            or workflow_account.account_blocked == "Y"
+        ):
+            return Response(
+                {
+                    "success": False,
+                    "error": "This Silviculturist account is awaiting N-CAMPA approval or is inactive."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        if not user.check_password(password):
+            return Response(
+                {
+                    "success": False,
+                    "error": "Invalid email or password."
+                },
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
         scope = {
             "state_id": workflow_account.state_id,
             "district_id": workflow_account.district_id,
@@ -996,12 +1152,27 @@ class SilviculturistLoginView(APIView):
             "division_id": workflow_account.division_id,
             "range_id": workflow_account.range_id,
         }
+        if not scope["state_id"]:
+            return Response(
+                {
+                    "success": False,
+                    "error": "This Silviculturist account has no State mapping."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        refresh = RefreshToken.for_user(user)
+        state_session_id = _activate_state_workflow_session(
+            scope["state_id"],
+            workflow_account.id,
+            "silviculturist",
+        )
         refresh_token, access_token = _workflow_tokens(
             refresh,
             user_id=workflow_account.id,
             role="silviculturist",
             scope=scope,
             name=full_name,
+            state_session_id=state_session_id,
         )
 
         return Response(
@@ -1625,6 +1796,14 @@ class PariveshLoginView(APIView):
                     selected_office.get("officeTypeName") if selected_office else None
                 ),
             }
+            if workflow_role == "state" and not scope["state_id"]:
+                return Response(
+                    {
+                        "success": False,
+                        "error": "A State mapping is required for State-level access."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
             if workflow_role == "circle":
                 if not scope["state_id"]:
                     return Response(
@@ -1696,12 +1875,22 @@ class PariveshLoginView(APIView):
 
             refresh = RefreshToken()
             workflow_user_id = data.get("userid") or data.get("username") or username.strip()
+            state_session_id = (
+                _activate_state_workflow_session(
+                    scope["state_id"],
+                    workflow_user_id,
+                    workflow_role,
+                )
+                if workflow_role == "state"
+                else None
+            )
             refresh_token, access_token = _workflow_tokens(
                 refresh,
                 user_id=workflow_user_id,
                 role=workflow_role,
                 scope=scope,
                 name=data.get("name") or data.get("username") or "",
+                state_session_id=state_session_id,
             )
 
             return Response(

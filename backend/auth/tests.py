@@ -6,11 +6,20 @@ from unittest.mock import Mock, patch
 
 from django.core.exceptions import ImproperlyConfigured
 from django.test import SimpleTestCase
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.test import APIRequestFactory
 
 from .backends import CampaNationalAuthBackend
 from .models import CampaNationalUser, T001UserMaster
-from .views import PariveshLoginView, ROLoginView, RORegistrationView
+from .views import (
+    PariveshLoginView,
+    ROLoginView,
+    RORegistrationView,
+    SilviculturistLoginView,
+    SilviculturistRegistrationView,
+)
+from .workflow_auth import WorkflowJWTAuthentication
 
 
 class PariveshLoginConfigurationTests(SimpleTestCase):
@@ -86,6 +95,30 @@ class RoleSpecificLoginTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["user"]["role"], "CF")
+
+    def test_state_login_creates_a_shared_state_session_claim(self):
+        session_id = "67ded47e-8967-4e4e-aa72-0fa3fe5e42d2"
+        with patch("auth.views._ensure_parivesh_state", return_value=3), patch(
+            "auth.views._activate_state_workflow_session",
+            return_value=session_id,
+        ) as activate_session:
+            response = self._parivesh_request("state", ["Nodal Officer"])
+
+        self.assertEqual(response.status_code, 200)
+        activate_session.assert_called_once_with(3, "user", "state")
+        self.assertEqual(
+            AccessToken(response.data["access"])["workflow_session_id"],
+            session_id,
+        )
+
+    def test_state_login_requires_a_state_mapping(self):
+        with patch("auth.views._ensure_parivesh_state", return_value=None), patch(
+            "auth.views._activate_state_workflow_session"
+        ) as activate_session:
+            response = self._parivesh_request("state", ["Nodal Officer"])
+
+        self.assertEqual(response.status_code, 400)
+        activate_session.assert_not_called()
 
     def test_circle_login_requires_existing_state(self):
         with patch("auth.views._ensure_parivesh_state", return_value=None):
@@ -303,3 +336,249 @@ class RoleSpecificLoginTests(TestCase):
 
         save.assert_called_once_with(update_fields=["password"])
         self.assertNotEqual(user.password, hashlib.sha256(b"old-password").hexdigest())
+
+
+class SilviculturistAccessTests(SimpleTestCase):
+    def test_registration_creates_a_state_mapped_pending_account(self):
+        request = APIRequestFactory().post(
+            "/api/auth/silviculturist-register/",
+            {
+                "fname": "Silvi",
+                "lname": "Officer",
+                "emailid": "silvi@example.test",
+                "password": "secure-password",
+                "confirm_password": "secure-password",
+                "aadhaar_number": "123456789012",
+                "state_id": 4,
+                "designation_id": 7,
+            },
+            format="json",
+        )
+        cursor = Mock()
+        cursor.fetchone.side_effect = [("Forester",), (2401,)]
+        cursor_context = Mock()
+        cursor_context.__enter__ = Mock(return_value=cursor)
+        cursor_context.__exit__ = Mock(return_value=False)
+        with patch(
+            "auth.views.M001State.objects.filter"
+        ) as state_filter, patch(
+            "auth.views.T001UserMaster.objects.filter"
+        ) as master_filter, patch(
+            "auth.views.CampaSilviculturistUser"
+        ) as silviculturist_model, patch(
+            "auth.views.CampaSilviculturistIdentity.objects.create"
+        ) as create_identity, patch(
+            "auth.views.connection",
+            SimpleNamespace(cursor=lambda: cursor_context),
+        ), patch(
+            "auth.views.transaction.atomic",
+            return_value=nullcontext(),
+        ), patch(
+            "django.contrib.auth.hashers.make_password",
+            return_value="django-hashed-password",
+        ):
+            state_filter.return_value.exists.return_value = True
+            master_filter.return_value.exists.return_value = False
+            silviculturist_model.objects.filter.return_value.exists.return_value = False
+            response = SilviculturistRegistrationView.as_view()(request)
+
+        self.assertEqual(response.status_code, 201)
+        self.assertFalse(response.data["user"]["approved"])
+        self.assertNotIn("aadhaar_number", response.data["user"])
+        create_identity.assert_called_once_with(user_id=2401, aadhaar_last4="9012")
+        self.assertIn("N-CAMPA approval", response.data["message"])
+        self.assertEqual(cursor.execute.call_args_list[-1].args[1][1], 4)
+        self.assertIn("'N', 'N'", cursor.execute.call_args_list[-1].args[0])
+        silviculturist_model.assert_called_once_with(
+            user_level="Silviculturist",
+            fname="Silvi",
+            lname="Officer",
+            emailid="silvi@example.test",
+            contact_number=None,
+            designation="Forester",
+            role="User",
+            is_active=False,
+        )
+
+    def test_registration_rejects_invalid_aadhaar_number(self):
+        request = APIRequestFactory().post(
+            "/api/auth/silviculturist-register/",
+            {
+                "fname": "Silvi",
+                "lname": "Officer",
+                "emailid": "silvi@example.test",
+                "password": "secure-password",
+                "confirm_password": "secure-password",
+                "aadhaar_number": "1234",
+                "state_id": 4,
+                "designation_id": 7,
+            },
+            format="json",
+        )
+
+        response = SilviculturistRegistrationView.as_view()(request)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("12-digit Aadhaar", response.data["error"])
+
+    def test_registration_requires_state_mapping(self):
+        request = APIRequestFactory().post(
+            "/api/auth/silviculturist-register/",
+            {
+                "fname": "Silvi",
+                "lname": "Officer",
+                "emailid": "silvi@example.test",
+                "password": "secure-password",
+                "confirm_password": "secure-password",
+                "aadhaar_number": "123456789012",
+                "designation_id": 5,
+            },
+            format="json",
+        )
+
+        response = SilviculturistRegistrationView.as_view()(request)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("state and designation", response.data["error"])
+
+    def test_silviculturist_login_requires_n_campa_approval(self):
+        user = SimpleNamespace(
+            fname="Silvi",
+            lname="Officer",
+            is_active=True,
+            check_password=Mock(return_value=True),
+        )
+        workflow_account = SimpleNamespace(
+            id=21,
+            state_id=4,
+            district_id=None,
+            circle_id=None,
+            division_id=None,
+            range_id=None,
+            approved="N",
+            active="N",
+            account_blocked="N",
+        )
+        request = APIRequestFactory().post(
+            "/api/auth/silviculturist-login/",
+            {"userid": "silvi@example.test", "password": "secure-password"},
+            format="json",
+        )
+
+        with patch(
+            "auth.views.CampaSilviculturistUser.objects.filter"
+        ) as silviculturist_filter, patch(
+            "auth.views.T001UserMaster.objects.filter"
+        ) as master_filter, patch(
+            "auth.views.RefreshToken.for_user"
+        ) as create_token:
+            silviculturist_filter.return_value.first.return_value = user
+            master_filter.return_value.first.return_value = workflow_account
+            response = SilviculturistLoginView.as_view()(request)
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIn("N-CAMPA approval", response.data["error"])
+        create_token.assert_not_called()
+
+    def test_approved_silviculturist_login_activates_the_shared_state_session(self):
+        user = SimpleNamespace(
+            id=90,
+            emailid="silvi@example.test",
+            role="User",
+            fname="Silvi",
+            lname="Officer",
+            designation="Forester",
+            is_active=True,
+            check_password=Mock(return_value=True),
+        )
+        workflow_account = SimpleNamespace(
+            id=21,
+            state_id=4,
+            district_id=None,
+            circle_id=None,
+            division_id=None,
+            range_id=None,
+            approved="Y",
+            active="Y",
+            account_blocked="N",
+        )
+        session_id = "67ded47e-8967-4e4e-aa72-0fa3fe5e42d2"
+        request = APIRequestFactory().post(
+            "/api/auth/silviculturist-login/",
+            {"userid": "silvi@example.test", "password": "secure-password"},
+            format="json",
+        )
+        with patch(
+            "auth.views.CampaSilviculturistUser.objects.filter"
+        ) as silviculturist_filter, patch(
+            "auth.views.T001UserMaster.objects.filter"
+        ) as master_filter, patch(
+            "auth.views.RefreshToken.for_user"
+        ), patch(
+            "auth.views._activate_state_workflow_session",
+            return_value=session_id,
+        ) as activate_session, patch(
+            "auth.views._workflow_tokens",
+            return_value=("refresh-token", "access-token"),
+        ) as create_tokens:
+            silviculturist_filter.return_value.first.return_value = user
+            master_filter.return_value.first.return_value = workflow_account
+            response = SilviculturistLoginView.as_view()(request)
+
+        self.assertEqual(response.status_code, 200)
+        activate_session.assert_called_once_with(4, 21, "silviculturist")
+        self.assertEqual(
+            create_tokens.call_args.kwargs["state_session_id"],
+            session_id,
+        )
+
+    def test_replaced_state_session_rejects_old_token(self):
+        token = AccessToken()
+        token["workflow_user_id"] = "state-user-12"
+        token["workflow_role"] = "state"
+        token["workflow_scope"] = {"state_id": 12}
+        token["workflow_session_id"] = "67ded47e-8967-4e4e-aa72-0fa3fe5e42d2"
+        request = APIRequestFactory().get(
+            "/api/workflow/overview/",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
+
+        with patch(
+            "auth.workflow_auth.CampaStateWorkflowSession.objects.filter"
+        ) as active_session:
+            active_session.return_value.exists.return_value = False
+            with self.assertRaises(AuthenticationFailed):
+                WorkflowJWTAuthentication().authenticate(request)
+
+        active_session.assert_called_once_with(
+            state_id=12,
+            session_id="67ded47e-8967-4e4e-aa72-0fa3fe5e42d2",
+            workflow_role="state",
+            workflow_user_id="state-user-12",
+        )
+
+    def test_silviculturist_authentication_grants_state_workflow_role(self):
+        token = AccessToken()
+        token["workflow_user_id"] = "24"
+        token["workflow_role"] = "silviculturist"
+        token["workflow_scope"] = {"state_id": 4}
+        token["workflow_session_id"] = "67ded47e-8967-4e4e-aa72-0fa3fe5e42d2"
+        request = APIRequestFactory().get(
+            "/api/workflow/overview/",
+            HTTP_AUTHORIZATION=f"Bearer {token}",
+        )
+
+        with patch(
+            "auth.workflow_auth.CampaStateWorkflowSession.objects.filter"
+        ) as active_session:
+            active_session.return_value.exists.return_value = True
+            principal, _ = WorkflowJWTAuthentication().authenticate(request)
+
+        self.assertEqual(principal.role, "state")
+        self.assertEqual(principal.account_role, "silviculturist")
+        active_session.assert_called_once_with(
+            state_id=4,
+            session_id="67ded47e-8967-4e4e-aa72-0fa3fe5e42d2",
+            workflow_role="silviculturist",
+            workflow_user_id="24",
+        )

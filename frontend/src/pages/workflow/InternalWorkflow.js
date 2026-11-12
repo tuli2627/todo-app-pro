@@ -234,7 +234,7 @@ export function InternalApprovals() {
     load();
   }, [load]);
 
-  if (["ro", "silviculturist"].includes(currentUser?.workflow_role)) {
+  if (currentUser?.workflow_role === "ro") {
     return <Navigate to="/internal/dashboard" replace />;
   }
 
@@ -355,17 +355,10 @@ export function InternalDashboard() {
     () => Object.fromEntries((overview?.counts || []).map((item) => [item.module, item])),
     [overview]
   );
-  const userRole = user?.workflow_role || "ro";
-  const isSilviculturist = userRole === "silviculturist";
-  const visibleRegistrationModules = isSilviculturist
-    ? registrationModules.filter((module) => silviculturistModules.includes(module))
-    : registrationModules;
-  const visibleOperationModules = isSilviculturist
-    ? operationModules.filter((module) => silviculturistModules.includes(module))
-    : operationModules;
-  const technicalQueueModule = silviculturistModules.find(
-    (module) => (countByModule[module]?.pending || 0) > 0
-  ) || "spa";
+  const accountRole = user?.workflow_role || "ro";
+  const userRole = accountRole === "silviculturist" ? "state" : accountRole;
+  const visibleRegistrationModules = registrationModules;
+  const visibleOperationModules = operationModules;
   const scopeLabel =
     user?.scope?.office_name ||
     user?.scope?.state_name ||
@@ -389,16 +382,12 @@ export function InternalDashboard() {
             <span title={t("workflow.status.legacy")}><strong>{counts.legacy || 0}</strong>{t("workflow.legacyRecords")}</span>
           </div>
           <div className="workflow-card__actions">
-            {!isSilviculturist && (
-              <button type="button" onClick={() => navigate(`/internal/workflow/${module}`)}>
-                <FiPlus aria-hidden="true" /> {t(registrationModules.includes(module) ? "workflow.register" : "workflow.addRecord")}
-              </button>
-            )}
+            <button type="button" onClick={() => navigate(`/internal/workflow/${module}`)}>
+              <FiPlus aria-hidden="true" /> {t(registrationModules.includes(module) ? "workflow.register" : "workflow.addRecord")}
+            </button>
             <button type="button" className="workflow-card__secondary" onClick={() => navigate(`/internal/reports/${module}`)}>
-              {isSilviculturist
-                ? <FiCheckCircle aria-hidden="true" />
-                : <FiFileText aria-hidden="true" />}
-              {t(isSilviculturist ? "workflow.technicalReviews" : "workflow.reports")}
+              <FiFileText aria-hidden="true" />
+              {t("workflow.reports")}
             </button>
           </div>
         </article>
@@ -450,17 +439,6 @@ export function InternalDashboard() {
           <button type="button" onClick={() => navigate("/internal/approvals")}>{t("workflow.reviewPending")} <FiArrowRight aria-hidden="true" /></button>
         </section>
       )}
-      {isSilviculturist && (
-        <section className="workflow-approval-banner">
-          <div><FiCheckCircle aria-hidden="true" /><span>{t("workflow.technicalQueue")}</span></div>
-          <strong>{silviculturistModules.reduce(
-            (sum, module) => sum + (countByModule[module]?.pending || 0), 0
-          )}</strong>
-          <button type="button" onClick={() => navigate(`/internal/reports/${technicalQueueModule}`)}>
-            {t("workflow.reviewTechnicalData")} <FiArrowRight aria-hidden="true" />
-          </button>
-        </section>
-      )}
       <section className="workflow-tools">
         <button type="button" onClick={() => navigate("/internal/progress")}>
           <FiTrendingUp aria-hidden="true" />{t("workflow.progress.title")}
@@ -491,12 +469,17 @@ export function InternalDashboard() {
             <div className="workflow-grid">{renderCards(visibleOperationModules)}</div>
           </section>
           <section className="workflow-tools">
-            {!isSilviculturist && <button type="button" onClick={() => navigate("/internal/mapping")}><FiMap aria-hidden="true" />{t("workflow.nurseryMapping")}</button>}
-            {userRole !== "ro" && !isSilviculturist && (
+            <button type="button" onClick={() => navigate("/internal/mapping")}><FiMap aria-hidden="true" />{t("workflow.nurseryMapping")}</button>
+            {userRole !== "ro" && (
               <button type="button" onClick={() => navigate("/internal/users")}><FiUsers aria-hidden="true" />{t("workflow.userManagement")}</button>
             )}
-            {userRole !== "ro" && !isSilviculturist && (
+            {userRole !== "ro" && (
               <button type="button" onClick={() => navigate("/internal/admin/users")}><FiUsers aria-hidden="true" />{t("workflow.admin.addUser")}</button>
+            )}
+            {userRole === "national" && (
+              <button type="button" onClick={() => navigate("/internal/admin/silviculturists")}>
+                <FiCheckCircle aria-hidden="true" />{t("workflow.admin.silviculturistApprovals")}
+              </button>
             )}
             <Link to="/dashboard">{t("workflow.publicDashboard")}</Link>
           </section>

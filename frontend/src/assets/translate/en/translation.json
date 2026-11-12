@@ -383,7 +383,11 @@
     "submit": "Log in as {{role}}",
     "captchaMismatch": "The CAPTCHA you entered is incorrect. Please try again.",
     "failed": "Login failed. Please check your credentials and try again.",
-    "serverUnavailable": "The server is unavailable. Please try again later."
+    "serverUnavailable": "The server is unavailable. Please try again later.",
+    "registerSilviculturist": "Register as a Silviculturist",
+    "backToLogin": "Back to login",
+    "submitRegistration": "Submit registration",
+    "aadhaarNumber": "12-digit Aadhaar number"
   },
   "booking": {
     "title": "Advance Booking Information",
@@ -503,9 +507,12 @@
       "managementSections": "Workflow management sections",
       "addUser": "Add user",
       "silviculturists": "Silviculturist accounts",
+      "silviculturistApprovals": "Approve Silviculturist registrations",
+      "approveSilviculturist": "Approve registration",
       "createSilviculturist": "Create Silviculturist",
       "silviculturistDescription": "Create and manage technical-review accounts scoped to your office hierarchy.",
       "silviculturistCreated": "Silviculturist account created successfully.",
+      "awaitingApproval": "Awaiting N-CAMPA approval",
       "anyOffice": "All offices within this scope",
       "authenticateUsers": "Authenticate users",
       "activateRoUsers": "Activate RO users",

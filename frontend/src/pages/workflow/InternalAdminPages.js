@@ -72,7 +72,8 @@ export default function InternalAdminPages() {
   const { section } = useParams();
   const { t } = useTranslation();
   const user = useMemo(() => getUser(), []);
-  const role = user?.workflow_role || "ro";
+  const accountRole = user?.workflow_role || "ro";
+  const role = accountRole === "silviculturist" ? "state" : accountRole;
   const canManage = ["national", "state", "circle", "dfo"].includes(role);
   const sections = SECTIONS.filter(({ id }) => id !== "reset-password" || role === "state");
   const sectionAllowed = sections.some((item) => item.id === section);
@@ -652,7 +653,9 @@ export default function InternalAdminPages() {
     </div>
   );
 
-  const title = SECTIONS.find((item) => item.id === section)?.label;
+  const title = section === "silviculturists" && role === "national"
+    ? "silviculturistApprovals"
+    : SECTIONS.find((item) => item.id === section)?.label;
   const selectedResetUser = users.find((item) => String(item.id) === selectedUser);
 
   return (
@@ -669,7 +672,11 @@ export default function InternalAdminPages() {
       <nav className="workflow-admin__nav" aria-label={t("workflow.admin.managementSections")}>
         {sections.map(({ id, icon: Icon, label }) => (
           <Link key={id} to={`/internal/admin/${id}`} aria-current={id === section ? "page" : undefined}>
-            <Icon aria-hidden="true" /> {t(`workflow.admin.${label}`)}
+            <Icon aria-hidden="true" /> {t(`workflow.admin.${
+              id === "silviculturists" && role === "national"
+                ? "silviculturistApprovals"
+                : label
+            }`)}
           </Link>
         ))}
       </nav>
@@ -847,7 +854,9 @@ export default function InternalAdminPages() {
               <section className="workflow-admin__panel">
                 <header className="workflow-admin__heading">
                   <div>
-                    <h2>{t("workflow.admin.silviculturists")}</h2>
+                    <h2>{t(role === "national"
+                      ? "workflow.admin.silviculturistApprovals"
+                      : "workflow.admin.silviculturists")}</h2>
                     <p>{t("workflow.admin.usersInScope", { count: silviculturistCount })}</p>
                   </div>
                   <button
@@ -880,16 +889,26 @@ export default function InternalAdminPages() {
                           <td>{item.state_name || "—"}</td>
                           <td>{item.circle_name || "—"}</td>
                           <td>{item.division_name || "—"}</td>
-                          <td>{t(item.active ? "workflow.directory.active" : "workflow.directory.inactive")}</td>
+                          <td>{t(
+                            !item.approved
+                              ? "workflow.admin.awaitingApproval"
+                              : item.active
+                                ? "workflow.directory.active"
+                                : "workflow.directory.inactive"
+                          )}</td>
                           <td className="workflow-admin__silviculturist-actions">
-                            <button
-                              type="button"
-                              className={`workflow-admin__silviculturist-toggle${item.active ? " is-active" : ""}`}
-                              disabled={busy}
-                              onClick={() => updateSilviculturist(item)}
-                            >
-                              {t(`workflow.directory.actions.${item.active ? "deactivate" : "activate"}`)}
-                            </button>
+                            {(item.active || role === "national") && (
+                              <button
+                                type="button"
+                                className={`workflow-admin__silviculturist-toggle${item.active ? " is-active" : ""}`}
+                                disabled={busy}
+                                onClick={() => updateSilviculturist(item)}
+                              >
+                                {t(!item.approved && role === "national"
+                                  ? "workflow.admin.approveSilviculturist"
+                                  : `workflow.directory.actions.${item.active ? "deactivate" : "activate"}`)}
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))}

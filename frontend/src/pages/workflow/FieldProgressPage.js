@@ -50,9 +50,10 @@ function FieldProgressPage() {
       return null;
     }
   }, []);
-  const role = user?.workflow_role || "ro";
+  const accountRole = user?.workflow_role || "ro";
+  const role = accountRole === "silviculturist" ? "state" : accountRole;
   const isRo = role === "ro";
-  const isSilviculturist = role === "silviculturist";
+  const isSilviculturist = accountRole === "silviculturist";
   const [dashboard, setDashboard] = useState(null);
   const [sites, setSites] = useState([]);
   const [assessmentSites, setAssessmentSites] = useState([]);
@@ -667,7 +668,7 @@ function FieldProgressPage() {
 
       <section className="workflow-section">
         <div className="workflow-section__heading">
-          <div><span>{t("workflow.progress.recent")}</span><h2>{t(isSilviculturist ? "workflow.progress.reviewQueue" : "workflow.progress.reportHistory")}</h2></div>
+          <div><span>{t("workflow.progress.recent")}</span><h2>{t("workflow.progress.reportHistory")}</h2></div>
         </div>
         {reports.length === 0 ? (
           <p className="field-progress__empty">{t("workflow.progress.noReports")}</p>

@@ -1181,7 +1181,7 @@ def workflow_progress_report_detail(request, report_id):
 @authentication_classes([WorkflowJWTAuthentication])
 @permission_classes([IsAuthenticated])
 def workflow_technical_assessment(request, report_id):
-    if request.user.role != "silviculturist":
+    if request.user.account_role != "silviculturist":
         raise PermissionDenied("Only Silviculturists can record technical assessments.")
     report = _visible_reports(request.user).filter(id=report_id).first()
     if report is None:
@@ -1204,9 +1204,9 @@ def workflow_technical_assessment(request, report_id):
 @authentication_classes([WorkflowJWTAuthentication])
 @permission_classes([IsAuthenticated])
 def workflow_site_technical_assessments(request):
-    if request.user.role not in {"national", "state", "circle", "dfo", "ro", "silviculturist"}:
+    if request.user.account_role not in {"national", "state", "circle", "dfo", "ro", "silviculturist"}:
         raise PermissionDenied("Your role cannot access approved-site assessments.")
-    if request.method == "POST" and request.user.role != "silviculturist":
+    if request.method == "POST" and request.user.account_role != "silviculturist":
         raise PermissionDenied("Only Silviculturists can record technical assessments.")
 
     if request.method == "GET":

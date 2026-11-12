@@ -206,7 +206,36 @@ class CampaDfoUser(AbstractBaseUser, PermissionsMixin):
 #     class Meta:
 #         db_table = "CAMPA_ro_user"
 #         managed = True
+# class CampaRoUserManager(BaseUserManager):
+#     def create_user(self, emailid, password=None, **extra_fields):
+#         if not emailid:
+#             raise ValueError("Email ID must be set")
+
+#         user = self.model(
+#             emailid=emailid,
+#             **extra_fields
+#         )
+
+#         if password:
+#             user.set_password(password)
+#         else:
+#             user.set_unusable_password()
+
+#         user.save(using=self._db)
+#         return user
+
+#     def create_superuser(self, emailid, password=None, **extra_fields):
+#         extra_fields.setdefault("is_staff", True)
+#         extra_fields.setdefault("is_superuser", True)
+#         extra_fields.setdefault("is_active", True)
+
+#         return self.create_user(
+#             emailid,
+#             password,
+#             **extra_fields
+#         )
 class CampaRoUserManager(BaseUserManager):
+
     def create_user(self, emailid, password=None, **extra_fields):
         if not emailid:
             raise ValueError("Email ID must be set")
@@ -505,3 +534,24 @@ class CampaWorkflowOffice(models.Model):
                 name="campa_wf_office_role_uniq",
             ),
         ]
+
+
+class CampaStateWorkflowSession(models.Model):
+    state_id = models.BigIntegerField(unique=True)
+    session_id = models.UUIDField(unique=True)
+    workflow_role = models.CharField(max_length=30)
+    workflow_user_id = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "CAMPA_state_workflow_session"
+
+
+class CampaSilviculturistIdentity(models.Model):
+    user_id = models.BigIntegerField(unique=True)
+    aadhaar_last4 = models.CharField(max_length=4)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "CAMPA_silviculturist_identity"

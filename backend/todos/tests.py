@@ -44,6 +44,7 @@ from .workflow import (
     workflow_overview,
     workflow_records,
     workflow_decision,
+    workflow_admin_silviculturists,
     _lookups,
 )
 from .progress_workflow import (
@@ -58,6 +59,7 @@ from .progress_workflow import (
     _site_assessment_keys,
     _site_species_by_module,
     _period_completion,
+    workflow_progress_dashboard,
     workflow_progress_reports,
     workflow_progress_sites,
     workflow_site_technical_assessments,
@@ -1187,44 +1189,38 @@ class WorkflowApprovedSiteAssessmentTests(TestCase):
         self.assertNotIn("_technical_approval_id", sites[0])
         self.assertNotIn("_workflow_status", sites[3])
 
-    def test_old_approved_record_does_not_block_silviculturist_assessment_count(self):
+    def test_silviculturist_progress_dashboard_uses_state_hierarchy(self):
         user = WorkflowPrincipal({
             "workflow_role": "silviculturist",
             "workflow_scope": {"state_id": 1},
         })
-        legacy_site = {
-            "module": "seed-orchard",
-            "record_id": 4,
-            "technical_review_exempt": True,
-        }
+        request = APIRequestFactory().get("/api/workflow/progress/dashboard/")
+        force_authenticate(request, user=user)
+        previous_period = (date(2026, 1, 1), date(2026, 6, 30))
+        current_period = (date(2026, 7, 1), date(2026, 12, 31))
+        completion = {"required_sites": 0, "missing": []}
+
         with (
+            patch("todos.progress_workflow._current_period", return_value=current_period),
+            patch("todos.progress_workflow._previous_period", return_value=previous_period),
             patch(
-                "todos.progress_workflow._scoped_sites",
-                return_value=[legacy_site],
+                "todos.progress_workflow.timezone.localdate",
+                return_value=date(2026, 10, 10),
             ),
             patch(
-                "todos.progress_workflow._visible_reports"
-            ) as visible_reports,
-            patch(
-                "todos.progress_workflow.SilviculturistAssessment.objects.filter"
-            ) as assessments,
-            patch(
-                "todos.progress_workflow._site_assessment_keys",
-                return_value=set(),
-            ),
+                "todos.progress_workflow._hierarchy_completion",
+                return_value=completion,
+            ) as hierarchy_completion,
+            patch("todos.progress_workflow._progress_rankings", return_value={}),
         ):
-            filtered_reports = MagicMock()
-            filtered_reports.order_by.return_value = []
-            visible_reports.return_value.filter.return_value = filtered_reports
-            assessments.return_value.values_list.return_value = []
+            response = workflow_progress_dashboard(request)
 
-            completion = _period_completion(user, date(2026, 7, 1), date(2026, 12, 31))
-
-        self.assertEqual(completion["silviculturist_completed"], 0)
-        self.assertEqual(completion["missing"], [{
-            "task": "ro_report",
-            **legacy_site,
-        }])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["completion"], completion)
+        self.assertEqual(
+            hierarchy_completion.call_args_list,
+            [call(user, *previous_period), call(user, *current_period)],
+        )
 
     @patch("todos.progress_workflow._site_record")
     @patch("todos.progress_workflow._pending_technical_reviews")
@@ -1767,7 +1763,7 @@ class WorkflowOverviewTests(TestCase):
         self.assertIn("UM_Level_ID > %s", pending_sql)
         self.assertEqual(pending_params, [1])
 
-    def test_silviculturist_overview_counts_only_unchecked_pending_records(self):
+    def test_silviculturist_overview_uses_state_approval_queue(self):
         cursor = MagicMock()
         cursor.__enter__.return_value = cursor
         cursor.__exit__.return_value = False
@@ -1788,8 +1784,11 @@ class WorkflowOverviewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["counts"][0]["pending"], 7)
-        pending_sql = cursor.execute.call_args_list[1].args[0]
-        self.assertIn("Nursery_ApprovedBy IS NULL", pending_sql)
+        self.assertEqual(response.data["role"], "state")
+        self.assertEqual(cursor.execute.call_count, 2)
+        pending_sql, pending_params = cursor.execute.call_args.args
+        self.assertIn("Nursery_EntryBy IN (SELECT UM_ID", pending_sql)
+        self.assertEqual(pending_params, [8, 2])
 
 
 class WorkflowTechnicalReviewTests(TestCase):
@@ -2004,7 +2003,7 @@ class WorkflowTechnicalReviewTests(TestCase):
 
 class WorkflowProgressVisibilityTests(TestCase):
     @patch("todos.progress_workflow.FieldProgressReport.objects.all")
-    def test_silviculturist_progress_reports_are_limited_to_assigned_state_and_division(
+    def test_silviculturist_progress_reports_use_state_scope(
         self, report_manager
     ):
         reports = MagicMock()
@@ -2020,7 +2019,7 @@ class WorkflowProgressVisibilityTests(TestCase):
 
         self.assertEqual(
             reports.filter.call_args_list,
-            [call(state_id=8), call(division_id=2)],
+            [call(state_id=8)],
         )
 
 
@@ -2111,10 +2110,17 @@ class WorkflowApprovalHierarchyTests(TestCase):
         reviewer_scopes = {
             "national": {},
             "state": {"state_id": 1},
+            "silviculturist": {"state_id": 1},
             "circle": {"state_id": 1, "circle_id": 2},
             "dfo": {"state_id": 1, "division_id": 4},
         }
-        reviewer_levels = {"national": 1, "state": 2, "circle": 3, "dfo": 4}
+        reviewer_levels = {
+            "national": 1,
+            "state": 2,
+            "silviculturist": 2,
+            "circle": 3,
+            "dfo": 4,
+        }
 
         for role, scope in reviewer_scopes.items():
             with self.subTest(role=role):
@@ -2466,20 +2472,19 @@ class WorkflowAdminAuthorizationTests(SimpleTestCase):
         self.assertEqual(response.status_code, 403)
         self.assertIn("Only State/Nodal officers", str(response.data))
 
-    def test_silviculturist_cannot_read_modules_outside_technical_scope(self):
-        request = self.factory.get("/api/workflow/records/research-institute/")
-        force_authenticate(
-            request,
-            user=WorkflowPrincipal({
-                "workflow_user_id": 12,
-                "workflow_role": "silviculturist",
-                "workflow_scope": {"state_id": 8, "division_id": 2},
-            }),
-        )
+    def test_silviculturist_uses_state_workflow_scope_and_keeps_account_identity(self):
+        user = WorkflowPrincipal({
+            "workflow_user_id": 12,
+            "workflow_role": "silviculturist",
+            "workflow_scope": {"state_id": 8, "division_id": 2},
+        })
 
-        response = workflow_records(request, "research-institute")
+        where, params = _scope_for(user, MODULES["research-institute"])
 
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(user.role, "state")
+        self.assertEqual(user.account_role, "silviculturist")
+        self.assertEqual(where, f"{MODULES['research-institute']['state_column']} = %s")
+        self.assertEqual(params, [8])
 
     def test_only_silviculturist_can_record_technical_review(self):
         request = self.factory.post(
@@ -2554,3 +2559,86 @@ class WorkflowAdminUserPaginationTests(SimpleTestCase):
 
         self.assertEqual(response.status_code, 200)
         users.filter.assert_called_once_with(user_type="U")
+
+
+class SilviculturistApprovalTests(SimpleTestCase):
+    def _request(self, role):
+        request = APIRequestFactory().patch(
+            "/api/workflow/admin/silviculturists/",
+            {"user_id": 23, "action": "activate"},
+            format="json",
+        )
+        force_authenticate(
+            request,
+            user=WorkflowPrincipal({
+                "workflow_user_id": 1,
+                "workflow_role": role,
+                "workflow_scope": {"state_id": 4} if role != "national" else {},
+            }),
+        )
+        return request
+
+    def _scoped_account(self):
+        accounts = MagicMock()
+        accounts.filter.return_value.values.return_value.first.return_value = {
+            "emailid": "silvi@example.test",
+        }
+        return accounts
+
+    def test_only_national_can_approve_silviculturist_accounts(self):
+        actor = WorkflowPrincipal({
+            "workflow_user_id": 1,
+            "workflow_role": "state",
+            "workflow_scope": {"state_id": 4},
+        })
+        scoped_accounts = self._scoped_account()
+        with patch(
+            "todos.workflow._admin_actor",
+            return_value=actor,
+        ), patch("todos.workflow._require_admin_actor_id"), patch(
+            "todos.workflow._silviculturist_accounts",
+            return_value=scoped_accounts,
+        ), patch(
+            "todos.workflow.CampaSilviculturistUser.objects"
+        ) as account_manager:
+            account_manager.values_list.return_value = ["silvi@example.test"]
+            response = workflow_admin_silviculturists(self._request("state"))
+
+        self.assertEqual(response.status_code, 403)
+        account_manager.filter.assert_not_called()
+
+    def test_national_approval_enables_the_linked_workflow_account(self):
+        actor = WorkflowPrincipal({
+            "workflow_user_id": 1,
+            "workflow_role": "national",
+            "workflow_scope": {},
+        })
+        scoped_accounts = self._scoped_account()
+        with patch(
+            "todos.workflow._admin_actor",
+            return_value=actor,
+        ), patch("todos.workflow._require_admin_actor_id"), patch(
+            "todos.workflow._silviculturist_accounts",
+            return_value=scoped_accounts,
+        ), patch(
+            "todos.workflow.CampaSilviculturistUser.objects"
+        ) as account_manager, patch(
+            "todos.workflow.T001UserMaster.objects"
+        ) as master_manager, patch(
+            "todos.workflow.transaction.atomic",
+            return_value=nullcontext(),
+        ):
+            account_manager.values_list.return_value = ["silvi@example.test"]
+            account_manager.filter.return_value.update.return_value = 1
+            master_manager.filter.return_value.update.return_value = 1
+            response = workflow_admin_silviculturists(self._request("national"))
+
+        self.assertEqual(response.status_code, 200)
+        account_manager.filter.assert_called_once_with(
+            emailid__iexact="silvi@example.test"
+        )
+        master_manager.filter.assert_called_once_with(id=23)
+        master_manager.filter.return_value.update.assert_called_once_with(
+            active="Y",
+            approved="Y",
+        )

@@ -55,7 +55,7 @@ Choose **Login** in the header and select the account type:
 
 - National, State, Circle, and DFO staff use the configured PARIVESH login integration.
 - Range Officer (RO) login uses the configured RO account integration.
-- Silviculturist login uses an account created by National, State, Circle, or DFO staff. The account is mapped to its office in `T001_UserMaster`.
+- Silviculturists can register from the Silviculturist login page by selecting their State and designation and entering their 12-digit Aadhaar number. The registration stores only the last four digits; the full number is not retained. The account remains pending until National CAMPA approves it; approval activates the State-mapped `T001_UserMaster` account.
 
 Use the account issued for your role. Internal dashboard access requires a successful sign-in and a valid access token.
 
@@ -63,11 +63,13 @@ Use the account issued for your role. Internal dashboard access requires a succe
 
 Use **Log out** in the site header to end the session manually. Access tokens now last 30 minutes. When a token expires or the API rejects it, the browser clears the access token, refresh token, and saved workflow user, then returns to Home. Signing in again starts a new session. A session expiry in another browser tab also signs out the current tab.
 
+State-level PARIVESH and Silviculturist logins share one active session per State. Signing in through either route replaces the other route's session; the replaced browser is signed out when it next calls a workflow API.
+
 ## 4. Use the internal dashboard
 
 After signing in as an internal workflow role, the dashboard is available at `/internal/dashboard`. It shows the modules and record counts available to the signed-in account.
 
-Range Officers register SPA/CPT, Seed Orchards, and nurseries, and enter seed-collection, seed-processing, plant-production, and plant-disposal information for their assigned range. Silviculturists receive a separate dashboard for the modules in their technical-review scope. They record findings and select exact fields for RO correction; after the RO applies corrections, the record returns for Silviculturist re-review. A review with no requested corrections completes the technical review. Technical reviews do not replace formal office approval.
+Range Officers register SPA/CPT, Seed Orchards, and nurseries, and enter seed-collection, seed-processing, plant-production, and plant-disposal information for their assigned range. After National CAMPA approval, Silviculturists receive the same State dashboard and State-level workflow permissions, scoped to their assigned State. They can create and review records across that State, submit State-level administration changes, and use the same progress and approval queues. Their State-level login still replaces an existing State session for that State. Silviculturists also retain their technical-review and field-assessment features.
 
 ### Six-month field progress reporting
 
@@ -79,7 +81,7 @@ Silviculturists assess each submitted report as **Satisfactory**, **Needs Improv
 
 The dashboard exposes scoped missing-report/review alerts and the 90-day office rankings to the relevant hierarchy. The combined score gives equal weight to normalized plants planted and survival percentage; the component measures and score are displayed together. Report submissions preserve the site, office, and submitter names/IDs as they were when submitted, so later user transfers do not rewrite historical records.
 
-Before enabling this feature in a deployment, apply the backend migrations with `python manage.py migrate`; migrations `todos.0006` through `todos.0008` create the progress-report and technical-assessment/recommendation history tables and support approved-site assessments.
+Before enabling these features in a deployment, apply the backend migrations with `python manage.py migrate`; `auth.0013_campastateworkflowsession` creates the shared State-session record, and migrations `todos.0006` through `todos.0008` create the progress-report and technical-assessment/recommendation history tables and support approved-site assessments.
 
 ### Registration modules
 
@@ -134,13 +136,13 @@ National, State, Circle, and DFO users can open **Manage users**. The list and a
 
 Choose **Admin** or **User** for the account type. New accounts are pending; approve an account before activating it. The Authenticate Users section also supports deactivation and blocking/unblocking. The Activate RO Users section lists only ordinary (`User`) accounts at Range level. State/Nodal users can reset passwords from the Reset Password section.
 
-The administration page also lists existing designation and species masters, active/inactive status, and species-age-height combinations. It allows authorized staff to add or deactivate these records. National, State, Circle, and DFO staff can create and activate/deactivate Silviculturist credentials from **Silviculturist accounts**; creation requires an active designation and assigns the account to a state and optionally a circle/division within the administrator's jurisdiction. Directory management uses the existing Circle, Division, and Range tables and is constrained to the signed-in jurisdiction. Range Officers do not have account- or master-data administration access.
+The administration page also lists existing designation and species masters, active/inactive status, and species-age-height combinations. It allows authorized staff to add or deactivate these records. National, State, Circle, and DFO staff can create pending Silviculturist accounts from **Silviculturist accounts**; creation requires an active designation and assigns the account to a state and optionally a circle/division within the administrator's jurisdiction. Only National CAMPA can approve and activate a Silviculturist registration; authorized staff can deactivate accounts within their jurisdiction. Directory management uses the existing Circle, Division, and Range tables and is constrained to the signed-in jurisdiction. Range Officers do not have account- or master-data administration access.
 
 ## 5. Review and approve records
 
 Open the review queue from the internal dashboard to review pending submissions visible to your role. DFO and higher offices can approve or return submissions from lower office levels within their jurisdiction; Range Officers do not perform formal approvals. National submissions are final and are automatically approved.
 
-Range Officers create and submit forestry records. Silviculturists do not create those records or perform formal approvals: they review relevant pending records (including seed collection, processing, nursery distribution, production, and disposal) for their assigned area. Open a pending record from its **Technical reviews** report, enter the technical recommendation, and select the exact record fields that need correction. The recommendation is visible to users in the record's jurisdiction; the workflow approval status does not change.
+Range Officers create and submit forestry records. Silviculturists use the same State-level workflow as the State account mapped to their State, including creating records and performing formal approvals within that State. They can also provide a technical recommendation on pending records, selecting exact fields for correction. Technical recommendations are visible to users in the record's jurisdiction and do not by themselves change workflow approval status.
 
 The submitting Range Officer can update only the fields selected by the Silviculturist. Saving those corrections does not change the approval status. The correction and recommendation are retained on the record for authorized users in that jurisdiction. After the RO submits a six-month field progress report, Silviculturists can also add the separate scientific assessment and recommendations to that report. RO progress reports and their technical assessments are available to authorized hierarchy users in the applicable jurisdiction from **Field progress**.
 
